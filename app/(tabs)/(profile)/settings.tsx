@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Profile: React.FC = () => {
+const Settings: React.FC = () => {
     return (
         <View style={styles.container}>
-            <Text>Profile</Text>
+            <Text>Settings</Text>
         </View>
     );
 };
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Profile;
+export default Settings;

@@ -13,7 +13,7 @@ export default function Actions() {
           subtitle={''}
           iconName={'create-outline'}
           iconColor={Colors.black}
-          navigateTo={'/dashboard'}
+          navigateTo={'/(actions)/tasks'}
         />
         <ActionCard
           color={Colors.pink}
@@ -21,7 +21,7 @@ export default function Actions() {
           subtitle={''}
           iconName={'stats-chart'}
           iconColor={Colors.black}
-          navigateTo={'/dashboard'}
+          navigateTo={'/(actions)/statistics'}
         />
       </View>
       <View style={styles.row}>
@@ -31,7 +31,7 @@ export default function Actions() {
           subtitle={''}
           iconName={'trophy-outline'}
           iconColor={Colors.black}
-          navigateTo={'/dashboard'}
+          navigateTo={'/(actions)/rewards'}
         />
         <ActionCard
           color={Colors.yellow}
@@ -39,7 +39,7 @@ export default function Actions() {
           subtitle={''}
           iconName={'flash'}
           iconColor={Colors.black}
-          navigateTo={'/dashboard'}
+          navigateTo={'/(actions)/kudos'}
         />
       </View>
     </View>

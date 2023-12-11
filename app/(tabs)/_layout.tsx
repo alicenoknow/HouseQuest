@@ -3,42 +3,42 @@ import Colors from '../../constants/Colors';
 import Icon from '../../components/common/Icon';
 
 export default function TabLayout() {
-
   return (
     <Tabs
+      initialRouteName='index'
       screenOptions={{
         tabBarActiveTintColor: Colors.lightGrey,
       }}>
       <Tabs.Screen
-        name="actions"
+        name="(actions)"
         options={{
           title: 'Tasks',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="todo"
+        name="(todo)"
         options={{
           title: 'Todo',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="index"
         options={{
           title: 'Dashboard',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="(map)"
         options={{
           title: 'Map',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(profile)"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />
