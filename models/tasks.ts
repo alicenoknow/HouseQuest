@@ -10,8 +10,8 @@ export interface Task {
   description: string;
   createdAt: Date;
   creator: string;
-  assignee: string;
   status: TaskStatus;
+  assignee?: string;
   points?: number;
   submittedAt?: Date;
   submissionPhoto?: string;
@@ -28,7 +28,7 @@ export interface Reward {
   description: string;
   createdAt: Date;
   creator: string;
-  recipient: string;
   status: RewardStatus;
+  recipient?: string;
   points?: number;
 }

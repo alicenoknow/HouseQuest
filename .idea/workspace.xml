@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="c6158ed9-55cd-4791-9ed3-83114d32fdc0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/(profile)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(profile)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/kudos.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/kudos.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/rewards.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/rewards.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/tasks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/tasks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/tasks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/models/tasks.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
