@@ -7,15 +7,15 @@ import {
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, useSegments } from 'expo-router';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { SafeAreaView, useColorScheme } from 'react-native';
 
 export {
   ErrorBoundary
 } from 'expo-router';
 
-// export const unstable_settings = {
-//   initialRouteName: '(tabs)',
-// };
+export const unstable_settings = {
+  initialRouteName: '(tabs)',
+};
 
 SplashScreen.preventAutoHideAsync();
 

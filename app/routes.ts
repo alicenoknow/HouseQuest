@@ -1,12 +1,12 @@
 export type StaticRoutes = TabRoutes;
 
 type TabRoutes =
-  | '/actions'
-  | '/actions/kudos'
-  | '/actions/rewards'
-  | '/actions/statistics'
-  | '/actions/tasks'
-  | '/dashboard'
-  | '/todo'
-  | '/map'
-  | '/profile';
+  | '/index'
+  | '/(actions)'
+  | '/(actions)/kudos'
+  | '/(actions)/rewards'
+  | '/(actions)/statistics'
+  | '/(actions)/tasks'
+  | '/(todo)'
+  | '/(map)'
+  | '/(profile)';

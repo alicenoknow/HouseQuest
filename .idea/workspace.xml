@@ -6,24 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c6158ed9-55cd-4791-9ed3-83114d32fdc0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(auth)/login.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(tabs)/(profile)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(profile)/_layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/(tabs)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/_layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/_layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/kudos.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/rewards.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/statistics.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/actions/tasks.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/dashboard/_layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/dashboard/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/map/_layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/map/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/profile/_layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/profile/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/todo/_layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/todo/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/+html.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/[...missing].tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/_layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.ts" afterDir="false" />
     </list>

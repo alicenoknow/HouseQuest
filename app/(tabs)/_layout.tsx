@@ -2,11 +2,16 @@ import { Tabs } from 'expo-router';
 import Colors from '../../constants/Colors';
 import Icon from '../../components/common/Icon';
 
+export const unstable_settings = {
+  initialRouteName: 'index',
+};
+
 export default function TabLayout() {
   return (
     <Tabs
       initialRouteName='index'
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: Colors.lightGrey,
       }}>
       <Tabs.Screen

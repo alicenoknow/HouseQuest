@@ -1,17 +1,32 @@
 import { Stack } from 'expo-router';
+import { StyleSheet, SafeAreaView } from 'react-native';
+import Spacers from '../../../constants/Spacers';
 
-// export const unstable_settings = {
-//     initialRouteName: 'actions',
-// };
+export const unstable_settings = {
+    initialRouteName: 'actions',
+};
+
 
 export default function Layout() {
     return (
-        <Stack screenOptions={{ headerShown: false }} >
-            <Stack.Screen name="actions" />
-            <Stack.Screen name="kudos" />
-            <Stack.Screen name="rewards" />
-            <Stack.Screen name="statistics" />
-            <Stack.Screen name="tasks" />
-        </Stack>
+        <SafeAreaView style={styles.container}>
+            <Stack>
+                <Stack.Screen
+                    options={{ headerShown: false }}
+                    name="actions" />
+                <Stack.Screen name="kudos" />
+                <Stack.Screen name="rewards" />
+                <Stack.Screen name="statistics" />
+                <Stack.Screen name="tasks" />
+            </Stack>
+        </SafeAreaView>
+
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: Spacers.xLarge,
+    },
+});
