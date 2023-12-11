@@ -1,8 +1,3 @@
 export type StaticRoutes = TabRoutes;
 
-type TabRoutes =
-  | '/actionPanel'
-  | '/dashboard'
-  | '/todoLists'
-  | '/map'
-  | '/user';
+type TabRoutes = '/actions' | '/dashboard' | '/todo' | '/map' | '/profile';

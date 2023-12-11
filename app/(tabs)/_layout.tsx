@@ -10,14 +10,14 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors.lightGrey,
       }}>
       <Tabs.Screen
-        name="actionPanel"
+        name="actions"
         options={{
           title: 'Tasks',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="todoLists"
+        name="todo"
         options={{
           title: 'Todo',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />
@@ -38,7 +38,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="user"
+        name="profile"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <Icon name="code" color={color} />

@@ -1,9 +1,9 @@
 import { StyleSheet, View } from 'react-native';
-import ActionCard from '../../components/actionPanel/ActionCard';
-import Colors from '../../constants/Colors';
-import Spacers from '../../constants/Spacers';
+import Colors from '../../../constants/Colors';
+import Spacers from '../../../constants/Spacers';
+import ActionCard from '../../../components/actions/ActionCard';
 
-export default function TabOneScreen() {
+export default function Actions() {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
