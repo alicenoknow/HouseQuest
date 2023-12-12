@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Dashboard: React.FC = () => {
+const Statistics: React.FC = () => {
     return (
         <View style={styles.container}>
-            <Text>Dashboard</Text>
+            <Text>Statistics</Text>
         </View>
     );
 };
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Dashboard;
+export default Statistics;
