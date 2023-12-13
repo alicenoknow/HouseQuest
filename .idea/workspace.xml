@@ -6,10 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="c6158ed9-55cd-4791-9ed3-83114d32fdc0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/kudos.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/kudos.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/rewards.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/rewards.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(tabs)/(actions)/tasks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(tabs)/(actions)/tasks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metro.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/metro.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/kudos.ts" beforeDir="false" afterPath="$PROJECT_DIR$/models/kudos.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/tasks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/models/tasks.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/todo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/models/todo.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/models/user.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -4,6 +4,7 @@ export enum Type {
 }
 
 export interface KudosOrSlobs {
+  id: string;
   type: Type;
   sender: string;
   receiver: string;
