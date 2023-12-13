@@ -5,9 +5,10 @@ import {
   ThemeProvider
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack, useSegments } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
-import { SafeAreaView, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
+import { UserProvider } from '../contexts/UserContext';
 
 export {
   ErrorBoundary
@@ -43,16 +44,14 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const segments = useSegments();
-
-  console.log(segments);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      <UserProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </UserProvider>
     </ThemeProvider>
   );
 }

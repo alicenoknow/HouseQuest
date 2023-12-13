@@ -1,5 +1,5 @@
 import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import {
   View,
   TextInput,
