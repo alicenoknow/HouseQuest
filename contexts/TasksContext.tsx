@@ -81,7 +81,7 @@ function reducer(state: TaskState, action: TaskAction) {
             return state;
         }
         default: {
-            console.warn("Invalid task action: ", action);
+            console.warn("Invalid task context action: ", action);
             return state;
         }
     }

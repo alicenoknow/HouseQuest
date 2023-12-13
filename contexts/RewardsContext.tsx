@@ -63,7 +63,7 @@ function reducer(state: RewardsState, action: RewardsAction) {
             return state;
         }
         default: {
-            console.warn("Invalid rewards action: ", action);
+            console.warn("Invalid rewards context action: ", action);
             return state;
         }
     }

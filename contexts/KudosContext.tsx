@@ -36,7 +36,7 @@ function reducer(state: KudosOrSlobsState, action: KudosOrSlobsAction) {
             };
         }
         default: {
-            console.warn("Invalid kudosOrSlobs action: ", action);
+            console.warn("Invalid kudos or slobs context action: ", action);
             return state;
         }
     }

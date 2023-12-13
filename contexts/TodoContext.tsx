@@ -53,7 +53,7 @@ function reducer(state: TodoState, action: TodoAction) {
             }
         }
         default: {
-            console.warn("Invalid todo action: ", action);
+            console.warn("Invalid todo context action: ", action);
             return state;
         }
     }

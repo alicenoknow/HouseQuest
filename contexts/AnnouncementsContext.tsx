@@ -36,7 +36,7 @@ function reducer(state: AnnouncementState, action: AnnouncementAction) {
             };
         }
         default: {
-            console.warn("Invalid announcement action: ", action);
+            console.warn("Invalid announcement context action: ", action);
             return state;
         }
     }
