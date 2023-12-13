@@ -1,4 +1,11 @@
-import { KudosOrSlobs, Reward, Task, Todo, User } from '../models';
+import {
+  Announcement,
+  KudosOrSlobs,
+  Reward,
+  Task,
+  Todo,
+  User
+} from '../models';
 import {
   collection,
   doc,
@@ -132,6 +139,27 @@ export async function fetchTodos(
   });
 }
 
+export async function fetchAnnouncements(
+  householdId: string,
+  onAnnouncementCallback: (announcement: Announcement) => void
+) {
+  const announcementsRef = collection(db, 'announcements');
+  const q = query(announcementsRef, where('household_id', '==', householdId));
+
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    console.log(`${doc.id} => ${doc.data()}`);
+    const data = doc.data();
+    const announcement: Announcement = {
+      id: doc.id,
+      sender: data.sender,
+      createdAt: data.created_at.toDate(),
+      content: data.content
+    };
+    onAnnouncementCallback(announcement);
+  });
+}
+
 // ====================================================================================================================
 
 export async function createTask(task: Task) {
@@ -152,4 +180,9 @@ export async function createKudosSlobs(kudosSlobs: KudosOrSlobs) {
 export async function createTodo(todo: Todo) {
   const todosRef = collection(db, 'todos');
   await setDoc(doc(todosRef, todo.id), todo);
+}
+
+export async function createAnnouncement(announcement: Announcement) {
+  const announcementsRef = collection(db, 'announcements');
+  await setDoc(doc(announcementsRef, announcement.id), announcement);
 }
