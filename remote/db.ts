@@ -136,14 +136,7 @@ export async function fetchTodos(
 
 export async function createTask(task: Task) {
   const tasksRef = collection(db, 'tasks');
-  await setDoc(doc(tasksRef, task.id), {
-    name: 'San Francisco',
-    state: 'CA',
-    country: 'USA',
-    capital: false,
-    population: 860000,
-    regions: ['west_coast', 'norcal']
-  });
+  await setDoc(doc(tasksRef, task.id), task);
 }
 
 export async function createReward(reward: Reward) {
