@@ -1,19 +1,16 @@
-import * as firebase from 'firebase';
-import '@firebase/auth';
-import '@firebase/firestore';
+import { initializeApp } from "firebase/app";
+import {getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: 'todo',
-  authDomain: 'todo',
-  databaseURL: 'todo',
-  projectId: 'housequest-15795',
-  storageBucket: 'todo',
-  messagingSenderId: 'todo',
-  appId: 'todo',
+  apiKey: "AIzaSyDhe_raUxJKw-nWk0wXWTGYAwH__frKXhI",
+  authDomain: "housequest-15795.firebaseapp.com",
+  projectId: "housequest-15795",
+  storageBucket: "housequest-15795.appspot.com",
+  messagingSenderId: "353172267978",
+  appId: "1:353172267978:web:ee0872c0a9ed6c842ee533",
+  measurementId: "G-W0JZZ0E5R5"
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
 
-export { firebase };
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(firebaseConfig);

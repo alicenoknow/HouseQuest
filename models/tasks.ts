@@ -6,6 +6,7 @@ export enum TaskStatus {
 }
 
 export interface Task {
+  id: string;
   title: string;
   description: string;
   createdAt: Date;
@@ -24,6 +25,7 @@ export enum RewardStatus {
 }
 
 export interface Reward {
+  id: string;
   title: string;
   description: string;
   createdAt: Date;

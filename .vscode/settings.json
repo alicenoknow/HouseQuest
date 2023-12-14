@@ -1,6 +1,9 @@
 {
   "editor.formatOnSave": true,
   "cSpell.words": [
-    "Pressable"
+    "Firestore",
+    "housequest",
+    "Pressable",
+    "todos"
   ]
 }

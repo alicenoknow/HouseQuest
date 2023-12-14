@@ -1,5 +1,5 @@
 import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import {
   View,
   TextInput,
@@ -12,6 +12,7 @@ import Style from '../../../constants/Style';
 import Spacers from '../../../constants/Spacers';
 import { Text } from '../../../components/Themed';
 
+// TODO refactor, basically rewrite, extract components, fix styling
 
 interface TodoItem {
   id: string;
@@ -63,8 +64,7 @@ const Todo: React.FC = () => {
           onValueChange={(itemValue) => setSelectedCategory(itemValue)}
         >
           <Picker.Item label="General" value="General" style={{ fontSize: 14 }} />
-          <Picker.Item label="Work" value="Work" style={{ fontSize: 14 }} />
-          <Picker.Item label="Personal" value="Personal" style={{ fontSize: 14 }} />
+          <Picker.Item label="Pet" value="Pet" style={{ fontSize: 14 }} />
         </Picker>
       </View>
       <View style={styles.inputContainer}>

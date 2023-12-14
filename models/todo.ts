@@ -4,6 +4,7 @@ export enum TodoStatus {
 }
 
 export interface Todo {
+  id: string;
   timestamp: Date;
   status: TodoStatus;
   description: string;

@@ -3,6 +3,8 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import Colors from '../../../constants/Colors';
 import { Reward, RewardStatus } from '../../../models';
 
+// TODO refactor, basically rewrite, extract components, fix styling
+
 const rewardsData: ReadonlyArray<Reward> = [
     {
         title: 'Reward 1',

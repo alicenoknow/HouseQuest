@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+// TODO refactor, basically rewrite, extract components, fix styling
+
 const Statistics: React.FC = () => {
     return (
         <View style={styles.container}>

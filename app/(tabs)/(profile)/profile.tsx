@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
+// TODO refactor, basically rewrite, extract components, fix styling
+
 interface ProfileProps {
     photo: string;
     name: string;
