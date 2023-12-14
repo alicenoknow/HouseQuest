@@ -42,6 +42,8 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+// TODO add separate stack for auth
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 

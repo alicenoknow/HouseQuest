@@ -7,6 +7,9 @@ import { TaskProvider } from '../../contexts/TasksContext';
 import { RewardsProvider } from '../../contexts/RewardsContext';
 import { KudosOrSlobsProvider } from '../../contexts/KudosContext';
 
+// TODO place providers in correct place and fetch data from db on init
+
+
 export const unstable_settings = {
   initialRouteName: 'index',
 };

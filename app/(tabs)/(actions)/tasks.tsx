@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { Task, TaskStatus } from '../../../models';
 import Colors from '../../../constants/Colors';
 
+// TODO refactor, basically rewrite, extract components, fix styling
 
 const tasksData: ReadonlyArray<Task> = [
     {

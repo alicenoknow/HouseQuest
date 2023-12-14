@@ -12,6 +12,7 @@ import Style from '../../../constants/Style';
 import Spacers from '../../../constants/Spacers';
 import { Text } from '../../../components/Themed';
 
+// TODO refactor, basically rewrite, extract components, fix styling
 
 interface TodoItem {
   id: string;

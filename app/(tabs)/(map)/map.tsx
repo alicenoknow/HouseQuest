@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
+// TODO refactor, basically rewrite, extract components, fix styling
 
 const Map: React.FC = () => {
     const [location, setLocation] = useState<LatLng | undefined>();

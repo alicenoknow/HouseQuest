@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { KudosOrSlobs, Type } from '../../../models';
 import Colors from '../../../constants/Colors';
 
+// TODO refactor, basically rewrite, extract components, fix styling
 
 const data: ReadonlyArray<KudosOrSlobs> = [
     {
