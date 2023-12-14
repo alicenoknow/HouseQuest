@@ -63,8 +63,7 @@ const Todo: React.FC = () => {
           onValueChange={(itemValue) => setSelectedCategory(itemValue)}
         >
           <Picker.Item label="General" value="General" style={{ fontSize: 14 }} />
-          <Picker.Item label="Work" value="Work" style={{ fontSize: 14 }} />
-          <Picker.Item label="Personal" value="Personal" style={{ fontSize: 14 }} />
+          <Picker.Item label="Pet" value="Pet" style={{ fontSize: 14 }} />
         </Picker>
       </View>
       <View style={styles.inputContainer}>

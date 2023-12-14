@@ -17,6 +17,6 @@ export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const color = Colors.black;
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
+  return <DefaultText style={[{ color }, style, { fontSize: 18 }]} {...otherProps} />;
 }
 

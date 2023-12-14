@@ -17,7 +17,6 @@ const Map: React.FC = () => {
 
             let location = await Location.getCurrentPositionAsync({});
             setLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-            console.warn(location.coords.latitude, location.coords.longitude)
         })();
     }, []);
 

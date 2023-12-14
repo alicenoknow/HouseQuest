@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Image, SafeAreaView } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, TextInput, Image, SafeAreaView } from 'react-native';
 import { Announcement, Role, User } from '../../models';
 import Spacers from '../../constants/Spacers';
 import Style from '../../constants/Style';
+import { Text } from "../../components/Themed";
 import Colors from '../../constants/Colors';
 
 const announcementsList: Announcement[] = [
-    { id: '1', sender: 'User 1', createdAt: new Date(), content: 'Announcement 1' },
-    { id: '2', sender: 'User 2', createdAt: new Date(), content: 'Announcement 2' },
+    { id: '1', sender: 'User 1', createdAt: new Date(), content: 'Shower is not working, please DO NOT USE IT! t will be fixed tomorrow.' },
+    { id: '2', sender: 'User 2', createdAt: new Date(), content: 'Greetings from Iceland!', photoUri: "https://www.happiness.com/en/uploads/monthly_2019_07/iceland-happy-people.jpg.49f396d9196668eddb06cf311d0732d9.jpg" },
 ];
 
 const usersList: User[] = [
@@ -18,15 +19,24 @@ const usersList: User[] = [
 const Dashboard: React.FC = () => {
     const renderAnnouncement = ({ item }: { item: Announcement }) => {
         return (
-            <View style={styles.announcementContainer}>
-                <Text style={styles.messageText}>{item.content}</Text>
+            <View style={{
+                padding: 10,
+                margin: 10,
+                backgroundColor: Colors.lightGreen,
+                borderRadius: Style.radius,
+            }}>
+                <View style={styles.announcementContainer}>
+                    <Text style={styles.messageText}>{item.content}</Text>
+                </View>
+                {item.photoUri ? <Image source={{ uri: item.photoUri }} style={styles.annoucementPhoto} /> : null}
+
             </View>
         );
     };
 
     const renderUserAvatar = ({ item }: { item: User }) => {
         return (
-            <TouchableOpacity style={styles.userAvatar} onPress={() => console.log(`Tapped ${item.name}`)}>
+            <TouchableOpacity style={[styles.userAvatar, { backgroundColor: item.role == Role.CHILD ? Colors.pink : Colors.lightGreen }]} onPress={() => console.log(`Tapped ${item.name}`)}>
                 <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
             </TouchableOpacity>
         );
@@ -70,16 +80,19 @@ const styles = StyleSheet.create({
     announcementContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
-        margin: 10,
-        backgroundColor: Colors.lightGreen,
-        borderRadius: Style.radius,
+        margin: 10
     },
     userAvatar: {
         borderRadius: 50,
         backgroundColor: Colors.pink,
         padding: Spacers.small,
         margin: Spacers.small
+    },
+    annoucementPhoto: {
+        height: 220,
+        width: 220,
+        marginLeft: 10,
+        marginBottom: 10,
     },
     inputContainer: {
         flexDirection: 'row',
