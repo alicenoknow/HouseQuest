@@ -20,10 +20,12 @@ interface TodoItem {
   category: string;
 }
 
+
 const Todo: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('General');
   const [todos, setTodos] = useState<TodoItem[]>([]);
+
 
   const addTodo = () => {
     if (inputText.trim() !== '') {
@@ -55,6 +57,8 @@ const Todo: React.FC = () => {
     data: groupedTodos[category],
   }));
 
+
+
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
@@ -65,6 +69,8 @@ const Todo: React.FC = () => {
         >
           <Picker.Item label="General" value="General" style={{ fontSize: 14 }} />
           <Picker.Item label="Pet" value="Pet" style={{ fontSize: 14 }} />
+          <Picker.Item label="School" value="School" style={{ fontSize: 14 }} />
+          <Picker.Item label="Shopping" value="Shopping" style={{ fontSize: 14 }} />
         </Picker>
       </View>
       <View style={styles.inputContainer}>
@@ -75,7 +81,7 @@ const Todo: React.FC = () => {
           placeholder="Add Todo..."
         />
         <TouchableOpacity onPress={addTodo} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
+          <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
       <SectionList
@@ -91,6 +97,7 @@ const Todo: React.FC = () => {
         )}
       />
     </View>
+
   );
 };
 
@@ -99,12 +106,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 40,
+
   },
   inputContainer: {
     width: "100%",
     flexDirection: 'row',
     marginBottom: 20,
     alignItems: 'center',
+    borderRadius: 10,
   },
   picker: {
     flex: 1,
@@ -116,14 +125,17 @@ const styles = StyleSheet.create({
     marginRight: 10,
     paddingHorizontal: 8,
     paddingVertical: 6,
-    borderRadius: 4,
+    borderRadius: 12,
+    height: 35,
   },
   addButton: {
     backgroundColor: Colors.darkGreen,
     borderRadius: Style.radius,
-    padding: Spacers.medium,
+    padding: Spacers.small,
     justifyContent: 'center',
     alignItems: 'center',
+
+
   },
   addButtonText: {
     color: 'white',
@@ -132,9 +144,12 @@ const styles = StyleSheet.create({
   todoItem: {
     borderWidth: 1,
     borderColor: '#ccc',
+    backgroundColor: "white",
     marginBottom: 10,
     padding: 8,
-    borderRadius: 4,
+    borderRadius: 12,
+    marginLeft: 4,
+    marginRight: 8,
   },
   sectionHeader: {
     fontSize: 16,
