@@ -60,7 +60,16 @@ const Todo: React.FC = () => {
 
 
   return (
+
     <View style={styles.container}>
+      <View style={styles.subtitle}>
+        <Text style={styles.subtitle}>List</Text>
+      </View>
+
+      <View style={styles.title}>
+        <Text style={styles.title}>To Do</Text>
+      </View>
+
       <View style={styles.inputContainer}>
         <Picker
           style={styles.picker}
@@ -107,6 +116,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
 
+
   },
   inputContainer: {
     width: "100%",
@@ -151,6 +161,23 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     marginRight: 8,
   },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: Colors.black,
+    marginLeft: 10,
+    marginTop: 10,
+
+  },
+
+  subtitle: {
+    fontSize: 20,
+    marginBottom: -5,
+    color: Colors.black,
+    marginLeft: 10,
+    marginTop: 20,
+  },
+
   sectionHeader: {
     fontSize: 16,
     fontWeight: 'bold',

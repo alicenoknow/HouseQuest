@@ -8,6 +8,7 @@ import { Link } from 'expo-router';
 import { StaticRoutes } from '../../app/routes';
 import { Text } from '../Themed';
 
+
 interface ActionCardProps {
     color: string,
     title: string,

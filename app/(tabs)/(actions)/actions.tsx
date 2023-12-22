@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 
   },
   title: {
-    fontSize: 26, // You can adjust the font size as needed
+    fontSize: 26,
     fontWeight: 'bold',
     color: Colors.black,
     marginLeft: 10,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    fontSize: 20, // You can adjust the font size as needed
+    fontSize: 20,
     marginBottom: -5,
     color: Colors.black,
     marginLeft: 10,

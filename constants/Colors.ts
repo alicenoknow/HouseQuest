@@ -5,5 +5,6 @@ export default {
   pink: '#FF738E',
   lightGrey: '#DCDCDC',
   black: '#000',
-  white: '#FFF'
+  white: '#FFF',
+  lightblue: "#B5E2DB",
 };
