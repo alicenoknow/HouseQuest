@@ -28,7 +28,7 @@ const Profile: React.FC<ProfileProps> = ({
                     <Image source={{ uri: imageUrl }} style={styles.profileImage} />
 
                     {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
-                    <Text style={styles.name}>{name}Test</Text>
+                    <Text style={styles.name}>{name}Teste</Text>
                     <Text style={styles.role}>{role}Parent</Text>
                 </View>
                 <View style={styles.scoreContainer}>
@@ -57,11 +57,12 @@ const styles = StyleSheet.create({
     profileHeader: {
         alignItems: 'center',
         width: '100%',
+        marginTop: 20,
     },
     blueContainer: {
         backgroundColor: Colors.lightGreen,
         alignItems: 'center',
-        marginTop: -30,
+        marginTop: -40,
         paddingTop: 20,
         paddingBottom: 20,
         width: 800,

@@ -74,10 +74,11 @@ const Dashboard: React.FC = () => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Type a message..."
+                        placeholder="Type your message..."
                     />
                     <TouchableOpacity onPress={() => console.log('Send button pressed')}>
                         <Text style={styles.sendButton}>Send</Text>
+
                     </TouchableOpacity>
                 </View>
 

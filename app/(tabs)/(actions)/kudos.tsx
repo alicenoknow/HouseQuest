@@ -26,9 +26,10 @@ const data: ReadonlyArray<KudosOrSlobs> = [
 const Kudos: React.FC = () => {
     const renderMessage = (item: KudosOrSlobs) => {
         const borderColor = item.type === Type.KUDOS ? Colors.lightGreen : Colors.pink;
+        const backgroundColor = item.type === Type.KUDOS ? Colors.lightGreen : Colors.pink;
 
         return (
-            <View style={[styles.messageContainer, { borderColor }]}>
+            <View style={[styles.messageContainer, { borderColor, backgroundColor }]}>
                 <View style={styles.avatars}>
                     {/* <Avatar username={item.sender} />
                     <Avatar username={item.receiver} /> */}
@@ -66,14 +67,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+
     },
     item: {
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 10,
         marginBottom: 10,
+
     },
+
     messageContainer: {
         borderWidth: 1,
         borderRadius: 10,
@@ -81,6 +85,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         flexDirection: 'row',
         alignItems: 'center',
+
+
     },
     avatars: {
         flexDirection: 'row',
