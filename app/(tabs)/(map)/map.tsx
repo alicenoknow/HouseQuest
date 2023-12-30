@@ -2,24 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { useLocation } from './useLocation';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 
 const Map: React.FC = () => {
-    const [location, setLocation] = useState<LatLng | undefined>();
+    const location = useLocation();
 
-    useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.warn('Permission to access location was denied');
-                return;
-            }
+    // const [location, setLocation] = useState<LatLng | undefined>();
 
-            let location = await Location.getCurrentPositionAsync({});
-            setLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-        })();
-    }, []);
+    // useEffect(() => {
+    //     (async () => {
+    //         let { status } = await Location.requestForegroundPermissionsAsync();
+    //         if (status !== 'granted') {
+    //             console.warn('Permission to access location was denied');
+    //             return;
+    //         }
+
+    //         let location = await Location.getCurrentPositionAsync({});
+    //         setLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+    //     })();
+    // }, []);
 
     return (
         <View style={styles.container}>
@@ -34,8 +37,8 @@ const Map: React.FC = () => {
             >
                 <Marker
                     coordinate={{
-                        latitude: location?.latitude ?? 37.4226711,
-                        longitude: location?.latitude ?? -122.0849872,
+                        latitude: location?.coords.latitude ?? 37.4226711,
+                        longitude: location?.coords.longitude ?? -122.0849872,
                     }}
                     title="Marker Title"
                     description="Marker Description"
