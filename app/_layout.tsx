@@ -10,12 +10,10 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { UserProvider } from '../contexts/UserContext';
 
-export {
-  ErrorBoundary
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  initialRouteName: '(tabs)'
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -52,6 +50,7 @@ function RootLayoutNav() {
       <UserProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="users" options={{ headerShown: false }} />
         </Stack>
       </UserProvider>
     </ThemeProvider>
