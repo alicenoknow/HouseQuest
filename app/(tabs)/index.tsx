@@ -13,6 +13,7 @@ import Spacers from '../../constants/Spacers';
 import Style from '../../constants/Style';
 import { Text } from '../../components/Themed';
 import Colors from '../../constants/Colors';
+import { Link } from 'expo-router';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 
@@ -80,17 +81,27 @@ const Dashboard: React.FC = () => {
 
   const renderUserAvatar = ({ item }: { item: User }) => {
     return (
-      <TouchableOpacity
-        style={[
-          styles.userAvatar,
-          {
-            backgroundColor:
-              item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
-          }
-        ]}
-        onPress={() => console.log(`Tapped ${item.name}`)}>
-        <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
-      </TouchableOpacity>
+      <Link
+        href={`/users/${item.id}`}
+        style={{
+          borderRadius: 10,
+          marginLeft: 5,
+          backgroundColor:
+            item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
+        }}
+        asChild>
+        <TouchableOpacity
+          style={[
+            styles.userAvatar,
+            {
+              backgroundColor:
+                item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
+            }
+          ]}
+          onPress={() => console.log(`User avatar pressed ${item.name}`)}>
+          <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
+        </TouchableOpacity>
+      </Link>
     );
   };
 
