@@ -1,100 +1,48 @@
-import React from 'react';
+import 'react-native-gesture-handler';
+import React, { useState, useEffect } from 'react';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential
+} from 'firebase/auth';
+import { auth } from '../../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Stack, useGlobalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colors from '../../constants/Colors';
+import SigninWithGoogle from './signinWithGoogle';
 
-const authViewComponent = () => {
-  return (
-    <View style={styles.container}>
-      <View style={styles.profileHeader}>
-        <View style={styles.blueContainer}>
-          {/* <Image source={{ uri: imageUrl }} style={styles.profileImage} /> */}
+WebBrowser.maybeCompleteAuthSession();
 
-          {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
-          <Text style={styles.name}>Teste</Text>
-          <Text style={styles.role}>Parent</Text>
-        </View>
-        <View style={styles.scoreContainer}>
-          <Text style={styles.score}>Score: </Text>
-        </View>
-        <View style={styles.info}>
-          <Text style={styles.birthday}>Birthday: </Text>
-          <Text style={styles.householdName}>Household: </Text>
-        </View>
-      </View>
-      <Text>User ID: </Text>
-    </View>
-  );
+const AuthViewComponent = () => {
+  const [userInfo, setUserInfo] = useState(); // This is where you initialize your state
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId:
+      '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
+  });
+
+  useEffect(() => {
+    console.log('response', response);
+    if (response?.type === 'success') {
+      const { idToken } = response.params;
+      const credential = GoogleAuthProvider.credential(idToken);
+      if (credential) {
+        signInWithCredential(auth, credential)
+          .then((result) => {
+            // Handle the sign-in result
+            console.log('result', result);
+          })
+          .catch((error) => {
+            // Handle errors here
+            console.log('error', error);
+          });
+      }
+    }
+  }, [response]);
+
+  return <SigninWithGoogle promptAsync={promptAsync} />;
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    width: '100%'
-  },
-  profileHeader: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    width: '100%'
-  },
-  blueContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    width: '100%'
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 4,
-    borderColor: Colors.white,
-    marginBottom: 10
-  },
-  name: {
-    fontSize: 28,
-    color: Colors.black,
-    fontWeight: '600'
-  },
-  role: {
-    fontSize: 16,
-    color: Colors.black,
-    fontWeight: '600'
-  },
-  scoreContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    width: '100%'
-  },
-  score: {
-    fontSize: 28,
-    color: Colors.black,
-    fontWeight: '600'
-  },
-  info: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    width: '100%'
-  },
-  birthday: {
-    fontSize: 28,
-    color: Colors.black,
-    fontWeight: '600'
-  },
-  householdName: {
-    fontSize: 28,
-    color: Colors.black,
-    fontWeight: '600'
-  }
-});
-
-export default authViewComponent;
+export default AuthViewComponent;
