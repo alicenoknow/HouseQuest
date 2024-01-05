@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import * as Google from 'expo-auth-session/providers/google';
+import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import {
   GoogleAuthProvider,
@@ -15,9 +16,15 @@ import SignoutGoogle from './signoutGoogle';
 
 WebBrowser.maybeCompleteAuthSession();
 
+const redirectUri = makeRedirectUri({
+  scheme: 'com.homequest.homequestapp',
+  path: '/auth'
+});
+
 const AuthViewComponent = () => {
   const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
   const [request, response, promptAsync] = Google.useAuthRequest({
+    redirectUri,
     androidClientId:
       '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com',
     webClientId:
@@ -40,8 +47,11 @@ const AuthViewComponent = () => {
   useEffect(() => {
     console.log('response', response);
     if (response?.type === 'success') {
-      const { idToken } = response.params;
-      const credential = GoogleAuthProvider.credential(idToken);
+      const { idToken, accessToken } = response.authentication!;
+      console.log('idToken', idToken);
+      console.log('accessToken', accessToken);
+      const credential = GoogleAuthProvider.credential(idToken, accessToken);
+      console.log('credential', credential);
       if (credential) {
         signInWithCredential(auth, credential)
           .then((result) => {
@@ -58,7 +68,9 @@ const AuthViewComponent = () => {
 
   useEffect(() => {
     checkIfUserLoggedIn();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      console.log('user', user);
+      console.log('auth', auth);
       if (user) {
         console.log('user', JSON.stringify(user, null, 2));
         setUserInfo(user);
@@ -67,13 +79,17 @@ const AuthViewComponent = () => {
         console.log('no user signed in');
       }
     });
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
-  return userInfo ? (
-    <SignoutGoogle />
-  ) : (
-    <SigninWithGoogle promptAsync={promptAsync} />
+  return (
+    <>
+      {/* userInfo ? ( */}
+      <SignoutGoogle />
+      {/* ) : ( */}
+      <SigninWithGoogle promptAsync={promptAsync} />
+      {/* ) */}
+    </>
   );
 };
 
