@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "353172267978",
+    "project_id": "housequest-15795",
+    "storage_bucket": "housequest-15795.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353172267978:android:b9b29f64243e12142ee533",
+        "android_client_info": {
+          "package_name": "com.homequest.HomeQuestApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "353172267978-aptvh44be2ct8d8mvdqan81hc355islu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.homequest.HomeQuestApp",
+            "certificate_hash": "1eadedd25a9ed69b04d501233b68a9f178cda948"
+          }
+        },
+        {
+          "client_id": "353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWvsjg-dyCJ8MNd_I39wDM6taAZYFvsWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
