@@ -28,10 +28,9 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="myapp"/>
-        <data android:scheme="com.homequest.HomeQuestApp"/>
-        <data android:scheme="exp+housequest"/>
         <data android:scheme="HouseQuest"/>
+        <data android:scheme="com.homequest.homequestapp"/>
+        <data android:scheme="exp+housequest"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

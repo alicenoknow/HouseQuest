@@ -1,4 +1,4 @@
-package com.homequest.HomeQuestApp;
+package com.homequest.homequestapp;
 
 import android.os.Build;
 import android.os.Bundle;

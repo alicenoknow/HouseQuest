@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:353172267978:android:b9b29f64243e12142ee533",
+        "mobilesdk_app_id": "1:353172267978:android:1442fc7c5b97682a2ee533",
         "android_client_info": {
-          "package_name": "com.homequest.HomeQuestApp"
+          "package_name": "com.homequest.homequestapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "353172267978-aptvh44be2ct8d8mvdqan81hc355islu.apps.googleusercontent.com",
+          "client_id": "353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.homequest.HomeQuestApp",
-            "certificate_hash": "1eadedd25a9ed69b04d501233b68a9f178cda948"
+            "package_name": "com.homequest.homequestapp",
+            "certificate_hash": "18b16266c2ad6351d747e73c7b60a382d4d29b1a"
           }
         },
         {

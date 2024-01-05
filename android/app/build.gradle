@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.homequest.HomeQuestApp'
+    namespace 'com.homequest.homequestapp'
     defaultConfig {
-        applicationId 'com.homequest.HomeQuestApp'
+        applicationId 'com.homequest.homequestapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
