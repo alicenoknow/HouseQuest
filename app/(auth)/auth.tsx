@@ -19,7 +19,7 @@ const AuthViewComponent = () => {
   const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
-      '353172267978-aptvh44be2ct8d8mvdqan81hc355islu.apps.googleusercontent.com',
+      '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com',
     webClientId:
       '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
   });
