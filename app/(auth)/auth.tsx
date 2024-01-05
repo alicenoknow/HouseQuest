@@ -5,23 +5,37 @@ import * as WebBrowser from 'expo-web-browser';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithCredential
+  signInWithCredential,
+  User as FirebaseUser
 } from 'firebase/auth';
 import { auth } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack, useGlobalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import Colors from '../../constants/Colors';
 import SigninWithGoogle from './signinWithGoogle';
+import SignoutGoogle from './signoutGoogle';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const AuthViewComponent = () => {
-  const [userInfo, setUserInfo] = useState(); // This is where you initialize your state
+  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId:
+      '353172267978-aptvh44be2ct8d8mvdqan81hc355islu.apps.googleusercontent.com',
+    webClientId:
       '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
   });
+
+  const checkIfUserLoggedIn = async () => {
+    try {
+      const user = await AsyncStorage.getItem('@user');
+      if (user) {
+        console.log('user', user);
+        const userJson = JSON.parse(user);
+        setUserInfo(userJson);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
 
   useEffect(() => {
     console.log('response', response);
@@ -42,7 +56,25 @@ const AuthViewComponent = () => {
     }
   }, [response]);
 
-  return <SigninWithGoogle promptAsync={promptAsync} />;
+  useEffect(() => {
+    checkIfUserLoggedIn();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        console.log('user', JSON.stringify(user, null, 2));
+        setUserInfo(user);
+        await AsyncStorage.setItem('@user', JSON.stringify(user));
+      } else {
+        console.log('no user signed in');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  return userInfo ? (
+    <SignoutGoogle />
+  ) : (
+    <SigninWithGoogle promptAsync={promptAsync} />
+  );
 };
 
 export default AuthViewComponent;
