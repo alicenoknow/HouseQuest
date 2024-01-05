@@ -28,7 +28,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="HouseQuest"/>
+        <data android:scheme="housequest"/>
         <data android:scheme="com.homequest.homequestapp"/>
         <data android:scheme="exp+housequest"/>
       </intent-filter>
