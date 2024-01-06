@@ -10,13 +10,11 @@ import { LocationShareProvider } from '../../contexts/LocationShareContext';
 
 // TODO place providers in correct place and fetch data from db on init
 
-
 export const unstable_settings = {
-  initialRouteName: 'index',
+  initialRouteName: 'index'
 };
 
 export default function TabLayout() {
-
   return (
     <LocationShareProvider>
       <TodoProvider>
@@ -25,44 +23,54 @@ export default function TabLayout() {
             <RewardsProvider>
               <KudosOrSlobsProvider>
                 <Tabs
-                  initialRouteName='index'
+                  initialRouteName="index"
                   screenOptions={{
                     headerShown: false,
-                    tabBarActiveTintColor: Colors.lightGrey,
+                    tabBarActiveTintColor: Colors.lightGrey
                   }}>
                   <Tabs.Screen
                     name="(actions)"
                     options={{
                       title: 'Tasks',
-                      tabBarIcon: ({ color }) => <Icon name="code" color={color} />,
+                      tabBarIcon: ({ color }) => (
+                        <Icon name="list-outline" color={color} />
+                      )
                     }}
                   />
                   <Tabs.Screen
                     name="(todo)"
                     options={{
                       title: 'Todo',
-                      tabBarIcon: ({ color }) => <Icon name="code" color={color} />
+                      tabBarIcon: ({ color }) => (
+                        <Icon name="briefcase-outline" color={color} />
+                      )
                     }}
                   />
                   <Tabs.Screen
                     name="index"
                     options={{
                       title: 'Dashboard',
-                      tabBarIcon: ({ color }) => <Icon name="code" color={color} />
+                      tabBarIcon: ({ color }) => (
+                        <Icon name="home-outline" color={color} />
+                      )
                     }}
                   />
                   <Tabs.Screen
                     name="(map)"
                     options={{
                       title: 'Map',
-                      tabBarIcon: ({ color }) => <Icon name="code" color={color} />
+                      tabBarIcon: ({ color }) => (
+                        <Icon name="map-outline" color={color} />
+                      )
                     }}
                   />
                   <Tabs.Screen
                     name="(profile)"
                     options={{
                       title: 'Profile',
-                      tabBarIcon: ({ color }) => <Icon name="code" color={color} />
+                      tabBarIcon: ({ color }) => (
+                        <Icon name="person-outline" color={color} />
+                      )
                     }}
                   />
                 </Tabs>
