@@ -14,8 +14,15 @@ import Style from '../../constants/Style';
 import { Text } from '../../components/Themed';
 import Colors from '../../constants/Colors';
 import { Link } from 'expo-router';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../config';
 
 // TODO refactor, basically rewrite, extract components, fix styling
+function addData(announcement: string) {
+  const docRef = doc(db, 'messages', Date.now().toString());
+  const payload = { message: announcement };
+  setDoc(docRef, payload);
+}
 
 const announcementsList: Announcement[] = [
   {
@@ -57,6 +64,7 @@ const usersList: User[] = [
 ];
 
 const Dashboard: React.FC = () => {
+  const [announcement, setAnnouncement] = React.useState('');
   const renderAnnouncement = ({ item }: { item: Announcement }) => {
     return (
       <View
@@ -132,8 +140,17 @@ const Dashboard: React.FC = () => {
         />
 
         <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder="Type your message..." />
-          <TouchableOpacity onPress={() => console.log('Send button pressed')}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type your message..."
+            onChangeText={(newText) => setAnnouncement(newText)}
+            defaultValue={announcement}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              console.log('Send button pressed');
+              addData(announcement);
+            }}>
             <Text style={styles.sendButton}>Send</Text>
           </TouchableOpacity>
         </View>
