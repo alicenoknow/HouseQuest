@@ -1,7 +1,7 @@
 //create a view for the user to select their household
 //
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
 import { db } from '../../config';
 import {
@@ -15,12 +15,16 @@ import {
 import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HouseholdSelection: React.FC = () => {
+type HouseholdSelectionProps = {
+  invites: any[]; // replace any[] with the actual type if known
+};
+
+const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
   const [user, setUser] = React.useState<User | undefined>(undefined);
   const [household, setHousehold] = React.useState<string | undefined>(
     undefined
   );
-  const [inviteHouseholds, setInviteHouseholds] = React.useState<string[]>([]);
+  const [inviteHouseholds, setInviteHouseholds] = React.useState<any[]>([]);
 
   const getUser = async () => {
     const user = await AsyncStorage.getItem('@user');
@@ -29,8 +33,12 @@ const HouseholdSelection: React.FC = () => {
       setUser(userJson);
     }
   };
+  useEffect(() => {
+    console.log('Invites updated in HouseholdSelection', invites);
+    setInviteHouseholds(invites);
+  }, [invites]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     getUser();
   }, []);
 
@@ -73,9 +81,17 @@ const HouseholdSelection: React.FC = () => {
         <>
           <Text>No household associated with the user.</Text>
           <Text>Invites:</Text>
-          {inviteHouseholds.map((inviteHousehold) => (
-            <Text key={inviteHousehold}>{inviteHousehold}</Text>
-          ))}
+          {inviteHouseholds.length > 0 ? (
+            inviteHouseholds.map((invite, index) => (
+              <Text key={index}>
+                {invite.household /* Replace with actual property name */},
+                {invite.sender_id /* Replace with actual property name */},
+                {invite.id /* Replace with actual property name */},
+              </Text>
+            ))
+          ) : (
+            <Text>No invites available.</Text>
+          )}
           <TextInput
             style={styles.input}
             placeholder="Enter household name"
