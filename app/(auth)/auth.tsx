@@ -9,7 +9,8 @@ import {
   signInWithCredential,
   User as FirebaseUser
 } from 'firebase/auth';
-import { auth } from '../../config';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
 import SignoutGoogle from './signoutGoogle';
@@ -22,6 +23,21 @@ const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
+
+const checkAndCreateUserInFirestore = async (user: FirebaseUser) => {
+  const userRef = doc(db, 'users', user.uid);
+  const docSnap = await getDoc(userRef);
+
+  if (!docSnap.exists()) {
+    await setDoc(userRef, {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL
+      // Add other user details you want to store
+    });
+  }
+};
 
 const AuthViewComponent = () => {
   const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
@@ -76,6 +92,7 @@ const AuthViewComponent = () => {
       if (user) {
         console.log('user_acc', JSON.stringify(user, null, 2));
         setUserInfo(user);
+        await checkAndCreateUserInFirestore(user);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
       } else {
         console.log('no user signed in');
