@@ -18,7 +18,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../config';
 
 // TODO refactor, basically rewrite, extract components, fix styling
-function addData(announcement: string) {
+async function addAnnouncement(announcement: string) {
   const docRef = doc(db, 'messages', Date.now().toString());
   const payload = { message: announcement };
   setDoc(docRef, payload);
@@ -147,9 +147,15 @@ const Dashboard: React.FC = () => {
             defaultValue={announcement}
           />
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               console.log('Send button pressed');
-              addData(announcement);
+              await addAnnouncement(announcement)
+                .then(() => {
+                  setAnnouncement('');
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
             }}>
             <Text style={styles.sendButton}>Send</Text>
           </TouchableOpacity>
