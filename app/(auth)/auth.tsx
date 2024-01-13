@@ -9,7 +9,15 @@ import {
   signInWithCredential,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  collection,
+  where,
+  getDocs
+} from 'firebase/firestore';
 import { auth, db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
@@ -24,7 +32,10 @@ const redirectUri = makeRedirectUri({
   path: '/auth'
 });
 
-const checkAndCreateUserInFirestore = async (user: FirebaseUser) => {
+const checkAndCreateUserInFirestore = async (
+  user: FirebaseUser,
+  setInvites: React.Dispatch<React.SetStateAction<any[]>>
+) => {
   const userRef = doc(db, 'users', user.uid);
   const docSnap = await getDoc(userRef);
 
@@ -34,8 +45,28 @@ const checkAndCreateUserInFirestore = async (user: FirebaseUser) => {
       email: user.email,
       displayName: user.displayName,
       photoURL: user.photoURL
-      // Add other user details you want to store
     });
+  }
+
+  if (docSnap.exists() && !docSnap.data().household) {
+    // 'household' field does not exist, check for invites
+    const invitesQuery = query(
+      collection(db, 'invites'),
+      where('receiver_email', '==', user.email)
+    );
+    const querySnapshot = await getDocs(invitesQuery);
+
+    querySnapshot.forEach((doc) => {
+      // Process each invite
+      console.log(`Invite found: ${doc.id}`, doc.data());
+      // Here, you can handle the invite, like assigning the household ID to the user
+    });
+    const invitesData = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    console.log('invitesData', invitesData);
+    setInvites(invitesData); // Update the state with the invites
   }
 };
 
@@ -48,6 +79,7 @@ const AuthViewComponent = () => {
     webClientId:
       '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
   });
+  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
 
   const checkIfUserLoggedIn = async () => {
     try {
@@ -92,7 +124,8 @@ const AuthViewComponent = () => {
       if (user) {
         console.log('user_acc', JSON.stringify(user, null, 2));
         setUserInfo(user);
-        await checkAndCreateUserInFirestore(user);
+        await checkAndCreateUserInFirestore(user, setInvites);
+        console.log('invites', invites);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
       } else {
         console.log('no user signed in');
@@ -110,7 +143,7 @@ const AuthViewComponent = () => {
           flex: 1
         }}>
         <SigninWithGoogle promptAsync={promptAsync} />
-        <HouseholdSelection />
+        <HouseholdSelection invites={invites} />
         <SignoutGoogle />
       </View>
       {/* ) */}
