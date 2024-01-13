@@ -13,6 +13,8 @@ import { auth } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
 import SignoutGoogle from './signoutGoogle';
+import { View } from 'react-native';
+import HouseholdSelection from './householdSelection';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -86,8 +88,14 @@ const AuthViewComponent = () => {
     <>
       {/* userInfo ? ( */}
       {/* ) : ( */}
-      <SigninWithGoogle promptAsync={promptAsync} />
-      <SignoutGoogle />
+      <View
+        style={{
+          flex: 1
+        }}>
+        <SigninWithGoogle promptAsync={promptAsync} />
+        <HouseholdSelection />
+        <SignoutGoogle />
+      </View>
       {/* ) */}
     </>
   );
