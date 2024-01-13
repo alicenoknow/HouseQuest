@@ -69,10 +69,10 @@ const AuthViewComponent = () => {
   useEffect(() => {
     checkIfUserLoggedIn();
     const unsub = onAuthStateChanged(auth, async (user) => {
-      console.log('user', user);
+      console.log('user_pre', user);
       console.log('auth', auth);
       if (user) {
-        console.log('user', JSON.stringify(user, null, 2));
+        console.log('user_acc', JSON.stringify(user, null, 2));
         setUserInfo(user);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
       } else {
@@ -85,9 +85,9 @@ const AuthViewComponent = () => {
   return (
     <>
       {/* userInfo ? ( */}
-      <SignoutGoogle />
       {/* ) : ( */}
       <SigninWithGoogle promptAsync={promptAsync} />
+      <SignoutGoogle />
       {/* ) */}
     </>
   );
