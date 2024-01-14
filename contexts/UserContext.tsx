@@ -39,7 +39,7 @@ interface UserContextProps {
 
 const initialState: UserState = { user: mockUser, householdMembers: [] }
 
-const UserContext = createContext<UserContextProps | undefined>(undefined);
+const UserContext = createContext<UserContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: UserState, action: UserAction) {
     const { user, householdMembers } = state;

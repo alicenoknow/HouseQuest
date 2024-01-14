@@ -21,7 +21,7 @@ interface KudosOrSlobsContextProps {
 
 const initialState: KudosOrSlobsState = { kudosOrSlobs: [] }
 
-const KudosOrSlobsContext = createContext<KudosOrSlobsContextProps | undefined>(undefined);
+const KudosOrSlobsContext = createContext<KudosOrSlobsContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: KudosOrSlobsState, action: KudosOrSlobsAction) {
     const { kudosOrSlobs } = state;
