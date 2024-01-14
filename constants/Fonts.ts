@@ -1,6 +1,6 @@
 export default {
-  small: 10,
-  medium: 16,
-  large: 24,
-  xLarge: 48
+  small: 12,
+  medium: 18,
+  large: 26,
+  xLarge: 42
 };

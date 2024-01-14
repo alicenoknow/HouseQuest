@@ -27,7 +27,7 @@ interface RewardsContextProps {
 
 const initialState: RewardsState = { rewards: [] }
 
-const RewardsContext = createContext<RewardsContextProps | undefined>(undefined);
+const RewardsContext = createContext<RewardsContextProps | undefined>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: RewardsState, action: RewardsAction) {
     const { rewards } = state;
