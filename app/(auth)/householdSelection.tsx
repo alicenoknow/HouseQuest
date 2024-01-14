@@ -10,8 +10,12 @@ import {
   collection,
   where,
   query,
-  getDocs
+  getDocs,
+  addDoc,
+  updateDoc,
+  setDoc
 } from 'firebase/firestore';
+import { firebaseUser } from '../../models/firebaseUser';
 import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,10 +24,11 @@ type HouseholdSelectionProps = {
 };
 
 const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
-  const [user, setUser] = React.useState<User | undefined>(undefined);
+  const [user, setUser] = React.useState<firebaseUser | undefined>(undefined);
   const [household, setHousehold] = React.useState<string | undefined>(
     undefined
   );
+  const [householdInput, setHouseholdInput] = React.useState<string>('');
   const [inviteHouseholds, setInviteHouseholds] = React.useState<any[]>([]);
 
   const getUser = async () => {
@@ -47,7 +52,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
       console.log('No user found!');
       return;
     }
-    const userRef = doc(db, 'users', user?.id);
+    const userRef = doc(db, 'users', user?.uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
       console.log('userSnap', userSnap.data());
@@ -68,8 +73,33 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     }
   };
 
-  const createHousehold = async () => {
-    // Implement your logic to create a household here
+  const createHousehold = async (
+    userValue: firebaseUser | undefined,
+    householdValue: string | undefined
+  ) => {
+    if (!userValue) {
+      console.log('No user found!');
+      return;
+    }
+    if (!householdValue) {
+      console.log('No household name provided!');
+      return;
+    }
+    // Create household document in the 'households' collection
+    const householdRef = doc(collection(db, 'households'));
+    await setDoc(householdRef, {
+      name: householdValue,
+      owner: userValue.uid,
+      members: [userValue.uid]
+    });
+    console.log('Household created with ID:', householdRef.id);
+
+    // Update user with household ID
+    const userRef = doc(db, 'users', userValue.uid);
+    await updateDoc(userRef, {
+      household: householdRef.id
+    });
+    console.log('User updated with household ID');
   };
 
   return (
@@ -95,9 +125,13 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
           <TextInput
             style={styles.input}
             placeholder="Enter household name"
-            onChangeText={(text) => setHousehold(text)}
+            onChangeText={(text) => setHouseholdInput(text)}
+            defaultValue={householdInput}
           />
-          <Button title="Create Household" onPress={createHousehold} />
+          <Button
+            title="Create Household"
+            onPress={() => createHousehold(user, householdInput)}
+          />
         </>
       )}
       <Button title="Get User Data" onPress={getUserData} />
