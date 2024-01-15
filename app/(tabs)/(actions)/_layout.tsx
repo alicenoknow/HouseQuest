@@ -16,7 +16,7 @@ export default function Layout() {
                     name="actions" />
                 <Stack.Screen name="kudos" />
                 <Stack.Screen name="rewards" />
-                <Stack.Screen name="statistics" />
+                <Stack.Screen name="statistics" options={{ headerTitle: "Statistics", headerTitleAlign: 'center' }} />
                 <Stack.Screen name="tasks" />
             </Stack>
         </SafeAreaView>
@@ -27,6 +27,5 @@ export default function Layout() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Spacers.xLarge,
     },
 });
