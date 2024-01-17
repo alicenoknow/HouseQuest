@@ -53,7 +53,7 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider initialState={{ user: undefined, householdMembers: [] }}>
+      <UserProvider initialState={{ householdId: undefined, user: undefined, householdMembers: [] }}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="users" options={{ headerShown: false }} />
