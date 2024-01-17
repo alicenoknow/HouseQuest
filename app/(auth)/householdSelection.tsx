@@ -18,6 +18,7 @@ import {
 import { firebaseUser } from '../../models/firebaseUser';
 import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HouseholdInvite from './householdInviteCard';
 
 type HouseholdSelectionProps = {
   invites: any[]; // replace any[] with the actual type if known
@@ -104,7 +105,6 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
 
   return (
     <View style={styles.container}>
-      <Text>HouseholdSelection Component</Text>
       {household ? (
         <Text>Household: {household}</Text>
       ) : (
@@ -113,11 +113,13 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
           <Text>Invites:</Text>
           {inviteHouseholds.length > 0 ? (
             inviteHouseholds.map((invite, index) => (
-              <Text key={index}>
-                {invite.household /* Replace with actual property name */},
-                {invite.sender_id /* Replace with actual property name */},
-                {invite.id /* Replace with actual property name */},
-              </Text>
+              <HouseholdInvite
+                key={index}
+                householdName={invite}
+                onPress={function (): void {
+                  throw new Error('Function not implemented.');
+                }}
+              />
             ))
           ) : (
             <Text>No invites available.</Text>
