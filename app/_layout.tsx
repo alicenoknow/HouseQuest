@@ -1,4 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   DarkTheme,
   DefaultTheme,
@@ -6,7 +7,7 @@ import {
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { UserProvider } from '../contexts/UserContext';
 
@@ -23,6 +24,17 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font
   });
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkUserLoggedIn = async () => {
+      const user = await AsyncStorage.getItem('@user');
+      setIsUserLoggedIn(!!user); // Set true if user data exists, false otherwise
+      console.log('user', user);
+    };
+
+    checkUserLoggedIn();
+  }, []);
 
   useEffect(() => {
     if (error) throw error;
@@ -37,15 +49,19 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  return <RootLayoutNav />;
+  return <RootLayoutNav isUserLoggedIn={isUserLoggedIn} />;
 }
 
-// TODO add separate stack for auth
-
-// if (user) { router.replace('tabs'); } else { router.replace('auth'); }
-
-function RootLayoutNav() {
+function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    if (isUserLoggedIn) {
+      router.replace('(tabs)');
+    } else {
+      router.replace('/auth');
+    }
+  }, [isUserLoggedIn]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
