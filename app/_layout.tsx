@@ -5,7 +5,7 @@ import {
   ThemeProvider
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack, router } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { UserProvider } from '../contexts/UserContext';
@@ -41,6 +41,8 @@ export default function RootLayout() {
 }
 
 // TODO add separate stack for auth
+
+// if (user) { router.replace('tabs'); } else { router.replace('auth'); }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
