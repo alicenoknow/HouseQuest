@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { auth } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 const SignoutGoogle: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const SignoutGoogle: React.FC = () => {
         onPress={async () => {
           await signOut(auth).then(async () => {
             AsyncStorage.removeItem('@user');
+            router.replace('/auth');
           });
         }}
       />
