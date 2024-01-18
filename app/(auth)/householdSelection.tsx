@@ -101,6 +101,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
       household: householdRef.id
     });
     console.log('User updated with household ID');
+    await AsyncStorage.setItem('@household', householdRef.id);
   };
 
   return (
