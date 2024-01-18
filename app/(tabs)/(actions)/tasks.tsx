@@ -9,16 +9,22 @@ import Fonts from '../../../constants/Fonts';
 import Spacers from '../../../constants/Spacers';
 import Style from '../../../constants/Style';
 
+/**
+ * TODO extras:
+ * 1. Predefined tasks and list of saved tasks
+ * 2. Random assignment of tasks ore gamified
+ */
 
 const Tasks: React.FC = () => {
     const { state: { tasks }, dispatch: dispatchTask } = useTaskContext();
     const { state: { user }, dispatch: dispatchUser } = useUserContext();
 
-    const [isModalVisible, setModalVisible] = useState(false);
+    const [isAddModalVisible, setAddModalVisible] = useState(false);
+    const [isDetailsModalVisible, setDetailsModalVisible] = useState(false);
 
-    const renderTask = ({ item }: { item: Task }) => {
+    const renderTask = ({ item, index }: { item: Task; index: number }) => {
         return (
-            <TaskItem task={item} handleTaskAction={() => { }} />
+            <TaskItem index={index} task={item} />
         );
     };
     return (
@@ -28,10 +34,11 @@ const Tasks: React.FC = () => {
                 renderItem={renderTask}
                 keyExtractor={(_, index) => index.toString()}
             />
-            <TouchableOpacity style={styles.button} onPress={() => setModalVisible(!isModalVisible)}>
+            <TouchableOpacity style={styles.button} onPress={() => setAddModalVisible(!isAddModalVisible)}>
                 <Text style={styles.buttonText}>Add new task</Text>
             </TouchableOpacity>
-            <AddTaskModal isModalVisible={isModalVisible} setModalVisible={setModalVisible} />
+            <AddTaskModal isModalVisible={isAddModalVisible} setModalVisible={setAddModalVisible} />
+            {/* <AddTaskModal isModalVisible={isAddModalVisible} setModalVisible={setAddModalVisible} /> */}
         </View>
     );
 };
@@ -42,7 +49,7 @@ const styles = StyleSheet.create({
         padding: Spacers.medium,
     },
     button: {
-        backgroundColor: Colors.lightGreen,
+        backgroundColor: Colors.darkGreen,
         margin: Spacers.medium,
         padding: Spacers.medium,
         alignItems: 'center',
@@ -50,6 +57,8 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: Fonts.medium,
+        fontWeight: "bold",
+        color: Colors.white,
     }
 });
 

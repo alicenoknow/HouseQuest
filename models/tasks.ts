@@ -1,8 +1,8 @@
 export enum TaskStatus {
-  UNASSIGNED,
-  ASSIGNED,
-  SUBMITTED,
-  CONFIRMED
+  UNASSIGNED = 'UNASSIGNED',
+  ASSIGNED = 'ASSIGNED',
+  SUBMITTED = 'SUBMITTED',
+  CONFIRMED = 'CONFIRMED'
 }
 
 export interface Task {

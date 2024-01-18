@@ -37,7 +37,7 @@ function reducer(state: TaskState, action: TaskAction) {
     const { tasks } = state;
     switch (action.type) {
         case TaskActionType.ADD: {
-            return { ...state, tasks: [...tasks, action.task] };
+            return { ...state, tasks: [...tasks.filter(t => t.id != action.task.id), action.task] };
         }
         case TaskActionType.REMOVE: {
             return {

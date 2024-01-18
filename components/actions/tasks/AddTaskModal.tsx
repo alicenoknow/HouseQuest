@@ -14,6 +14,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [points, setPoints] = useState(5);
+    const [customPoints, setCustomPoints] = useState(0);
     const [assignee, setAssignee] = useState('');
 
     const { state: { user, householdId, householdMembers } } = useUserContext();
@@ -24,6 +25,8 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         setModalVisible(false);
         return null;
     }
+
+    const disableAddButton = title === '' || description === '';
 
     const clearStates = () => {
         setTitle('');
@@ -36,7 +39,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         const task: TaskWithoutId = {
             title,
             description,
-            points,
+            points: points === undefined ? customPoints : points,
             assignee,
             status: assignee ? TaskStatus.ASSIGNED : TaskStatus.UNASSIGNED,
             creator: user.id,
@@ -81,15 +84,15 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
                         <Picker.Item label="5" value={5} />
                         <Picker.Item label="10" value={10} />
                         <Picker.Item label="15" value={15} />
-                        <Picker.Item label="Custom" value={0} />
+                        <Picker.Item label="Custom" value={undefined} />
                     </Picker>
 
-                    {points === 0 && (
+                    {points === undefined && (
                         <TextInput
                             placeholder="Enter points"
                             keyboardType="numeric"
-                            value={`${points}`}
-                            onChangeText={text => setPoints(Number(text))}
+                            value={`${customPoints}`}
+                            onChangeText={text => { setCustomPoints(Number(text)) }}
                             style={styles.input}
                         />
                     )}
@@ -104,7 +107,8 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
                     </Picker>
 
                     <TouchableOpacity
-                        style={styles.button}
+                        style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
+                        disabled={disableAddButton}
                         onPress={handleAddButton}>
                         <Text style={styles.mediumText}>Add Task</Text>
                     </TouchableOpacity>

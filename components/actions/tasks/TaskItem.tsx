@@ -2,44 +2,69 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Task, TaskStatus } from '../../../models';
 import Colors from '../../../constants/Colors';
-import { Link } from 'expo-router';
 import Style from '../../../constants/Style';
 import Spacers from '../../../constants/Spacers';
+import Fonts from '../../../constants/Fonts';
 
-export default function TaskItem({ handleTaskAction, task }: { handleTaskAction: () => void, task: Task }) {
+interface TaskItemProps {
+    index: number;
+    task: Task;
+}
+
+const taskItemsColors = [Colors.lightBlue, Colors.lightGreen, Colors.yellow];
+
+export default function TaskItem({ index, task }: TaskItemProps) {
+    const itemColor = taskItemsColors[index % taskItemsColors.length];
+    const { title, status, points } = task;
     return (
-        <View style={styles.taskItem}>
-            <Text>Title: {task.title}</Text>
-            <Text>Description: {task.description}</Text>
-            <Text>Creator: {task.creator}</Text>
-            <Text>Assignee: {task.assignee}</Text>
-            <Text>Status: {TaskStatus[task.status]}</Text>
-
-            <TouchableOpacity onPress={handleTaskAction} style={styles.button}>
-                <Link href="/taskModal">Present modal</Link>
-            </TouchableOpacity>
-
-        </View>
+        <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={() => { }}>
+            <View style={styles.circle}>
+                <Text style={styles.pointsText}>{`🔥${points}` ?? "🛠"}</Text>
+            </View>
+            <View style={styles.detailsContainer}>
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.status}>{status}</Text>
+            </View>
+        </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: "100%",
         padding: Spacers.medium,
+        marginTop: Spacers.medium,
+        borderRadius: Style.largeRadius,
+        flexDirection: "row",
+        alignItems: "center"
     },
-    taskItem: {
-        borderWidth: 1,
-        borderColor: Colors.darkGreen,
-        borderRadius: Style.radius,
-        padding: Spacers.medium,
+    circle: {
+        width: 90,
+        height: 60,
+        borderRadius: Style.xLargeRadius,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: Spacers.medium,
+        marginRight: Spacers.large,
+        backgroundColor: Colors.white,
+        padding: Spacers.small,
+    },
+    pointsText: {
+        fontSize: Fonts.large,
+        fontWeight: 'bold',
+    },
+    detailsContainer: {
+        flex: 1,
+    },
+    title: {
+        fontSize: Fonts.medium,
+        fontWeight: 'bold',
         marginBottom: Spacers.small,
     },
-    button: {
-        backgroundColor: Colors.yellow,
-        marginTop: Spacers.medium,
-        padding: Spacers.medium,
-        alignItems: 'center',
-        borderRadius: Style.radius,
+    status: {
+        fontSize: Fonts.medium,
+        color: Colors.darkGrey,
+        marginBottom: Spacers.small,
     },
 });
