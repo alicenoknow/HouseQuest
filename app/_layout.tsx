@@ -16,6 +16,7 @@ import { TodoProvider } from '../contexts/TodoContext';
 import { RewardsProvider } from '../contexts/RewardsContext';
 import { KudosOrSlobsProvider } from '../contexts/KudosContext';
 import { TaskProvider } from '../contexts/TasksContext';
+import RemoteDataProvider from '../components/data/RemoteDataProvider';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -90,7 +91,6 @@ export default function RootLayout() {
  */
 
 function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
-
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -103,22 +103,18 @@ function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider initialState={mockState}>
-        <TodoProvider>
-          <AnnouncementProvider>
-            <TaskProvider>
-              <RewardsProvider>
-                <KudosOrSlobsProvider>
-                  <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="users" options={{ headerShown: false }} />
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                  </Stack>
-                </KudosOrSlobsProvider>
-              </RewardsProvider>
-            </TaskProvider>
-          </AnnouncementProvider>
-        </TodoProvider>
+      <UserProvider initialState={{
+        user: undefined,
+        householdId: undefined,
+        householdMembers: []
+      }}>
+        <RemoteDataProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="users" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </RemoteDataProvider>
       </UserProvider>
     </ThemeProvider >
   );
