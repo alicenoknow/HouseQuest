@@ -61,7 +61,6 @@ export default function RootLayout() {
  */
 
 function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
-
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -74,11 +73,17 @@ function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider initialState={{ householdId: undefined, user: undefined, householdMembers: [] }}>
+      <UserProvider
+        initialState={{
+          householdId: undefined,
+          user: undefined,
+          householdMembers: []
+        }}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="users" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="invite" options={{ headerShown: false }} />
         </Stack>
       </UserProvider>
     </ThemeProvider>
