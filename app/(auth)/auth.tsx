@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -24,6 +24,7 @@ import SigninWithGoogle from './signinWithGoogle';
 import { View } from 'react-native';
 import HouseholdSelection from './householdSelection';
 import { User, Role } from '../../models';
+import { useUserContext, UserActionType } from '../../contexts/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -85,6 +86,7 @@ const checkAndCreateUserInFirestore = async (
 
 const AuthViewComponent = () => {
   const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
+  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
   const [request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
     androidClientId:
@@ -92,7 +94,7 @@ const AuthViewComponent = () => {
     webClientId:
       '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
   });
-  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
+  const { dispatch } = useUserContext(); // Use the context hook to get the dispatch function
 
   const checkIfUserLoggedIn = async () => {
     try {
@@ -119,6 +121,8 @@ const AuthViewComponent = () => {
         signInWithCredential(auth, credential)
           .then((result) => {
             // Handle the sign-in result
+            const parsedUser = parseGoogleUserData(result);
+            dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
             console.log('result', result);
           })
           .catch((error) => {
