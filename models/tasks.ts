@@ -18,6 +18,8 @@ export interface Task {
   submissionPhoto?: string;
 }
 
+export type TaskWithoutId = Omit<Task, 'id'>;
+
 export enum RewardStatus {
   AVAILABLE,
   REQUESTED,

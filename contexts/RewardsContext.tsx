@@ -33,7 +33,6 @@ function reducer(state: RewardsState, action: RewardsAction) {
     const { rewards } = state;
     switch (action.type) {
         case RewardsActionType.ADD: {
-            console.warn("Adding reward: ", action.reward)
             return { ...state, rewards: [...rewards, action.reward] };
         }
         case RewardsActionType.REMOVE: {

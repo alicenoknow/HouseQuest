@@ -11,9 +11,7 @@ export default function Layout() {
     return (
         <SafeAreaView style={styles.container}>
             <Stack>
-                <Stack.Screen
-                    options={{ headerShown: false }}
-                    name="actions" />
+                <Stack.Screen name="actions" options={{ headerShown: false }} />
                 <Stack.Screen name="kudos" options={{ headerTitle: "Kudos and Slobs", headerTitleAlign: 'center' }} />
                 <Stack.Screen name="rewards" options={{ headerTitle: "Rewards", headerTitleAlign: 'center' }} />
                 <Stack.Screen name="statistics" options={{ headerTitle: "Statistics", headerTitleAlign: 'center' }} />
