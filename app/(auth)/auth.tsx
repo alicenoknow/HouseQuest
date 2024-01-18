@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -21,9 +21,10 @@ import {
 import { auth, db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
-import SignoutGoogle from './signoutGoogle';
 import { View } from 'react-native';
 import HouseholdSelection from './householdSelection';
+import { User, Role } from '../../models';
+import { useUserContext, UserActionType } from '../../contexts/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,6 +32,19 @@ const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
+
+const parseGoogleUserData = (googleUserData: any): User => {
+  return {
+    id: googleUserData.uid,
+    name: googleUserData.displayName,
+    email: googleUserData.email,
+    role: Role.PARENT, // Assuming a default role
+    totalPoints: 0, // Default or calculated value
+    currentPoints: 0, // Default or calculated value
+    avatarUri: googleUserData.photoURL,
+    location: undefined // Default or actual value
+  };
+};
 
 const checkAndCreateUserInFirestore = async (
   user: FirebaseUser,
@@ -72,6 +86,7 @@ const checkAndCreateUserInFirestore = async (
 
 const AuthViewComponent = () => {
   const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
+  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
   const [request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
     androidClientId:
@@ -79,7 +94,7 @@ const AuthViewComponent = () => {
     webClientId:
       '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
   });
-  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
+  const { dispatch } = useUserContext(); // Use the context hook to get the dispatch function
 
   const checkIfUserLoggedIn = async () => {
     try {
@@ -106,6 +121,8 @@ const AuthViewComponent = () => {
         signInWithCredential(auth, credential)
           .then((result) => {
             // Handle the sign-in result
+            const parsedUser = parseGoogleUserData(result);
+            dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
             console.log('result', result);
           })
           .catch((error) => {
@@ -144,7 +161,7 @@ const AuthViewComponent = () => {
         }}>
         <SigninWithGoogle promptAsync={promptAsync} />
         <HouseholdSelection invites={invites} />
-        <SignoutGoogle />
+        {/* <SignoutGoogle /> */}
       </View>
       {/* ) */}
     </>

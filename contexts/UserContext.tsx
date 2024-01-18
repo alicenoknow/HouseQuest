@@ -1,5 +1,5 @@
-import React, { Reducer, createContext, useContext, useReducer } from 'react'
-import { Role, User } from "../models";
+import React, { Reducer, createContext, useContext, useReducer } from 'react';
+import { Role, User } from '../models';
 import { LatLng } from 'react-native-maps';
 
 export enum UserActionType {
@@ -18,9 +18,9 @@ type UserAction =
   | { type: UserActionType.LOGOUT_USER; user: null };
 
 interface UserState {
-    householdId: string | undefined;
-    user: User | undefined;
-    householdMembers: ReadonlyArray<User>;
+  householdId: string | undefined;
+  user: User | undefined;
+  householdMembers: ReadonlyArray<User>;
 }
 
 interface UserContextProps {
@@ -28,56 +28,69 @@ interface UserContextProps {
   dispatch: React.Dispatch<UserAction>;
 }
 
-const initialState: UserState = { householdId: undefined, user: undefined, householdMembers: [] }
-
+const initialState: UserState = {
+  householdId: undefined,
+  user: undefined,
+  householdMembers: []
+};
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
   dispatch: () => {}
 });
 
-const reducer: Reducer<UserState, UserAction> = (state: UserState, action: UserAction): UserState => {
-    const { user, householdMembers } = state;
-    switch (action.type) {
-        case UserActionType.UPDATE_USER: {
-            type A = typeof action.user
-            return { ...state, user: { ...action.user } };
-        }
-        case UserActionType.UPDATE_MEMBER: {
-            const others = householdMembers.filter(t => t.id != action.member?.id);
-            return { ...state, householdMembers: [...others, action.member] };
-        }
-        case UserActionType.UPDATE_LOCATION: {
-            return {
-                ...state,
-                user: user ? {
-                    ...user,
-                    location: action.location,
-                } : undefined,
-            };
-        }
-        case UserActionType.LOGIN_USER: {
-            return { 
-                ...state, 
-                user: action.user 
-            };
-        }
-        case UserActionType.LOGOUT_USER: {
-            return { 
-              ...state, 
-              user: null 
-            };
-      }
-      default: {
-        console.warn('Invalid user context action: ', action);
-        return state;
-      }
+const reducer: Reducer<UserState, UserAction> = (
+  state: UserState,
+  action: UserAction
+): UserState => {
+  const { user, householdMembers } = state;
+  switch (action.type) {
+    case UserActionType.UPDATE_USER: {
+      type A = typeof action.user;
+      return { ...state, user: { ...action.user } };
+    }
+    case UserActionType.UPDATE_MEMBER: {
+      const others = householdMembers.filter((t) => t.id != action.member?.id);
+      return { ...state, householdMembers: [...others, action.member] };
+    }
+    case UserActionType.UPDATE_LOCATION: {
+      return {
+        ...state,
+        user: user
+          ? {
+              ...user,
+              location: action.location
+            }
+          : undefined
+      };
+    }
+    case UserActionType.LOGIN_USER: {
+      return {
+        ...state,
+        user: action.user
+      };
+    }
+    case UserActionType.LOGOUT_USER: {
+      return {
+        ...state,
+        user: undefined
+      };
+    }
+    default: {
+      console.warn('Invalid user context action: ', action);
+      return state;
+    }
   }
-}
+};
 
-export function UserProvider({ initialState, children }: { initialState: UserState, children: React.ReactNode }) {
-    const [state, dispatch] = useReducer(reducer, initialState);
-
+export function UserProvider({
+  initialState,
+  children
+}: {
+  initialState: UserState;
+  children: React.ReactNode;
+}) {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <UserContext.Provider value={{ state, dispatch }}>
