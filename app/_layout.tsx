@@ -25,27 +25,30 @@ export const unstable_settings = {
 };
 
 const mockState = {
-  householdId: "CJAqIX3OJFz3k9IUX48T", user: {
-    id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
-    displayName: "Alicja Niewiadomska",
-    email: "miicek2000@gmail.com",
+  householdId: 'CJAqIX3OJFz3k9IUX48T',
+  user: {
+    id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
+    displayName: 'Alicja Niewiadomska',
+    email: 'miicek2000@gmail.com',
     role: Role.PARENT,
     totalPoints: 0,
     currentPoints: 0,
-    photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+    photoUrl:
+      'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
   },
   householdMembers: [
     {
-      id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
-      displayName: "Alicja Niewiadomska",
-      email: "micek2000@gmail.com",
+      id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
+      displayName: 'Alicja Niewiadomska',
+      email: 'micek2000@gmail.com',
       role: Role.PARENT,
       totalPoints: 0,
       currentPoints: 0,
-      photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+      photoUrl:
+        'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
     }
   ]
-}
+};
 
 SplashScreen.preventAutoHideAsync();
 
@@ -103,19 +106,21 @@ function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider initialState={{
-        user: undefined,
-        householdId: undefined,
-        householdMembers: []
-      }}>
+      <UserProvider
+        initialState={{
+          user: undefined,
+          householdId: undefined,
+          householdMembers: []
+        }}>
         <RemoteDataProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="users" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(household)" options={{ headerShown: false }} />
           </Stack>
         </RemoteDataProvider>
       </UserProvider>
-    </ThemeProvider >
+    </ThemeProvider>
   );
 }
