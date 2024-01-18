@@ -36,7 +36,7 @@ const initialState: UserState = {
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => {}
+  dispatch: () => { }
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -58,9 +58,9 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-              ...user,
-              location: action.location
-            }
+            ...user,
+            location: action.location
+          }
           : undefined
       };
     }

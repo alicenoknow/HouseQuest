@@ -25,7 +25,7 @@ interface TodoContextProps {
 
 const initialState: TodoState = { todos: [] }
 
-const TodoContext = createContext<TodoContextProps | undefined>(undefined);
+const TodoContext = createContext<TodoContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: TodoState, action: TodoAction) {
     const { todos } = state;

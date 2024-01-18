@@ -31,7 +31,7 @@ interface TaskContextProps {
 
 const initialState: TaskState = { tasks: [] }
 
-const TaskContext = createContext<TaskContextProps | undefined>(undefined);
+const TaskContext = createContext<TaskContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: TaskState, action: TaskAction) {
     const { tasks } = state;

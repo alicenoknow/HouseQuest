@@ -91,7 +91,12 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     await setDoc(householdRef, {
       name: householdValue,
       owner: userValue.uid,
-      members: [userValue.uid]
+      members: [userValue.uid],
+      tasks: [],
+      rewards: [],
+      todos: [],
+      announcements: [],
+      kudos: [],
     });
     console.log('Household created with ID:', householdRef.id);
 

@@ -7,6 +7,7 @@ import Colors from '../../../constants/Colors';
 
 const tasksData: ReadonlyArray<Task> = [
     {
+        id: "123",
         title: 'Task 1',
         description: 'Description for Task 1',
         createdAt: new Date(),
@@ -14,6 +15,7 @@ const tasksData: ReadonlyArray<Task> = [
         status: TaskStatus.UNASSIGNED,
     },
     {
+        id: "432",
         title: 'Task 2',
         description: 'Description for Task 2',
         createdAt: new Date(),

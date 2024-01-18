@@ -54,10 +54,13 @@ const MOCK_POINTS_DATA = [
 
 const Statistics: React.FC = () => {
     const { state: userState } = useUserContext();
-    const { avatarUri, totalPoints, currentPoints } = userState.user;
+    const { photoUrl, totalPoints, currentPoints } = userState.user ?? {};
     const [selectionMode, setSelectionMode] = useState<SelectionMode>("LEFT");
 
     const isPointsMode = selectionMode === "LEFT";
+
+    // TODO user undefined, go to auth
+    if (!photoUrl || totalPoints == undefined || currentPoints == undefined) return null;
 
     const getData = (data: any[], selectionMode: SelectionMode) => {
         if (selectionMode == "LEFT") {
@@ -88,13 +91,13 @@ const Statistics: React.FC = () => {
             />
             <View style={styles.divider} />
             <ScorePill
-                avatarUri={avatarUri}
+                avatarUri={photoUrl}
                 score={isPointsMode ? totalPoints : currentPoints}
                 scoreEmoji={isPointsMode ? "🔥" : "💲"}
             />
             <View style={styles.divider} />
             <Text style={styles.plotTitle}>{isPointsMode ? "🔥 Points Ranking 🔥" : "💲 Coins Ranking 💲"}</Text>
-            <BarChart data={getData([{ avatarUri, totalPoints, currentPoints }, ...MOCK_USERS_DATA], selectionMode)} />
+            <BarChart data={getData([{ photoUrl, totalPoints, currentPoints }, ...MOCK_USERS_DATA], selectionMode)} />
             <View style={styles.divider} />
         </View>)
     }

@@ -21,7 +21,7 @@ interface AnnouncementContextProps {
 
 const initialState: AnnouncementState = { announcements: [] }
 
-const AnnouncementContext = createContext<AnnouncementContextProps | undefined>(undefined);
+const AnnouncementContext = createContext<AnnouncementContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: AnnouncementState, action: AnnouncementAction) {
     const { announcements } = state;

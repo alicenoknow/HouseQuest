@@ -27,12 +27,13 @@ interface RewardsContextProps {
 
 const initialState: RewardsState = { rewards: [] }
 
-const RewardsContext = createContext<RewardsContextProps | undefined>({ state: initialState, dispatch: () => { } });
+const RewardsContext = createContext<RewardsContextProps>({ state: initialState, dispatch: () => { } });
 
 function reducer(state: RewardsState, action: RewardsAction) {
     const { rewards } = state;
     switch (action.type) {
         case RewardsActionType.ADD: {
+            console.warn("Adding reward: ", action.reward)
             return { ...state, rewards: [...rewards, action.reward] };
         }
         case RewardsActionType.REMOVE: {

@@ -36,12 +36,12 @@ const redirectUri = makeRedirectUri({
 const parseGoogleUserData = (googleUserData: any): User => {
   return {
     id: googleUserData.uid,
-    name: googleUserData.displayName,
+    displayName: googleUserData.displayName,
     email: googleUserData.email,
     role: Role.PARENT, // Assuming a default role
     totalPoints: 0, // Default or calculated value
     currentPoints: 0, // Default or calculated value
-    avatarUri: googleUserData.photoURL,
+    photoUrl: googleUserData.photoURL,
     location: undefined // Default or actual value
   };
 };

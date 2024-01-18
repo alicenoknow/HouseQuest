@@ -10,12 +10,42 @@ import { SplashScreen, Stack, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { UserProvider } from '../contexts/UserContext';
+import { Role } from '../models/user';
+import { AnnouncementProvider } from '../contexts/AnnouncementsContext';
+import { TodoProvider } from '../contexts/TodoContext';
+import { RewardsProvider } from '../contexts/RewardsContext';
+import { KudosOrSlobsProvider } from '../contexts/KudosContext';
+import { TaskProvider } from '../contexts/TasksContext';
+import RemoteDataProvider from '../components/data/RemoteDataProvider';
 
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)'
 };
+
+const mockState = {
+  householdId: "CJAqIX3OJFz3k9IUX48T", user: {
+    id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
+    displayName: "Alicja Niewiadomska",
+    email: "miicek2000@gmail.com",
+    role: Role.PARENT,
+    totalPoints: 0,
+    currentPoints: 0,
+    photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+  },
+  householdMembers: [
+    {
+      id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
+      displayName: "Alicja Niewiadomska",
+      email: "micek2000@gmail.com",
+      role: Role.PARENT,
+      totalPoints: 0,
+      currentPoints: 0,
+      photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+    }
+  ]
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -73,19 +103,19 @@ function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider
-        initialState={{
-          householdId: undefined,
-          user: undefined,
-          householdMembers: []
-        }}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="users" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="invite" options={{ headerShown: false }} />
-        </Stack>
+      <UserProvider initialState={{
+        user: undefined,
+        householdId: undefined,
+        householdMembers: []
+      }}>
+        <RemoteDataProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="users" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </RemoteDataProvider>
       </UserProvider>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
