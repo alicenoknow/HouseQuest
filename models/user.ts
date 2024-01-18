@@ -7,12 +7,12 @@ export enum Role {
 
 export interface User {
   id: string;
-  name: string;
+  displayName: string;
   email?: string;
   role: Role;
   totalPoints: number;
   currentPoints: number;
   birthday?: Date;
-  avatarUri: string;
+  photoUrl?: string;
   location?: LatLng;
 }

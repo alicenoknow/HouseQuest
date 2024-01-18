@@ -45,20 +45,20 @@ const announcementsList: Announcement[] = [
 const usersList: User[] = [
   {
     id: '1',
-    name: 'User 1',
+    displayName: 'User 1',
     role: Role.PARENT,
     totalPoints: 100,
     currentPoints: 50,
-    avatarUri:
+    photoUrl:
       'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
   },
   {
     id: '2',
-    name: 'User 2',
+    displayName: 'User 2',
     role: Role.CHILD,
     totalPoints: 80,
     currentPoints: 60,
-    avatarUri:
+    photoUrl:
       'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
   }
 ];
@@ -106,8 +106,8 @@ const Dashboard: React.FC = () => {
                 item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
             }
           ]}
-          onPress={() => console.log(`User avatar pressed ${item.name}`)}>
-          <Image source={{ uri: item.avatarUri }} style={styles.avatar} />
+          onPress={() => console.log(`User avatar pressed ${item.displayName}`)}>
+          <Image source={{ uri: item.photoUrl }} style={styles.avatar} />
         </TouchableOpacity>
       </Link>
     );

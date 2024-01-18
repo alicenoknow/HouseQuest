@@ -7,6 +7,7 @@ import { Reward, RewardStatus } from '../../../models';
 
 const rewardsData: ReadonlyArray<Reward> = [
     {
+        id: "33",
         title: 'Reward 1',
         description: 'Description for Reward 1',
         createdAt: new Date(),
@@ -16,6 +17,7 @@ const rewardsData: ReadonlyArray<Reward> = [
         points: 50,
     },
     {
+        id: "1233",
         title: 'Reward 2',
         description: 'Description for Reward 2',
         createdAt: new Date(),
