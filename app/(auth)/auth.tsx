@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
 import { View } from 'react-native';
 import HouseholdSelection from './householdSelection';
+import { User, Role } from '../../models';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,6 +31,19 @@ const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
+
+const parseGoogleUserData = (googleUserData: any): User => {
+  return {
+    id: googleUserData.uid,
+    name: googleUserData.displayName,
+    email: googleUserData.email,
+    role: Role.PARENT, // Assuming a default role
+    totalPoints: 0, // Default or calculated value
+    currentPoints: 0, // Default or calculated value
+    avatarUri: googleUserData.photoURL,
+    location: undefined // Default or actual value
+  };
+};
 
 const checkAndCreateUserInFirestore = async (
   user: FirebaseUser,
