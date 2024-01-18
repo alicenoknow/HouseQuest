@@ -52,7 +52,16 @@ export default function RootLayout() {
   return <RootLayoutNav isUserLoggedIn={isUserLoggedIn} />;
 }
 
+/**
+ * Idea (to discuss/change)
+ * 1. We read user and household data from device
+ * 2. If there's no data -> redirect to auth
+ * 3. If there is user data already but no household -> redirect to household creation screen
+ * 4. If there is user data and there is household data -> redirect to (tabs) and surround tabs with UserProvider with proper data
+ */
+
 function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
+
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -65,7 +74,7 @@ function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider>
+      <UserProvider initialState={{ householdId: undefined, user: undefined, householdMembers: [] }}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="users" options={{ headerShown: false }} />
