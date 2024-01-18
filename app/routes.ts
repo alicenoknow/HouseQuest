@@ -9,4 +9,6 @@ type TabRoutes =
   | '/(actions)/tasks'
   | '/(todo)'
   | '/(map)'
-  | '/(profile)';
+  | '/(profile)'
+  | '/auth'
+  | '/household'
