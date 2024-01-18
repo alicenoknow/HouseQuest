@@ -16,6 +16,7 @@ import Colors from '../../constants/Colors';
 import { Link } from 'expo-router';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../config';
+import { Ionicons } from '@expo/vector-icons';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 async function addAnnouncement(announcement: string) {
@@ -127,6 +128,11 @@ const Dashboard: React.FC = () => {
             keyExtractor={(item) => item.id}
             style={styles.userList}
           />
+          <TouchableOpacity style={styles.addButton}>
+            <Link href="/invite">
+              <Ionicons name="add-circle-outline" size={40} color="white" />
+            </Link>
+          </TouchableOpacity>
         </View>
       </View>
       <Text style={styles.subtitle}>Announcements</Text>
@@ -188,12 +194,20 @@ const styles = StyleSheet.create({
     marginTop: 0
   },
   avatarContainer: {
+    flexDirection: 'row',
     backgroundColor: Colors.darkGreen,
     borderRadius: 50,
-    width: 300,
     alignItems: 'center',
     height: 55,
-    marginLeft: 45
+    paddingHorizontal: 10, // Adjust padding as needed
+    marginLeft: 60,
+    marginRight: 60
+  },
+  addButton: {
+    // Style for your add button, adjust as needed
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10
   },
   announcementContainer: {
     flexDirection: 'row',
