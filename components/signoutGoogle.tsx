@@ -1,7 +1,7 @@
 import { signOut } from 'firebase/auth';
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { auth } from '../../config';
+import { auth } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignoutGoogle: React.FC = () => {

@@ -1,50 +1,46 @@
-import React, { createContext, useContext, useReducer } from 'react'
+import React, { Reducer, createContext, useContext, useReducer } from 'react'
 import { Role, User } from "../models";
 import { LatLng } from 'react-native-maps';
 
-export const mockUser = {
-    id: "123",
-    name: "Alice",
-    role: Role.PARENT,
-    totalPoints: 420,
-    currentPoints: 42,
-    birthday: new Date("2000-02-01"),
-    avatarUri: "https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png",
-    location: {
-        latitude: 50.093105,
-        longitude: 18.990783
-    },
-}
-
 export enum UserActionType {
-    UPDATE_USER = "UPDATE_USER",
-    UPDATE_MEMBER = "UPDATE_MEMBER",
-    UPDATE_LOCATION = "UPDATE_LOCATION",
+  UPDATE_USER = 'UPDATE_USER',
+  UPDATE_MEMBER = 'UPDATE_MEMBER',
+  UPDATE_LOCATION = 'UPDATE_LOCATION',
+  LOGIN_USER = 'LOGIN_USER',
+  LOGOUT_USER = 'LOGOUT_USER'
 }
 
 type UserAction =
-    | { type: UserActionType.UPDATE_USER, user: User }
-    | { type: UserActionType.UPDATE_MEMBER, member: User }
-    | { type: UserActionType.UPDATE_LOCATION, location: LatLng };
+  | { type: UserActionType.UPDATE_USER; user: User }
+  | { type: UserActionType.UPDATE_MEMBER; member: User }
+  | { type: UserActionType.UPDATE_LOCATION; location: LatLng }
+  | { type: UserActionType.LOGIN_USER; user: User }
+  | { type: UserActionType.LOGOUT_USER; user: null };
 
 interface UserState {
-    user: User;
+    householdId: string | undefined;
+    user: User | undefined;
     householdMembers: ReadonlyArray<User>;
 }
 
 interface UserContextProps {
-    state: UserState;
-    dispatch: React.Dispatch<UserAction>;
+  state: UserState;
+  dispatch: React.Dispatch<UserAction>;
 }
 
-const initialState: UserState = { user: mockUser, householdMembers: [] }
+const initialState: UserState = { householdId: undefined, user: undefined, householdMembers: [] }
 
-const UserContext = createContext<UserContextProps>({ state: initialState, dispatch: () => { } });
 
-function reducer(state: UserState, action: UserAction) {
+const UserContext = createContext<UserContextProps>({
+  state: initialState,
+  dispatch: () => {}
+});
+
+const reducer: Reducer<UserState, UserAction> = (state: UserState, action: UserAction): UserState => {
     const { user, householdMembers } = state;
     switch (action.type) {
         case UserActionType.UPDATE_USER: {
+            type A = typeof action.user
             return { ...state, user: { ...action.user } };
         }
         case UserActionType.UPDATE_MEMBER: {
@@ -54,27 +50,42 @@ function reducer(state: UserState, action: UserAction) {
         case UserActionType.UPDATE_LOCATION: {
             return {
                 ...state,
-                user: {
+                user: user ? {
                     ...user,
                     location: action.location,
-                }
+                } : undefined,
             };
         }
-        default: {
-            console.warn("Invalid user context action: ", action);
-            return state;
+        case UserActionType.LOGIN_USER: {
+            return { 
+                ...state, 
+                user: action.user 
+            };
         }
-    }
+        case UserActionType.LOGOUT_USER: {
+            return { 
+              ...state, 
+              user: null 
+            };
+      }
+      default: {
+        console.warn('Invalid user context action: ', action);
+        return state;
+      }
+  }
 }
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
+export function UserProvider({ initialState, children }: { initialState: UserState, children: React.ReactNode }) {
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    return <UserContext.Provider value={{ state, dispatch }}>
-        {children}
+
+  return (
+    <UserContext.Provider value={{ state, dispatch }}>
+      {children}
     </UserContext.Provider>
+  );
 }
 
 export function useUserContext() {
-    return useContext(UserContext);
+  return useContext(UserContext);
 }

@@ -1,11 +1,11 @@
-export enum Type {
+export enum KSAction {
   KUDOS,
   SLOBS
 }
 
 export interface KudosOrSlobs {
   id: string;
-  type: Type;
+  type: KSAction;
   sender: string;
   receiver: string;
   message: string;
