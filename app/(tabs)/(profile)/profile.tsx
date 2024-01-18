@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { Link } from 'expo-router';
+import SignoutGoogle from '../../../components/signoutGoogle';
 
 interface ProfileProps {
   photo: string;
@@ -60,6 +61,7 @@ const Profile: React.FC<ProfileProps> = ({
       <TouchableOpacity style={styles.settingsButton} onPress={onPressSettings}>
         <Text style={styles.settingsText}>Settings</Text>
       </TouchableOpacity>
+      <SignoutGoogle />
     </View>
   );
 };
