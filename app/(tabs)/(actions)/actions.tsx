@@ -7,10 +7,6 @@ export default function Actions() {
   return (
 
     <View style={styles.container}>
-      <View style={styles.subtitle}>
-        <Text style={styles.subtitle}>List</Text>
-      </View>
-
       <View style={styles.title}>
         <Text style={styles.title}>Task</Text>
       </View>

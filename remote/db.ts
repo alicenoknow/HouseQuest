@@ -3,16 +3,18 @@ import {
   KudosOrSlobs,
   Reward,
   Task,
+  TaskWithoutId,
   Todo,
   User
 } from '../models';
 import {
-  FieldValue,
+  addDoc,
+  arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
-  setDoc,
   updateDoc
 } from 'firebase/firestore';
 import { db } from '../config';
@@ -37,8 +39,8 @@ export async function fetchMembers(
           id: id,
           displayName: data.displayName,
           role: data.role,
-          totalPoints: data.total_points ?? 0,
-          currentPoints: data.current_points ?? 0,
+          totalPoints: data.totalPoints ?? 0,
+          currentPoints: data.currentPoints ?? 0,
           birthday: data.birthday,
           photoUrl: data.photoUrl,
           location: data.location
@@ -69,13 +71,13 @@ export async function fetchTasks(
           id: id,
           title: data.title,
           description: data.description,
-          createdAt: data.created_at.toDate(),
+          createdAt: data.createdAt.toDate(),
           creator: data.creator,
           status: data.status,
           assignee: data.assignee,
           points: data.points,
-          submittedAt: data.submitted_at?.toDate(),
-          submissionPhoto: data.submission_photo
+          submittedAt: data.submittedAt?.toDate(),
+          submissionPhoto: data.submissionPhoto
         };
         onTaskCallback(task);
       } else {
@@ -105,7 +107,7 @@ export async function fetchRewards(
           id: id,
           title: data.title,
           description: data.description,
-          createdAt: data.created_at.toDate(),
+          createdAt: data.createdAt.toDate(),
           creator: data.creator,
           status: data.status,
           points: data.points,
@@ -202,9 +204,9 @@ export async function fetchAnnouncements(
         const announcement: Announcement = {
           id: id,
           sender: data.sender,
-          createdAt: data.created_at.toDate(),
+          createdAt: data.createdAt.toDate(),
           content: data.content,
-          photoUri: data.photo_uri
+          photoUri: data.photoUri
         };
         onAnnouncementCallback(announcement);
       } else {
@@ -216,58 +218,90 @@ export async function fetchAnnouncements(
 
 // ====================================================================================================================
 
-export async function createTask(task: Task, householdId: string) {
-  const tasksRef = collection(db, 'tasks');
-  await setDoc(doc(tasksRef, task.id), task);
-
+export async function createTask(
+  task: TaskWithoutId,
+  householdId: string
+): Promise<string> {
+  const tasksRef = await addDoc(collection(db, 'tasks'), task);
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    tasks: arrayUnion(task.id)
+    tasks: arrayUnion(tasksRef.id)
   });
+
+  return tasksRef.id;
 }
 
-export async function createReward(reward: Reward, householdId: string) {
-  const rewardsRef = collection(db, 'rewards');
-  await setDoc(doc(rewardsRef, reward.id), reward);
-
+export async function createReward(
+  reward: Reward,
+  householdId: string
+): Promise<string> {
+  const rewardsRef = await addDoc(collection(db, 'tasks'), reward);
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    rewards: arrayUnion(reward.id)
+    rewards: arrayUnion(rewardsRef.id)
   });
+
+  return rewardsRef.id;
 }
 
 export async function createKudosSlobs(
   kudosSlobs: KudosOrSlobs,
   householdId: string
-) {
-  const kudosSlobsRef = collection(db, 'kudos_slobs');
-  await setDoc(doc(kudosSlobsRef, kudosSlobs.id), kudosSlobs);
-
+): Promise<string> {
+  const kudosSlobsRef = await addDoc(collection(db, 'kudos'), kudosSlobs);
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    kudos: arrayUnion(kudosSlobs.id)
+    kudos: arrayUnion(kudosSlobsRef.id)
   });
+  return kudosSlobsRef.id;
 }
 
-export async function createTodo(todo: Todo, householdId: string) {
-  const todosRef = collection(db, 'todos');
-  await setDoc(doc(todosRef, todo.id), todo);
-
+export async function createTodo(
+  todo: Todo,
+  householdId: string
+): Promise<string> {
+  const todoRef = await addDoc(collection(db, 'todos'), todo);
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    todos: arrayUnion(todo.id)
+    todos: arrayUnion(todoRef.id)
   });
+  return todoRef.id;
 }
 
 export async function createAnnouncement(
   announcement: Announcement,
   householdId: string
-) {
-  const announcementsRef = collection(db, 'announcements');
-  await setDoc(doc(announcementsRef, announcement.id), announcement);
+): Promise<string> {
+  const announcementRef = await addDoc(
+    collection(db, 'announcements'),
+    announcement
+  );
+  const householdRef = doc(db, 'households', householdId);
+  await updateDoc(householdRef, {
+    announcements: arrayUnion(announcementRef.id)
+  });
+  return announcementRef.id;
+}
+
+// ===================================================================
+
+export async function updateTask(task: Task) {
+  const tasksRef = doc(db, 'tasks', task.id);
+
+  Object.keys(task).forEach((key) => {
+    if (task[key as keyof Task] == null) {
+      delete task[key as keyof Task];
+    }
+  });
+  await updateDoc(tasksRef, { ...task });
+}
+
+export async function removeTask(taskId: string, householdId: string) {
+  const tasksRef = doc(db, 'tasks', taskId);
+  await deleteDoc(tasksRef);
 
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    announcements: arrayUnion(announcement.id)
+    tasks: arrayRemove(taskId)
   });
 }
