@@ -9,15 +9,16 @@ import Fonts from '../../../constants/Fonts';
 interface TaskItemProps {
     index: number;
     task: Task;
+    onTaskPressed: () => void;
 }
 
 const taskItemsColors = [Colors.lightBlue, Colors.lightGreen, Colors.yellow];
 
-export default function TaskItem({ index, task }: TaskItemProps) {
+export default function TaskItem({ index, task, onTaskPressed }: TaskItemProps) {
     const itemColor = taskItemsColors[index % taskItemsColors.length];
     const { title, status, points } = task;
     return (
-        <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={() => { }}>
+        <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={onTaskPressed}>
             <View style={styles.circle}>
                 <Text style={styles.pointsText}>{`🔥${points}` ?? "🛠"}</Text>
             </View>

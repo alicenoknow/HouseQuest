@@ -15,7 +15,7 @@ type TaskAction =
     | { type: TaskActionType.ADD, task: Task }
     | { type: TaskActionType.ASSIGN, id: string, user: string }
     | { type: TaskActionType.UNASSIGN, id: string }
-    | { type: TaskActionType.SUBMIT, id: string, photoUri: string }
+    | { type: TaskActionType.SUBMIT, id: string, submissionPhoto: string, submittedAt: Date }
     | { type: TaskActionType.CONFIRM, id: string }
     | { type: TaskActionType.DECLINE, id: string }
     | { type: TaskActionType.REMOVE, id: string };
@@ -60,10 +60,10 @@ function reducer(state: TaskState, action: TaskAction) {
             }
             return state;
         } case TaskActionType.SUBMIT: {
-            const { id, photoUri } = action;
+            const { id, submissionPhoto, submittedAt } = action;
             const toChange = tasks.filter(t => t.id == id)?.at(0);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, photoUri: photoUri, status: TaskStatus.SUBMITTED }] };
+                return { ...state, tasks: [...tasks, { ...toChange, submissionPhoto, submittedAt, status: TaskStatus.SUBMITTED }] };
             }
             return state;
         } case TaskActionType.CONFIRM: {

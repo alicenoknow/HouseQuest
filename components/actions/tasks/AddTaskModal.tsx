@@ -44,6 +44,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
             status: assignee ? TaskStatus.ASSIGNED : TaskStatus.UNASSIGNED,
             creator: user.id,
             createdAt: new Date(Date.now()),
+            submissionPhoto: "",
         }
         const taskId = await createTask(task, householdId);
         dispatch({ type: TaskActionType.ADD, task: { ...task, id: taskId } });

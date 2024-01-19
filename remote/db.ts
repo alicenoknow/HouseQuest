@@ -9,8 +9,10 @@ import {
 } from '../models';
 import {
   addDoc,
+  arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   updateDoc
@@ -279,4 +281,27 @@ export async function createAnnouncement(
     announcements: arrayUnion(announcementRef.id)
   });
   return announcementRef.id;
+}
+
+// ===================================================================
+
+export async function updateTask(task: Task) {
+  const tasksRef = doc(db, 'tasks', task.id);
+
+  Object.keys(task).forEach((key) => {
+    if (task[key as keyof Task] == null) {
+      delete task[key as keyof Task];
+    }
+  });
+  await updateDoc(tasksRef, { ...task });
+}
+
+export async function removeTask(taskId: string, householdId: string) {
+  const tasksRef = doc(db, 'tasks', taskId);
+  await deleteDoc(tasksRef);
+
+  const householdRef = doc(db, 'households', householdId);
+  await updateDoc(householdRef, {
+    tasks: arrayRemove(taskId)
+  });
 }
