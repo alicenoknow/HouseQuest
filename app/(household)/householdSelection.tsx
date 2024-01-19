@@ -42,14 +42,31 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     const userJson = JSON.parse(user);
     setUser(userJson);
   };
+
+  const getHousehold = async () => {
+    const household = await AsyncStorage.getItem('@household');
+    if (household) {
+      setHousehold(household);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+    getHousehold();
+  }, []);
+
   useEffect(() => {
     console.log('Invites updated in HouseholdSelection', invites);
     setInviteHouseholds(invites);
   }, [invites]);
 
   useEffect(() => {
-    getUser();
-  }, []);
+    console.log('Household updated in HouseholdSelection', household);
+    if (household) {
+      AsyncStorage.setItem('@household', household);
+      router.replace('/index');
+    }
+  }, [household]);
 
   const getUserData = async () => {
     if (!user) {
