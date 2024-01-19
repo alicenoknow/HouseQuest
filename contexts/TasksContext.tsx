@@ -48,35 +48,40 @@ function reducer(state: TaskState, action: TaskAction) {
         case TaskActionType.ASSIGN: {
             const { id, user } = action;
             const toChange = tasks.filter(t => t.id == id)?.at(0);
+            const unchanged = tasks.filter(t => t.id != id);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, assignee: user, status: TaskStatus.ASSIGNED }] };
+                return { ...state, tasks: [...unchanged, { ...toChange, assignee: user, status: TaskStatus.ASSIGNED }] };
             }
             return state;
         }
         case TaskActionType.UNASSIGN: {
             const toChange = tasks.filter(t => t.id == action.id)?.at(0);
+            const unchanged = tasks.filter(t => t.id != action.id);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, assignee: undefined, status: TaskStatus.UNASSIGNED }] };
+                return { ...state, tasks: [...unchanged, { ...toChange, assignee: undefined, status: TaskStatus.UNASSIGNED }] };
             }
             return state;
         } case TaskActionType.SUBMIT: {
             const { id, submissionPhoto, submittedAt } = action;
             const toChange = tasks.filter(t => t.id == id)?.at(0);
+            const unchanged = tasks.filter(t => t.id != id);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, submissionPhoto, submittedAt, status: TaskStatus.SUBMITTED }] };
+                return { ...state, tasks: [...unchanged, { ...toChange, submissionPhoto, submittedAt, status: TaskStatus.SUBMITTED }] };
             }
             return state;
         } case TaskActionType.CONFIRM: {
             const toChange = tasks.filter(t => t.id == action.id)?.at(0);
+            const unchanged = tasks.filter(t => t.id != action.id);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, status: TaskStatus.CONFIRMED }] };
+                return { ...state, tasks: [...unchanged, { ...toChange, status: TaskStatus.CONFIRMED }] };
             }
             return state;
         }
         case TaskActionType.DECLINE: {
             const toChange = tasks.filter(t => t.id == action.id)?.at(0);
+            const unchanged = tasks.filter(t => t.id != action.id);
             if (toChange) {
-                return { ...state, tasks: [...tasks, { ...toChange, status: TaskStatus.ASSIGNED }] };
+                return { ...state, tasks: [...unchanged, { ...toChange, status: TaskStatus.ASSIGNED }] };
             }
             return state;
         }
