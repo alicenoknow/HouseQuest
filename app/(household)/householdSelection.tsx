@@ -19,6 +19,7 @@ import { firebaseUser } from '../../models/firebaseUser';
 import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HouseholdInvite from './householdInviteCard';
+import { router } from 'expo-router';
 
 type HouseholdSelectionProps = {
   invites: any[]; // replace any[] with the actual type if known
@@ -51,6 +52,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
   const getUserData = async () => {
     if (!user) {
       console.log('No user found!');
+      router.replace('/auth');
       return;
     }
     const userRef = doc(db, 'users', user?.uid);
@@ -96,7 +98,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
       rewards: [],
       todos: [],
       announcements: [],
-      kudos: [],
+      kudos: []
     });
     console.log('Household created with ID:', householdRef.id);
 
