@@ -35,10 +35,12 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
 
   const getUser = async () => {
     const user = await AsyncStorage.getItem('@user');
-    if (user) {
-      const userJson = JSON.parse(user);
-      setUser(userJson);
+    if (!user) {
+      router.replace('/auth');
+      return;
     }
+    const userJson = JSON.parse(user);
+    setUser(userJson);
   };
   useEffect(() => {
     console.log('Invites updated in HouseholdSelection', invites);
