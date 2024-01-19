@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Image } from 'react-native';
 import { Task, TaskStatus } from '../../../models';
 import { TaskActionType, useTaskContext, useUserContext } from '../../../contexts';
@@ -8,8 +8,8 @@ import Colors from '../../../constants/Colors';
 import Style from '../../../constants/Style';
 import Icon from '../../common/Icon';
 import { removeTask, updateTask } from '../../../remote/db';
-
-// TODO zduplikowane taski po zmianie statusu
+import ImagePickerView from '../../common/ImagePickerView';
+import { uploadImageToFirebase } from '../../../remote/storage';
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -17,9 +17,11 @@ interface TaskDetailsModalProps {
   setModalVisible: (isVisible: boolean) => void;
 }
 
+
 const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetailsModalProps) => {
   const { state: { user, householdId, householdMembers } } = useUserContext();
   const { dispatch } = useTaskContext();
+  const [submissionPhotoUri, setSubmissionPhotoUri] = useState<string>('');
 
   if (user == undefined || householdId == undefined) {
     return null;
@@ -30,6 +32,10 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
   const showSubmitButton = status === TaskStatus.ASSIGNED && assignee === user.id;
   const showDeclineConfirmButtons = status === TaskStatus.SUBMITTED && creator === user.id;
   const showRemoveButton = creator === user.id;
+
+  const clearState = () => {
+    setSubmissionPhotoUri('');
+  }
 
   const getDisplayName = (id: string) => {
     return householdMembers?.filter(member => member.id === id)?.at(0)?.displayName ?? '';
@@ -44,9 +50,11 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
 
   const onSubmit = async () => {
     const timestamp = new Date(Date.now());
-    const updatedTask = { ...task, status: TaskStatus.SUBMITTED, submissionPhoto: "", submittedAt: timestamp };
-    dispatch({ type: TaskActionType.SUBMIT, id: task.id, submissionPhoto: "", submittedAt: timestamp });
+    const submissionPhotoRemoteUri = await uploadImageToFirebase(submissionPhotoUri, timestamp.toString(), "tasks");
+    const updatedTask = { ...task, status: TaskStatus.SUBMITTED, submissionPhoto: submissionPhotoRemoteUri, submittedAt: timestamp };
+    dispatch({ type: TaskActionType.SUBMIT, id: task.id, submissionPhoto: submissionPhotoRemoteUri, submittedAt: timestamp });
     await updateTask(updatedTask);
+    clearState();
     setModalVisible(false);
   };
 
@@ -88,29 +96,30 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
       <Text style={styles.contentText}>{`Status: ${status}`}</Text>
       <Text style={styles.contentText}>{`Creator: ${getDisplayName(creator)}`}</Text>
       <Text style={styles.contentText}>{`Assignee: ${assignee ? getDisplayName(assignee) : 'Unassigned'}`}</Text>
-      {submissionPhoto ? <Image style={styles.image} source={{ uri: submissionPhoto }} /> : null}
+      {submissionPhoto && <Image style={styles.image} source={{ uri: submissionPhoto }} />}
+      {showSubmitButton && <ImagePickerView onImageSelected={setSubmissionPhotoUri} />}
     </View>
   )
 
   const renderButtons = () => (
     <>
       {showAssignButton && (
-        <TouchableOpacity style={styles.button} onPress={onAssign}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={onAssign}>
           <Text style={styles.buttonText}>Assign me</Text>
         </TouchableOpacity>
       )}
       {showSubmitButton && (
-        <TouchableOpacity style={styles.button} onPress={onSubmit}>
+        <TouchableOpacity disabled={!submissionPhotoUri} style={[styles.button, { backgroundColor: Colors.lightGreen, opacity: !!submissionPhotoUri ? 1 : 0.5 }]} onPress={onSubmit}>
           <Text style={styles.buttonText}>Submit task</Text>
         </TouchableOpacity>
       )}
       {showDeclineConfirmButtons && (
         <>
-          <TouchableOpacity style={styles.button} onPress={onDecline}>
-            <Text style={styles.buttonText}>Decline submission</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={onConfirm}>
+          <TouchableOpacity style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={onConfirm}>
             <Text style={styles.buttonText}>Confirm task</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, { backgroundColor: Colors.pink }]} onPress={onDecline}>
+            <Text style={styles.buttonText}>Decline submission</Text>
           </TouchableOpacity>
         </>
       )}
@@ -211,12 +220,17 @@ const styles = StyleSheet.create({
     fontSize: Fonts.medium,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
     borderRadius: Style.radius,
     marginTop: Spacers.small,
-  }
+    alignSelf: "center"
+  },
+  imageContainer: {
+    marginVertical: Spacers.medium,
+    alignItems: 'center',
+  },
 });
 
 export default TaskDetailsModal;
