@@ -22,7 +22,6 @@ import { auth, db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigninWithGoogle from './signinWithGoogle';
 import { View } from 'react-native';
-import HouseholdSelection from './householdSelection';
 import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
 
@@ -160,7 +159,7 @@ const AuthViewComponent = () => {
           flex: 1
         }}>
         <SigninWithGoogle promptAsync={promptAsync} />
-        <HouseholdSelection invites={invites} />
+        {/* <HouseholdSelection invites={invites} /> */}
         {/* <SignoutGoogle /> */}
       </View>
       {/* ) */}
