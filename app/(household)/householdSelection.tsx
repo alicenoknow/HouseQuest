@@ -64,7 +64,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     console.log('Household updated in HouseholdSelection', household);
     if (household) {
       AsyncStorage.setItem('@household', household);
-      router.replace('/index');
+      router.replace('(tabs)');
     }
   }, [household]);
 
@@ -128,6 +128,38 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     });
     console.log('User updated with household ID');
     await AsyncStorage.setItem('@household', householdRef.id);
+    router.replace('(tabs)');
+  };
+
+  const joinHousehold = async (householdJoinId: string) => {
+    if (!user) {
+      console.log('No user found!');
+      return;
+    }
+    if (!householdJoinId) {
+      console.log('No household ID provided!');
+      return;
+    }
+    // Update user with household ID
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, {
+      household: householdJoinId
+    });
+
+    // Update household with user ID
+    const householdRef = doc(db, 'households', householdJoinId);
+    const householdDoc = await getDoc(householdRef);
+    if (householdDoc.exists()) {
+      const householdData = householdDoc.data();
+      const members = householdData.members || []; // default to an empty array if members is not defined
+      await updateDoc(householdRef, {
+        members: [...members, user.uid]
+      });
+    }
+
+    console.log('User updated with household ID');
+    await AsyncStorage.setItem('@household', householdJoinId);
+    router.replace('(tabs)');
   };
 
   return (
@@ -143,8 +175,8 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
               <HouseholdInvite
                 key={index}
                 householdName={invite}
-                onPress={function (): void {
-                  throw new Error('Function not implemented.');
+                onPress={() => {
+                  joinHousehold(invite.household);
                 }}
               />
             ))
