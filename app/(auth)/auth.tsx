@@ -24,6 +24,7 @@ import SigninWithGoogle from './signinWithGoogle';
 import { View } from 'react-native';
 import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
+import { router } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -102,6 +103,7 @@ const AuthViewComponent = () => {
         console.log('user', user);
         const userJson = JSON.parse(user);
         setUserInfo(userJson);
+        router.replace('/household');
       }
     } catch (error) {
       console.log('error', error);
@@ -123,6 +125,7 @@ const AuthViewComponent = () => {
             const parsedUser = parseGoogleUserData(result);
             dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
             console.log('result', result);
+            router.replace('/household');
           })
           .catch((error) => {
             // Handle errors here
