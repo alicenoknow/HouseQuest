@@ -58,6 +58,7 @@ export default function RootLayout() {
     ...FontAwesome.font
   });
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
+  const [userHousehold, setUserHousehold] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkUserLoggedIn = async () => {
@@ -67,6 +68,16 @@ export default function RootLayout() {
     };
 
     checkUserLoggedIn();
+  }, []);
+
+  useEffect(() => {
+    const checkUserHousehold = async () => {
+      const household = await AsyncStorage.getItem('@household');
+      setUserHousehold(!!household);
+      console.log('household', household);
+    };
+
+    checkUserHousehold();
   }, []);
 
   useEffect(() => {
@@ -82,7 +93,12 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  return <RootLayoutNav isUserLoggedIn={isUserLoggedIn} />;
+  return (
+    <RootLayoutNav
+      isUserLoggedIn={isUserLoggedIn}
+      userHousehold={userHousehold}
+    />
+  );
 }
 
 /**
@@ -93,14 +109,22 @@ export default function RootLayout() {
  * 4. If there is user data and there is household data -> redirect to (tabs) and surround tabs with UserProvider with proper data
  */
 
-function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
+function RootLayoutNav({
+  isUserLoggedIn,
+  userHousehold
+}: {
+  isUserLoggedIn: boolean | null;
+  userHousehold: boolean | null;
+}) {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    if (isUserLoggedIn) {
-      router.replace('(tabs)');
-    } else {
+    if (!isUserLoggedIn) {
       router.replace('/auth');
+    } else if (!userHousehold) {
+      router.replace('/household');
+    } else {
+      router.replace('(tabs)');
     }
   }, [isUserLoggedIn]);
 
