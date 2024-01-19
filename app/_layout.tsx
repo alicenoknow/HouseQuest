@@ -25,27 +25,30 @@ export const unstable_settings = {
 };
 
 const mockState = {
-  householdId: "CJAqIX3OJFz3k9IUX48T", user: {
-    id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
-    displayName: "Alicja Niewiadomska",
-    email: "miicek2000@gmail.com",
+  householdId: 'CJAqIX3OJFz3k9IUX48T',
+  user: {
+    id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
+    displayName: 'Alicja Niewiadomska',
+    email: 'miicek2000@gmail.com',
     role: Role.PARENT,
     totalPoints: 0,
     currentPoints: 0,
-    photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+    photoUrl:
+      'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
   },
   householdMembers: [
     {
-      id: "ZCCW8ZX1qUe7nRvJnI28UrlCsPu1",
-      displayName: "Alicja Niewiadomska",
-      email: "micek2000@gmail.com",
+      id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
+      displayName: 'Alicja Niewiadomska',
+      email: 'micek2000@gmail.com',
       role: Role.PARENT,
       totalPoints: 0,
       currentPoints: 0,
-      photoUrl: "https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c",
+      photoUrl:
+        'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
     }
   ]
-}
+};
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,6 +58,7 @@ export default function RootLayout() {
     ...FontAwesome.font
   });
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
+  const [userHousehold, setUserHousehold] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkUserLoggedIn = async () => {
@@ -64,6 +68,16 @@ export default function RootLayout() {
     };
 
     checkUserLoggedIn();
+  }, []);
+
+  useEffect(() => {
+    const checkUserHousehold = async () => {
+      const household = await AsyncStorage.getItem('@household');
+      setUserHousehold(!!household);
+      console.log('household', household);
+    };
+
+    checkUserHousehold();
   }, []);
 
   useEffect(() => {
@@ -79,7 +93,12 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-  return <RootLayoutNav isUserLoggedIn={isUserLoggedIn} />;
+  return (
+    <RootLayoutNav
+      isUserLoggedIn={isUserLoggedIn}
+      userHousehold={userHousehold}
+    />
+  );
 }
 
 /**
@@ -90,32 +109,42 @@ export default function RootLayout() {
  * 4. If there is user data and there is household data -> redirect to (tabs) and surround tabs with UserProvider with proper data
  */
 
-function RootLayoutNav({ isUserLoggedIn }: { isUserLoggedIn: boolean | null }) {
+function RootLayoutNav({
+  isUserLoggedIn,
+  userHousehold
+}: {
+  isUserLoggedIn: boolean | null;
+  userHousehold: boolean | null;
+}) {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    if (isUserLoggedIn) {
-      router.replace('(tabs)');
-    } else {
+    if (!isUserLoggedIn) {
       router.replace('/auth');
+    } else if (!userHousehold) {
+      router.replace('/household');
+    } else {
+      router.replace('(tabs)');
     }
   }, [isUserLoggedIn]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider initialState={{
-        user: undefined,
-        householdId: undefined,
-        householdMembers: []
-      }}>
+      <UserProvider
+        initialState={{
+          user: undefined,
+          householdId: undefined,
+          householdMembers: []
+        }}>
         <RemoteDataProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="users" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(household)" options={{ headerShown: false }} />
           </Stack>
         </RemoteDataProvider>
       </UserProvider>
-    </ThemeProvider >
+    </ThemeProvider>
   );
 }

@@ -19,6 +19,7 @@ import { firebaseUser } from '../../models/firebaseUser';
 import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HouseholdInvite from './householdInviteCard';
+import { router } from 'expo-router';
 
 type HouseholdSelectionProps = {
   invites: any[]; // replace any[] with the actual type if known
@@ -34,23 +35,43 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
 
   const getUser = async () => {
     const user = await AsyncStorage.getItem('@user');
-    if (user) {
-      const userJson = JSON.parse(user);
-      setUser(userJson);
+    if (!user) {
+      router.replace('/auth');
+      return;
+    }
+    const userJson = JSON.parse(user);
+    setUser(userJson);
+  };
+
+  const getHousehold = async () => {
+    const household = await AsyncStorage.getItem('@household');
+    if (household) {
+      setHousehold(household);
     }
   };
+
+  useEffect(() => {
+    getUser();
+    getHousehold();
+  }, []);
+
   useEffect(() => {
     console.log('Invites updated in HouseholdSelection', invites);
     setInviteHouseholds(invites);
   }, [invites]);
 
   useEffect(() => {
-    getUser();
-  }, []);
+    console.log('Household updated in HouseholdSelection', household);
+    if (household) {
+      AsyncStorage.setItem('@household', household);
+      router.replace('(tabs)');
+    }
+  }, [household]);
 
   const getUserData = async () => {
     if (!user) {
       console.log('No user found!');
+      router.replace('/auth');
       return;
     }
     const userRef = doc(db, 'users', user?.uid);
@@ -96,7 +117,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
       rewards: [],
       todos: [],
       announcements: [],
-      kudos: [],
+      kudos: []
     });
     console.log('Household created with ID:', householdRef.id);
 
@@ -107,6 +128,38 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     });
     console.log('User updated with household ID');
     await AsyncStorage.setItem('@household', householdRef.id);
+    router.replace('(tabs)');
+  };
+
+  const joinHousehold = async (householdJoinId: string) => {
+    if (!user) {
+      console.log('No user found!');
+      return;
+    }
+    if (!householdJoinId) {
+      console.log('No household ID provided!');
+      return;
+    }
+    // Update user with household ID
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, {
+      household: householdJoinId
+    });
+
+    // Update household with user ID
+    const householdRef = doc(db, 'households', householdJoinId);
+    const householdDoc = await getDoc(householdRef);
+    if (householdDoc.exists()) {
+      const householdData = householdDoc.data();
+      const members = householdData.members || []; // default to an empty array if members is not defined
+      await updateDoc(householdRef, {
+        members: [...members, user.uid]
+      });
+    }
+
+    console.log('User updated with household ID');
+    await AsyncStorage.setItem('@household', householdJoinId);
+    router.replace('(tabs)');
   };
 
   return (
@@ -122,8 +175,8 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
               <HouseholdInvite
                 key={index}
                 householdName={invite}
-                onPress={function (): void {
-                  throw new Error('Function not implemented.');
+                onPress={() => {
+                  joinHousehold(invite.household);
                 }}
               />
             ))

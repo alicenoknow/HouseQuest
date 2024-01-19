@@ -57,6 +57,14 @@ const Profile: React.FC<ProfileProps> = ({
           <Text style={styles.settingsText}>Auth</Text>
         </Pressable>
       </Link>
+      <Link
+        href={'/household'}
+        style={[styles.settingsButton, { marginTop: 10 }]}
+        asChild>
+        <Pressable>
+          <Text style={styles.settingsText}>Household Creation Screen</Text>
+        </Pressable>
+      </Link>
       {/* // end auth buttons navigation */}
       <TouchableOpacity style={styles.settingsButton} onPress={onPressSettings}>
         <Text style={styles.settingsText}>Settings</Text>
@@ -136,7 +144,8 @@ const styles = StyleSheet.create({
   settingsButton: {
     backgroundColor: Colors.darkGreen,
     padding: 10,
-    borderRadius: 16
+    borderRadius: 16,
+    marginTop: 10
   },
   settingsText: {
     color: 'white',
