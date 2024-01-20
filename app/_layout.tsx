@@ -9,7 +9,11 @@ import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import { UserProvider } from '../contexts/UserContext';
+import {
+  UserActionType,
+  UserProvider,
+  useUserContext
+} from '../contexts/UserContext';
 import { Role } from '../models/user';
 import { AnnouncementProvider } from '../contexts/AnnouncementsContext';
 import { TodoProvider } from '../contexts/TodoContext';
@@ -17,6 +21,7 @@ import { RewardsProvider } from '../contexts/RewardsContext';
 import { KudosOrSlobsProvider } from '../contexts/KudosContext';
 import { TaskProvider } from '../contexts/TasksContext';
 import RemoteDataProvider from '../components/data/RemoteDataProvider';
+import { parseGoogleUserData } from '../functions/parseGoogleUserData';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -59,10 +64,12 @@ export default function RootLayout() {
   });
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
   const [userHousehold, setUserHousehold] = useState<boolean | null>(null);
+  const [user, setUser] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       const user = await AsyncStorage.getItem('@user');
+      setUser(user);
       setIsUserLoggedIn(!!user); // Set true if user data exists, false otherwise
       console.log('user', user);
     };
@@ -97,6 +104,7 @@ export default function RootLayout() {
     <RootLayoutNav
       isUserLoggedIn={isUserLoggedIn}
       userHousehold={userHousehold}
+      user={user}
     />
   );
 }
@@ -111,14 +119,27 @@ export default function RootLayout() {
 
 function RootLayoutNav({
   isUserLoggedIn,
-  userHousehold
+  userHousehold,
+  user
 }: {
   isUserLoggedIn: boolean | null;
   userHousehold: boolean | null;
+  user: string | null;
 }) {
   const colorScheme = useColorScheme();
+  const { dispatch } = useUserContext();
 
   useEffect(() => {
+    console.log('isUserLoggedIn', isUserLoggedIn);
+    console.log('user', user);
+    if (isUserLoggedIn) {
+      if (!!user) {
+        const userJson = JSON.parse(user);
+        const parsedUser = parseGoogleUserData(userJson);
+        dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
+      }
+    }
+
     if (!isUserLoggedIn) {
       router.replace('/auth');
     } else if (!userHousehold) {
