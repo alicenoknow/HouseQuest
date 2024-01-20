@@ -49,13 +49,11 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
   };
 
   const getHousehold = async () => {
-    const household = await AsyncStorage.getItem('@household').then(
-      (household) => {
-        if (household) {
-          setHousehold(household);
-        }
+    await AsyncStorage.getItem('@household').then((household) => {
+      if (household) {
+        setHousehold(household);
       }
-    );
+    });
   };
 
   useEffect(() => {
@@ -140,7 +138,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
     await updateDoc(userRef, {
       household: householdRef.id
     });
-    console.log('User updated with household ID');
+    console.log('User updated with household ID', householdRef.id);
     await AsyncStorage.setItem('@household', householdRef.id);
     dispatch({
       type: UserActionType.UPDATE_HOUSEHOLD,
@@ -175,7 +173,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
       });
     }
 
-    console.log('User updated with household ID');
+    console.log('User updated with household ID', householdJoinId);
     await AsyncStorage.setItem('@household', householdJoinId);
     dispatch({
       type: UserActionType.UPDATE_HOUSEHOLD,
