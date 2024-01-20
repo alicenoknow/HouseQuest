@@ -33,6 +33,7 @@ import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
 import { firebaseUser } from '../../models/firebaseUser';
 import { FirebaseError } from 'firebase/app';
+import { parseGoogleUserData } from '../../functions/parseGoogleUserData';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -44,20 +45,6 @@ const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
-
-const parseGoogleUserData = (googleUserData: firebaseUser): User => {
-  console.log('googleUserData', googleUserData);
-  return {
-    id: googleUserData.uid,
-    displayName: googleUserData.displayName,
-    email: googleUserData.email,
-    role: Role.PARENT, // Assuming a default role
-    totalPoints: 0, // Default or calculated value
-    currentPoints: 0, // Default or calculated value
-    photoUrl: googleUserData.photoURL,
-    location: undefined // Default or actual value
-  };
-};
 
 const checkAndCreateUserInFirestore = async (
   user: FirebaseUser,
@@ -113,6 +100,7 @@ const AuthViewComponent = () => {
         if (user) {
           console.log('user', user);
           const userJson = JSON.parse(user);
+          console.log('userJson', userJson);
           setUserInfo(userJson);
           const parsedUser = parseGoogleUserData(userJson);
           dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
