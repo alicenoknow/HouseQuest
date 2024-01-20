@@ -2,7 +2,7 @@ export interface firebaseUser {
     uid: string;
     displayName: string;
     email: string;
-    avatarUri: string;
+    photoURL: string;
     household?: string;
   }
   
