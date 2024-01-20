@@ -23,9 +23,10 @@ import { router } from 'expo-router';
 
 type HouseholdSelectionProps = {
   invites: any[]; // replace any[] with the actual type if known
+  householdUpdate: boolean;
 };
 
-const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
+const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites, householdUpdate }) => {
   const [user, setUser] = React.useState<firebaseUser | undefined>(undefined);
   const [household, setHousehold] = React.useState<string | undefined>(
     undefined
@@ -53,7 +54,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
   useEffect(() => {
     getUser();
     getHousehold();
-  }, []);
+  }, [householdUpdate]);
 
   useEffect(() => {
     console.log('Invites updated in HouseholdSelection', invites);
