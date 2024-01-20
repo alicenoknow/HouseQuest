@@ -37,7 +37,7 @@ const InviteScreen = () => {
         receiver_email: email,
         role: role,
         sender_id: senderId,
-        household_id: householdId
+        household: householdId
       });
       console.log('Invite sent');
     } catch (error) {
