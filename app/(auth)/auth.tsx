@@ -1,8 +1,8 @@
-import 'react-native-gesture-handler';
-import React, { useState, useEffect, useContext } from 'react';
-import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
+// React and React Native imports
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+
+// Firebase imports
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -19,19 +19,28 @@ import {
   getDocs
 } from 'firebase/firestore';
 import { auth, db } from '../../config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Expo imports
+import * as Google from 'expo-auth-session/providers/google';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import { router } from 'expo-router';
+
+// Local imports
 import SigninWithGoogle from './signinWithGoogle';
-import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
-import { router } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
+const ANDROID_CLIENT_ID = '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com'
+const WEB_CLIENT_ID= '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
 const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
+
 
 const parseGoogleUserData = (googleUserData: any): User => {
   return {
@@ -90,9 +99,9 @@ const AuthViewComponent = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
     androidClientId:
-      '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com',
+      ANDROID_CLIENT_ID,
     webClientId:
-      '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
+      WEB_CLIENT_ID,
   });
   const { dispatch } = useUserContext(); // Use the context hook to get the dispatch function
 
@@ -157,17 +166,9 @@ const AuthViewComponent = () => {
 
   return (
     <>
-      {/* userInfo ? ( */}
-      {/* ) : ( */}
-      <View
-        style={{
-          flex: 1
-        }}>
+      <View style={{ flex: 1 }}>
         <SigninWithGoogle promptAsync={promptAsync} />
-        {/* <HouseholdSelection invites={invites} /> */}
-        {/* <SignoutGoogle /> */}
       </View>
-      {/* ) */}
     </>
   );
 };
