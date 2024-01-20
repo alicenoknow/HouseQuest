@@ -7,7 +7,8 @@ export enum UserActionType {
   UPDATE_MEMBER = 'UPDATE_MEMBER',
   UPDATE_LOCATION = 'UPDATE_LOCATION',
   LOGIN_USER = 'LOGIN_USER',
-  LOGOUT_USER = 'LOGOUT_USER'
+  LOGOUT_USER = 'LOGOUT_USER',
+  UPDATE_HOUSEHOLD = 'UPDATE_HOUSEHOLD'
 }
 
 type UserAction =
@@ -15,7 +16,9 @@ type UserAction =
   | { type: UserActionType.UPDATE_MEMBER; member: User }
   | { type: UserActionType.UPDATE_LOCATION; location: LatLng }
   | { type: UserActionType.LOGIN_USER; user: User }
-  | { type: UserActionType.LOGOUT_USER; user: null };
+  | { type: UserActionType.LOGOUT_USER; user: null }
+  | { type: UserActionType.UPDATE_HOUSEHOLD; householdId: string };
+
 
 interface UserState {
   householdId: string | undefined;
@@ -74,6 +77,12 @@ const reducer: Reducer<UserState, UserAction> = (
       return {
         ...state,
         user: undefined
+      };
+    }
+    case UserActionType.UPDATE_HOUSEHOLD: {
+      return {
+        ...state,
+        householdId: action.householdId
       };
     }
     default: {
