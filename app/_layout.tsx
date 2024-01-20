@@ -63,7 +63,7 @@ export default function RootLayout() {
     ...FontAwesome.font
   });
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
-  const [userHousehold, setUserHousehold] = useState<boolean | null>(null);
+  const [isUserInHousehold, setIsUserInHousehold] = useState<boolean | null>(null);
   const [user, setUser] = useState<string | null>(null);
   const [householdId, setHouseholdId] = useState<string | null>(null);
 
@@ -72,7 +72,7 @@ export default function RootLayout() {
       const user = await AsyncStorage.getItem('@user');
       setUser(user);
       setIsUserLoggedIn(!!user); // Set true if user data exists, false otherwise
-      console.log('user', user);
+      console.log('user read from async 1', user);
     };
 
     checkUserLoggedIn();
@@ -82,8 +82,8 @@ export default function RootLayout() {
     const checkUserHousehold = async () => {
       const household = await AsyncStorage.getItem('@household');
       setHouseholdId(household);
-      setUserHousehold(!!household);
-      console.log('household', household);
+      setIsUserInHousehold(!!household);
+      console.log('household from async 1', household);
     };
 
     checkUserHousehold();
@@ -105,7 +105,7 @@ export default function RootLayout() {
   return (
     <RootLayoutNav
       isUserLoggedIn={isUserLoggedIn}
-      userHousehold={userHousehold}
+      isUserInHousehold={isUserInHousehold}
       user={user}
       householdId={householdId}
     />
@@ -122,59 +122,63 @@ export default function RootLayout() {
 
 function RootLayoutNav({
   isUserLoggedIn,
-  userHousehold,
+  isUserInHousehold,
   user,
   householdId
 }: {
   isUserLoggedIn: boolean | null;
-  userHousehold: boolean | null;
+  isUserInHousehold: boolean | null;
   user: string | null;
   householdId: string | null;
 }) {
   const colorScheme = useColorScheme();
-  const { dispatch } = useUserContext();
+  const { state, dispatch } = useUserContext();
   const [parsedUser, setParsedUser] = useState<User | undefined>(undefined);
   const [parsedHouseholdId, setParsedHouseholdId] = useState<
     string | undefined
   >(undefined);
 
   useEffect(() => {
-    console.log('isUserLoggedIn', isUserLoggedIn);
-    console.log('user_root', user);
-    if (isUserLoggedIn) {
-      if (!!user) {
-        const userJson = JSON.parse(user);
-        console.log('userJson_root', userJson);
-        setParsedUser(parseGoogleUserData(userJson));
-      }
+    console.log('isUserLoggedIn', isUserLoggedIn, user);
+    console.log('isUserInHousehold', isUserInHousehold);
+
+    if (isUserLoggedIn && !!user) {
+      const userJson = JSON.parse(user);
+      console.log('user from async', userJson);
+
+      const userParsed = parseGoogleUserData(userJson);
+      setParsedUser(userParsed);
+      dispatch({
+        type: UserActionType.LOGIN_USER,
+        user: userParsed
+      });
     }
 
-    console.log('userHousehold', userHousehold);
-    if (userHousehold) {
-      if (!!householdId) {
-        console.log('householdId', householdId);
-        setParsedHouseholdId(householdId);
-      }
+    if (isUserInHousehold && !!householdId) {
+      console.log('householdId from async', householdId);
+
+      setParsedHouseholdId(householdId);
+      dispatch({
+        type: UserActionType.UPDATE_HOUSEHOLD,
+        householdId: householdId,
+      });
     }
 
     if (!isUserLoggedIn) {
+      console.log("entering auth")
       router.replace('/auth');
-    } else if (!userHousehold) {
+    } else if (!isUserInHousehold) {
       console.log('entering household creation');
       router.replace('/household');
     } else {
+      console.log("entring tabs")
       router.replace('(tabs)');
     }
-  }, [isUserLoggedIn]);
+  }, [isUserLoggedIn, isUserInHousehold, user, householdId]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider
-        initialState={{
-          user: parsedUser,
-          householdId: parsedHouseholdId,
-          householdMembers: []
-        }}>
+      <UserProvider>
         <RemoteDataProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

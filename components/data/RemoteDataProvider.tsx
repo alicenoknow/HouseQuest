@@ -1,40 +1,35 @@
-import React, { useEffect } from 'react';
-import {
-  AnnouncementProvider,
-  KudosOrSlobsProvider,
-  RewardsProvider,
-  TaskProvider,
-  TodoProvider,
-  UserActionType,
-  useUserContext
-} from '../../contexts';
-import { fetchMembers } from '../../remote/db';
-import { User } from '../../models';
+import { useEffect } from "react";
+import { AnnouncementProvider, KudosOrSlobsProvider, RewardsProvider, TaskProvider, TodoProvider, UserActionType, useUserContext } from "../../contexts";
+import { fetchMembers } from "../../remote/db";
+import { User } from "../../models";
 
 export default function RemoteDataProvider({
-  children
+    children
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  const { state, dispatch } = useUserContext();
-  const householdId = state?.householdId;
+    const { state, dispatch } = useUserContext();
+    const householdId = state?.householdId;
 
-  useEffect(() => {
-    householdId &&
-      fetchMembers(householdId, (member: User) =>
-        dispatch({ type: UserActionType.UPDATE_MEMBER, member })
-      );
-  }, []);
+    useEffect(() => {
+        householdId && fetchMembers(householdId,
+            (member: User) => {
+                console.log("member ", member)
+                dispatch({ type: UserActionType.UPDATE_MEMBER, member })
+            })
+    }, [])
 
-  return (
-    <TodoProvider>
-      <AnnouncementProvider>
-        <TaskProvider>
-          <RewardsProvider>
-            <KudosOrSlobsProvider>{children}</KudosOrSlobsProvider>
-          </RewardsProvider>
-        </TaskProvider>
-      </AnnouncementProvider>
-    </TodoProvider>
-  );
+
+    return (
+        <TodoProvider>
+            <AnnouncementProvider>
+                <TaskProvider>
+                    <RewardsProvider>
+                        <KudosOrSlobsProvider>
+                            {children}
+                        </KudosOrSlobsProvider>
+                    </RewardsProvider>
+                </TaskProvider>
+            </AnnouncementProvider>
+        </TodoProvider>);
 }

@@ -40,7 +40,7 @@ const initialState: UserState = {
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => {}
+  dispatch: () => { }
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -50,6 +50,8 @@ const reducer: Reducer<UserState, UserAction> = (
   const { user, householdMembers } = state;
   switch (action.type) {
     case UserActionType.UPDATE_USER: {
+      console.log("context user update")
+
       type A = typeof action.user;
       return { ...state, user: { ...action.user } };
     }
@@ -62,13 +64,14 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-              ...user,
-              location: action.location
-            }
+            ...user,
+            location: action.location
+          }
           : undefined
       };
     }
     case UserActionType.LOGIN_USER: {
+      console.log("context user login")
       return {
         ...state,
         user: action.user
@@ -81,6 +84,7 @@ const reducer: Reducer<UserState, UserAction> = (
       };
     }
     case UserActionType.UPDATE_HOUSEHOLD: {
+      console.log("context action household", action.householdId)
       return {
         ...state,
         householdId: action.householdId
@@ -100,15 +104,13 @@ const reducer: Reducer<UserState, UserAction> = (
 };
 
 export function UserProvider({
-  initialState,
+  // initialState,
   children
 }: {
-  initialState: UserState;
+  // initialState: UserState;
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  console.log('UserContext: ', state);
 
   return (
     <UserContext.Provider value={{ state, dispatch }}>
