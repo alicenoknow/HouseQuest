@@ -7,7 +7,9 @@ export enum UserActionType {
   UPDATE_MEMBER = 'UPDATE_MEMBER',
   UPDATE_LOCATION = 'UPDATE_LOCATION',
   LOGIN_USER = 'LOGIN_USER',
-  LOGOUT_USER = 'LOGOUT_USER'
+  LOGOUT_USER = 'LOGOUT_USER',
+  UPDATE_HOUSEHOLD = 'UPDATE_HOUSEHOLD',
+  REMOVE_HOUSEHOLD = 'REMOVE_HOUSEHOLD'
 }
 
 type UserAction =
@@ -15,7 +17,9 @@ type UserAction =
   | { type: UserActionType.UPDATE_MEMBER; member: User }
   | { type: UserActionType.UPDATE_LOCATION; location: LatLng }
   | { type: UserActionType.LOGIN_USER; user: User }
-  | { type: UserActionType.LOGOUT_USER; user: null };
+  | { type: UserActionType.LOGOUT_USER; user: null }
+  | { type: UserActionType.UPDATE_HOUSEHOLD; householdId: string }
+  | { type: UserActionType.REMOVE_HOUSEHOLD; householdId: undefined };
 
 interface UserState {
   householdId: string | undefined;
@@ -36,7 +40,7 @@ const initialState: UserState = {
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => { }
+  dispatch: () => {}
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -58,9 +62,9 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-            ...user,
-            location: action.location
-          }
+              ...user,
+              location: action.location
+            }
           : undefined
       };
     }
@@ -74,6 +78,18 @@ const reducer: Reducer<UserState, UserAction> = (
       return {
         ...state,
         user: undefined
+      };
+    }
+    case UserActionType.UPDATE_HOUSEHOLD: {
+      return {
+        ...state,
+        householdId: action.householdId
+      };
+    }
+    case UserActionType.REMOVE_HOUSEHOLD: {
+      return {
+        ...state,
+        householdId: undefined
       };
     }
     default: {

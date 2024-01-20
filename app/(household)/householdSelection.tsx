@@ -1,6 +1,3 @@
-//create a view for the user to select their household
-//
-
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
 import { db } from '../../config';
@@ -20,40 +17,49 @@ import { User } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HouseholdInvite from './householdInviteCard';
 import { router } from 'expo-router';
+import { UserActionType, useUserContext } from '../../contexts/UserContext';
 
 type HouseholdSelectionProps = {
   invites: any[]; // replace any[] with the actual type if known
+  householdUpdate: boolean;
 };
 
-const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
+const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
+  invites,
+  householdUpdate
+}) => {
   const [user, setUser] = React.useState<firebaseUser | undefined>(undefined);
   const [household, setHousehold] = React.useState<string | undefined>(
     undefined
   );
   const [householdInput, setHouseholdInput] = React.useState<string>('');
   const [inviteHouseholds, setInviteHouseholds] = React.useState<any[]>([]);
+  const { dispatch } = useUserContext();
 
   const getUser = async () => {
-    const user = await AsyncStorage.getItem('@user');
-    if (!user) {
-      router.replace('/auth');
-      return;
-    }
-    const userJson = JSON.parse(user);
-    setUser(userJson);
+    await AsyncStorage.getItem('@user').then((user) => {
+      if (!user) {
+        console.log('user_hselect1', user);
+        router.replace('/auth');
+        return;
+      }
+      const userJson = JSON.parse(user);
+      setUser(userJson);
+    });
   };
 
   const getHousehold = async () => {
-    const household = await AsyncStorage.getItem('@household');
-    if (household) {
-      setHousehold(household);
-    }
+    await AsyncStorage.getItem('@household').then((household) => {
+      if (household) {
+        setHousehold(household);
+      }
+    });
   };
 
   useEffect(() => {
     getUser();
     getHousehold();
-  }, []);
+  }, [householdUpdate]);
 
   useEffect(() => {
     console.log('Invites updated in HouseholdSelection', invites);
@@ -64,12 +70,18 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     console.log('Household updated in HouseholdSelection', household);
     if (household) {
       AsyncStorage.setItem('@household', household);
+      dispatch({
+        type: UserActionType.UPDATE_HOUSEHOLD,
+        householdId: household
+      });
+
       router.replace('(tabs)');
     }
   }, [household]);
 
   const getUserData = async () => {
     if (!user) {
+      console.log('user_hselect2', user);
       console.log('No user found!');
       router.replace('/auth');
       return;
@@ -126,8 +138,12 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
     await updateDoc(userRef, {
       household: householdRef.id
     });
-    console.log('User updated with household ID');
+    console.log('User updated with household ID', householdRef.id);
     await AsyncStorage.setItem('@household', householdRef.id);
+    dispatch({
+      type: UserActionType.UPDATE_HOUSEHOLD,
+      householdId: householdRef.id
+    });
     router.replace('(tabs)');
   };
 
@@ -157,8 +173,12 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites }) => {
       });
     }
 
-    console.log('User updated with household ID');
+    console.log('User updated with household ID', householdJoinId);
     await AsyncStorage.setItem('@household', householdJoinId);
+    dispatch({
+      type: UserActionType.UPDATE_HOUSEHOLD,
+      householdId: householdJoinId
+    });
     router.replace('(tabs)');
   };
 

@@ -1,8 +1,8 @@
-import 'react-native-gesture-handler';
-import React, { useState, useEffect, useContext } from 'react';
-import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
+// React and React Native imports
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+
+// Firebase imports
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -19,32 +19,32 @@ import {
   getDocs
 } from 'firebase/firestore';
 import { auth, db } from '../../config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Expo imports
+import * as Google from 'expo-auth-session/providers/google';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import { router } from 'expo-router';
+
+// Local imports
 import SigninWithGoogle from './signinWithGoogle';
-import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
-import { router } from 'expo-router';
+import { firebaseUser } from '../../models/firebaseUser';
+import { FirebaseError } from 'firebase/app';
+import { parseGoogleUserData } from '../../functions/parseGoogleUserData';
 
 WebBrowser.maybeCompleteAuthSession();
 
+const ANDROID_CLIENT_ID =
+  '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com';
+const WEB_CLIENT_ID =
+  '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com';
 const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
-
-const parseGoogleUserData = (googleUserData: any): User => {
-  return {
-    id: googleUserData.uid,
-    displayName: googleUserData.displayName,
-    email: googleUserData.email,
-    role: Role.PARENT, // Assuming a default role
-    totalPoints: 0, // Default or calculated value
-    currentPoints: 0, // Default or calculated value
-    photoUrl: googleUserData.photoURL,
-    location: undefined // Default or actual value
-  };
-};
 
 const checkAndCreateUserInFirestore = async (
   user: FirebaseUser,
@@ -85,26 +85,28 @@ const checkAndCreateUserInFirestore = async (
 };
 
 const AuthViewComponent = () => {
-  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
-  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
+  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined);
+  const [invites, setInvites] = useState<any[]>([]);
   const [request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
-    androidClientId:
-      '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com',
-    webClientId:
-      '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
+    androidClientId: ANDROID_CLIENT_ID,
+    webClientId: WEB_CLIENT_ID
   });
   const { dispatch } = useUserContext(); // Use the context hook to get the dispatch function
 
   const checkIfUserLoggedIn = async () => {
     try {
-      const user = await AsyncStorage.getItem('@user');
-      if (user) {
-        console.log('user', user);
-        const userJson = JSON.parse(user);
-        setUserInfo(userJson);
-        router.replace('/household');
-      }
+      await AsyncStorage.getItem('@user').then((user) => {
+        if (user) {
+          console.log('user', user);
+          const userJson = JSON.parse(user);
+          console.log('userJson', userJson);
+          setUserInfo(userJson);
+          const parsedUser = parseGoogleUserData(userJson);
+          dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
+          router.replace('/household');
+        }
+      });
     } catch (error) {
       console.log('error', error);
     }
@@ -122,10 +124,20 @@ const AuthViewComponent = () => {
         signInWithCredential(auth, credential)
           .then((result) => {
             // Handle the sign-in result
-            const parsedUser = parseGoogleUserData(result);
-            dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
-            console.log('result', result);
-            router.replace('/household');
+            const parsedResultUser: any = result.user.toJSON();
+            if (
+              parsedResultUser &&
+              typeof parsedResultUser.email === 'string' &&
+              typeof parsedResultUser.uid === 'string' &&
+              typeof parsedResultUser.displayName === 'string' &&
+              typeof parsedResultUser.photoURL === 'string'
+            ) {
+              const parsedGoogleUser = parseGoogleUserData(parsedResultUser);
+              dispatch({
+                type: UserActionType.LOGIN_USER,
+                user: parsedGoogleUser
+              });
+            }
           })
           .catch((error) => {
             // Handle errors here
@@ -137,35 +149,22 @@ const AuthViewComponent = () => {
 
   useEffect(() => {
     checkIfUserLoggedIn();
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      console.log('user_pre', user);
-      console.log('auth', auth);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log('user_acc', JSON.stringify(user, null, 2));
         setUserInfo(user);
         await checkAndCreateUserInFirestore(user, setInvites);
-        console.log('invites', invites);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
-      } else {
-        console.log('no user signed in');
+        router.replace('/household');
       }
     });
-    return () => unsub();
+    return unsubscribe;
   }, []);
 
   return (
     <>
-      {/* userInfo ? ( */}
-      {/* ) : ( */}
-      <View
-        style={{
-          flex: 1
-        }}>
+      <View style={{ flex: 1 }}>
         <SigninWithGoogle promptAsync={promptAsync} />
-        {/* <HouseholdSelection invites={invites} /> */}
-        {/* <SignoutGoogle /> */}
       </View>
-      {/* ) */}
     </>
   );
 };
