@@ -34,13 +34,14 @@ import { useUserContext, UserActionType } from '../../contexts/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const ANDROID_CLIENT_ID = '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com'
-const WEB_CLIENT_ID= '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com'
+const ANDROID_CLIENT_ID =
+  '353172267978-g4n3f0m0un08eptet0i1e8qoi6ud1981.apps.googleusercontent.com';
+const WEB_CLIENT_ID =
+  '353172267978-5geengkovkl0mjorji4hbj19ot6b2i33.apps.googleusercontent.com';
 const redirectUri = makeRedirectUri({
   scheme: 'com.homequest.homequestapp',
   path: '/auth'
 });
-
 
 const parseGoogleUserData = (googleUserData: any): User => {
   return {
@@ -94,26 +95,26 @@ const checkAndCreateUserInFirestore = async (
 };
 
 const AuthViewComponent = () => {
-  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined); // Update the type of userInfo
-  const [invites, setInvites] = useState<any[]>([]); // Update the type of userInfo
+  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined);
+  const [invites, setInvites] = useState<any[]>([]);
   const [request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
-    androidClientId:
-      ANDROID_CLIENT_ID,
-    webClientId:
-      WEB_CLIENT_ID,
+    androidClientId: ANDROID_CLIENT_ID,
+    webClientId: WEB_CLIENT_ID
   });
   const { dispatch } = useUserContext(); // Use the context hook to get the dispatch function
 
   const checkIfUserLoggedIn = async () => {
     try {
-      await AsyncStorage.getItem('@user').then((user) => 
-      {if (user) {
-        console.log('user', user);
-        const userJson = JSON.parse(user);
-        setUserInfo(userJson);
-        router.replace('/household');
-      }
+      await AsyncStorage.getItem('@user').then((user) => {
+        if (user) {
+          console.log('user', user);
+          const userJson = JSON.parse(user);
+          setUserInfo(userJson);
+          const parsedUser = parseGoogleUserData(userJson);
+          dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
+          router.replace('/household');
+        }
       });
     } catch (error) {
       console.log('error', error);
@@ -147,21 +148,15 @@ const AuthViewComponent = () => {
 
   useEffect(() => {
     checkIfUserLoggedIn();
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      console.log('user_pre', user);
-      console.log('auth', auth);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log('user_acc', JSON.stringify(user, null, 2));
         setUserInfo(user);
         await checkAndCreateUserInFirestore(user, setInvites);
-        console.log('invites', invites);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
         router.replace('/household');
-      } else {
-        console.log('no user signed in');
       }
     });
-    return () => unsub();
+    return unsubscribe;
   }, []);
 
   return (
