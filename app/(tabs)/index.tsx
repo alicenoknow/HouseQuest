@@ -19,6 +19,8 @@ import { db } from '../../config';
 import { Ionicons } from '@expo/vector-icons';
 
 // TODO refactor, basically rewrite, extract components, fix styling
+import { useUserContext } from '../../contexts/UserContext';
+
 async function addAnnouncement(announcement: string) {
   const docRef = doc(db, 'messages', Date.now().toString());
   const payload = { message: announcement };
@@ -107,13 +109,20 @@ const Dashboard: React.FC = () => {
                 item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
             }
           ]}
-          onPress={() => console.log(`User avatar pressed ${item.displayName}`)}>
+          onPress={() =>
+            console.log(`User avatar pressed ${item.displayName}`)
+          }>
           <Image source={{ uri: item.photoUrl }} style={styles.avatar} />
         </TouchableOpacity>
       </Link>
     );
   };
 
+  const { state, dispatch } = useUserContext();
+
+  React.useEffect(() => {
+    console.log('Current UserContext State:', state);
+  }, [state]); // Log the state when it changes
   return (
     <SafeAreaView style={styles.container}>
       <View>
