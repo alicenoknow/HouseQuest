@@ -31,6 +31,8 @@ import SigninWithGoogle from './signinWithGoogle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
+import { firebaseUser } from '../../models/firebaseUser';
+import { FirebaseError } from 'firebase/app';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -43,7 +45,8 @@ const redirectUri = makeRedirectUri({
   path: '/auth'
 });
 
-const parseGoogleUserData = (googleUserData: any): User => {
+const parseGoogleUserData = (googleUserData: firebaseUser): User => {
+  console.log('googleUserData', googleUserData);
   return {
     id: googleUserData.uid,
     displayName: googleUserData.displayName,
@@ -133,10 +136,20 @@ const AuthViewComponent = () => {
         signInWithCredential(auth, credential)
           .then((result) => {
             // Handle the sign-in result
-            const parsedUser = parseGoogleUserData(result);
-            dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
-            console.log('result', result);
-            // router.replace('/household');
+            const parsedResultUser: any = result.user.toJSON();
+            if (
+              parsedResultUser &&
+              typeof parsedResultUser.email === 'string' &&
+              typeof parsedResultUser.uid === 'string' &&
+              typeof parsedResultUser.displayName === 'string' &&
+              typeof parsedResultUser.photoURL === 'string'
+            ) {
+              const parsedGoogleUser = parseGoogleUserData(parsedResultUser);
+              dispatch({
+                type: UserActionType.LOGIN_USER,
+                user: parsedGoogleUser
+              });
+            }
           })
           .catch((error) => {
             // Handle errors here
