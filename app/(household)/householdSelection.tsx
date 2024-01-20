@@ -35,20 +35,24 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites, househ
   const [inviteHouseholds, setInviteHouseholds] = React.useState<any[]>([]);
 
   const getUser = async () => {
-    const user = await AsyncStorage.getItem('@user');
+    await AsyncStorage.getItem('@user').then((user) => {
     if (!user) {
+      console.log('user_hselect1', user);
       router.replace('/auth');
       return;
     }
     const userJson = JSON.parse(user);
     setUser(userJson);
+    }
+    );
   };
+  
 
   const getHousehold = async () => {
-    const household = await AsyncStorage.getItem('@household');
+    const household = await AsyncStorage.getItem('@household').then((household) => {;
     if (household) {
       setHousehold(household);
-    }
+    }});
   };
 
   useEffect(() => {
@@ -71,6 +75,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({ invites, househ
 
   const getUserData = async () => {
     if (!user) {
+      console.log('user_hselect2', user);
       console.log('No user found!');
       router.replace('/auth');
       return;

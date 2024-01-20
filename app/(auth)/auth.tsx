@@ -98,13 +98,14 @@ const AuthViewComponent = () => {
 
   const checkIfUserLoggedIn = async () => {
     try {
-      const user = await AsyncStorage.getItem('@user');
-      if (user) {
+      await AsyncStorage.getItem('@user').then((user) => 
+      {if (user) {
         console.log('user', user);
         const userJson = JSON.parse(user);
         setUserInfo(userJson);
         router.replace('/household');
       }
+      });
     } catch (error) {
       console.log('error', error);
     }
@@ -125,7 +126,7 @@ const AuthViewComponent = () => {
             const parsedUser = parseGoogleUserData(result);
             dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
             console.log('result', result);
-            router.replace('/household');
+            // router.replace('/household');
           })
           .catch((error) => {
             // Handle errors here
@@ -146,6 +147,7 @@ const AuthViewComponent = () => {
         await checkAndCreateUserInFirestore(user, setInvites);
         console.log('invites', invites);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
+        router.replace('/household');
       } else {
         console.log('no user signed in');
       }
