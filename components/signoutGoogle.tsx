@@ -14,6 +14,7 @@ const SignoutGoogle: React.FC = () => {
         onPress={async () => {
           await signOut(auth).then(async () => {
             AsyncStorage.removeItem('@user');
+            AsyncStorage.removeItem('@household');
             router.replace('/auth');
           });
         }}
