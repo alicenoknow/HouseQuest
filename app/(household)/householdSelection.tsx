@@ -13,7 +13,7 @@ import {
   setDoc
 } from 'firebase/firestore';
 import { firebaseUser } from '../../models/firebaseUser';
-import { User } from '../../models';
+import { User, Role } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HouseholdInvite from './householdInviteCard';
 import { router } from 'expo-router';
@@ -136,7 +136,8 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
     // Update user with household ID
     const userRef = doc(db, 'users', userValue.uid);
     await updateDoc(userRef, {
-      household: householdRef.id
+      household: householdRef.id,
+      role: Role.PARENT
     });
     console.log('User updated with household ID', householdRef.id);
     await AsyncStorage.setItem('@household', householdRef.id);
@@ -147,7 +148,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
     router.replace('(tabs)');
   };
 
-  const joinHousehold = async (householdJoinId: string) => {
+  const joinHousehold = async (householdJoinId: string, inviteRole: string) => {
     if (!user) {
       console.log('No user found!');
       return;
@@ -156,10 +157,20 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
       console.log('No household ID provided!');
       return;
     }
+    if (!inviteRole) {
+      console.log('No role provided!');
+      return;
+    }
+    if (inviteRole !== Role.CHILD && inviteRole !== Role.PARENT) {
+      console.log('Invalid role provided!');
+      return;
+    }
+
     // Update user with household ID
     const userRef = doc(db, 'users', user.uid);
     await updateDoc(userRef, {
-      household: householdJoinId
+      household: householdJoinId,
+      role: inviteRole
     });
 
     // Update household with user ID
@@ -196,7 +207,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
                 key={index}
                 householdName={invite}
                 onPress={() => {
-                  joinHousehold(invite.household);
+                  joinHousehold(invite.household, invite.role);
                 }}
               />
             ))

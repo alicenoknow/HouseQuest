@@ -1,17 +1,40 @@
-import { AnnouncementProvider, KudosOrSlobsProvider, RewardsProvider, TaskProvider, TodoProvider } from "../../contexts";
+import React, { useEffect } from 'react';
+import {
+  AnnouncementProvider,
+  KudosOrSlobsProvider,
+  RewardsProvider,
+  TaskProvider,
+  TodoProvider,
+  UserActionType,
+  useUserContext
+} from '../../contexts';
+import { fetchMembers } from '../../remote/db';
+import { User } from '../../models';
 
+export default function RemoteDataProvider({
+  children
+}: {
+  children: React.ReactNode;
+}) {
+  const { state, dispatch } = useUserContext();
+  const householdId = state?.householdId;
 
-export default function RemoteDataProvider({ children }: { children: React.ReactNode }) {
-    return (
-        <TodoProvider>
-            <AnnouncementProvider>
-                <TaskProvider>
-                    <RewardsProvider>
-                        <KudosOrSlobsProvider>
-                            {children}
-                        </KudosOrSlobsProvider>
-                    </RewardsProvider>
-                </TaskProvider>
-            </AnnouncementProvider>
-        </TodoProvider>);
+  useEffect(() => {
+    householdId &&
+      fetchMembers(householdId, (member: User) =>
+        dispatch({ type: UserActionType.UPDATE_MEMBER, member })
+      );
+  }, []);
+
+  return (
+    <TodoProvider>
+      <AnnouncementProvider>
+        <TaskProvider>
+          <RewardsProvider>
+            <KudosOrSlobsProvider>{children}</KudosOrSlobsProvider>
+          </RewardsProvider>
+        </TaskProvider>
+      </AnnouncementProvider>
+    </TodoProvider>
+  );
 }

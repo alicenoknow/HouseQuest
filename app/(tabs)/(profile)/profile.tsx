@@ -10,6 +10,7 @@ import {
 import Colors from '../../../constants/Colors';
 import { Link } from 'expo-router';
 import SignoutGoogle from '../../../components/signoutGoogle';
+import { useUserContext } from '../../../contexts/UserContext';
 
 interface ProfileProps {
   photo: string;

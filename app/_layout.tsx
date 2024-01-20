@@ -14,7 +14,7 @@ import {
   UserProvider,
   useUserContext
 } from '../contexts/UserContext';
-import { Role } from '../models/user';
+import { Role, User } from '../models/user';
 import { AnnouncementProvider } from '../contexts/AnnouncementsContext';
 import { TodoProvider } from '../contexts/TodoContext';
 import { RewardsProvider } from '../contexts/RewardsContext';
@@ -65,6 +65,7 @@ export default function RootLayout() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
   const [userHousehold, setUserHousehold] = useState<boolean | null>(null);
   const [user, setUser] = useState<string | null>(null);
+  const [householdId, setHouseholdId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUserLoggedIn = async () => {
@@ -80,6 +81,7 @@ export default function RootLayout() {
   useEffect(() => {
     const checkUserHousehold = async () => {
       const household = await AsyncStorage.getItem('@household');
+      setHouseholdId(household);
       setUserHousehold(!!household);
       console.log('household', household);
     };
@@ -105,6 +107,7 @@ export default function RootLayout() {
       isUserLoggedIn={isUserLoggedIn}
       userHousehold={userHousehold}
       user={user}
+      householdId={householdId}
     />
   );
 }
@@ -120,29 +123,44 @@ export default function RootLayout() {
 function RootLayoutNav({
   isUserLoggedIn,
   userHousehold,
-  user
+  user,
+  householdId
 }: {
   isUserLoggedIn: boolean | null;
   userHousehold: boolean | null;
   user: string | null;
+  householdId: string | null;
 }) {
   const colorScheme = useColorScheme();
   const { dispatch } = useUserContext();
+  const [parsedUser, setParsedUser] = useState<User | undefined>(undefined);
+  const [parsedHouseholdId, setParsedHouseholdId] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     console.log('isUserLoggedIn', isUserLoggedIn);
-    console.log('user', user);
+    console.log('user_root', user);
     if (isUserLoggedIn) {
       if (!!user) {
         const userJson = JSON.parse(user);
-        const parsedUser = parseGoogleUserData(userJson);
-        dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
+        console.log('userJson_root', userJson);
+        setParsedUser(parseGoogleUserData(userJson));
+      }
+    }
+
+    console.log('userHousehold', userHousehold);
+    if (userHousehold) {
+      if (!!householdId) {
+        console.log('householdId', householdId);
+        setParsedHouseholdId(householdId);
       }
     }
 
     if (!isUserLoggedIn) {
       router.replace('/auth');
     } else if (!userHousehold) {
+      console.log('entering household creation');
       router.replace('/household');
     } else {
       router.replace('(tabs)');
@@ -153,8 +171,8 @@ function RootLayoutNav({
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <UserProvider
         initialState={{
-          user: undefined,
-          householdId: undefined,
+          user: parsedUser,
+          householdId: parsedHouseholdId,
           householdMembers: []
         }}>
         <RemoteDataProvider>
