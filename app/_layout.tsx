@@ -14,12 +14,7 @@ import {
   UserProvider,
   useUserContext
 } from '../contexts/UserContext';
-import { Role, User } from '../models/user';
-import { AnnouncementProvider } from '../contexts/AnnouncementsContext';
-import { TodoProvider } from '../contexts/TodoContext';
-import { RewardsProvider } from '../contexts/RewardsContext';
-import { KudosOrSlobsProvider } from '../contexts/KudosContext';
-import { TaskProvider } from '../contexts/TasksContext';
+import { User } from '../models/user';
 import RemoteDataProvider from '../components/data/RemoteDataProvider';
 import { parseGoogleUserData } from '../functions/parseGoogleUserData';
 
@@ -27,32 +22,6 @@ export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)'
-};
-
-const mockState = {
-  householdId: 'CJAqIX3OJFz3k9IUX48T',
-  user: {
-    id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
-    displayName: 'Alicja Niewiadomska',
-    email: 'miicek2000@gmail.com',
-    role: Role.PARENT,
-    totalPoints: 0,
-    currentPoints: 0,
-    photoURL:
-      'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
-  },
-  householdMembers: [
-    {
-      id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
-      displayName: 'Alicja Niewiadomska',
-      email: 'micek2000@gmail.com',
-      role: Role.PARENT,
-      totalPoints: 0,
-      currentPoints: 0,
-      photoURL:
-        'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
-    }
-  ]
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -181,6 +150,7 @@ function RootLayoutNav({
   }, [isUserLoggedIn, isUserInHousehold, user, householdId]);
 
   return (
+
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RemoteDataProvider>
         <Stack>

@@ -1,5 +1,5 @@
-import { Role, User } from "../models";
-import { firebaseUser } from "../models/firebaseUser";
+import { Role, User } from '../models';
+import { firebaseUser } from '../models/firebaseUser';
 
 export const parseGoogleUserData = (googleUserData: firebaseUser): User => {
     console.log('googleUserData', googleUserData);

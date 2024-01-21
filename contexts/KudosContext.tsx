@@ -27,12 +27,13 @@ function reducer(state: KudosOrSlobsState, action: KudosOrSlobsAction) {
     const { kudosOrSlobs } = state;
     switch (action.type) {
         case KudosOrSlobsActionType.ADD: {
-            return { ...state, kudosOrSlobs: [...kudosOrSlobs, action.kudosOrSlobs] };
+            const others = kudosOrSlobs.filter(k => k.id != action.kudosOrSlobs.id);
+            return { ...state, kudosOrSlobs: [...others, action.kudosOrSlobs] };
         }
         case KudosOrSlobsActionType.REMOVE: {
             return {
                 ...state,
-                kudosOrSlobs: kudosOrSlobs.filter(t => t.id != action.id)
+                kudosOrSlobs: kudosOrSlobs.filter(k => k.id != action.id)
             };
         }
         default: {

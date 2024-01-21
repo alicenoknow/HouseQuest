@@ -305,3 +305,15 @@ export async function removeTask(taskId: string, householdId: string) {
     tasks: arrayRemove(taskId)
   });
 }
+
+export async function updateUser(user: User) {
+  const usersRef = doc(db, 'users', user.id);
+
+  Object.keys(user).forEach((key) => {
+    if (user[key as keyof User] == null) {
+      delete user[key as keyof User];
+    }
+  });
+
+  await updateDoc(usersRef, { ...user });
+}
