@@ -109,6 +109,7 @@ const Dashboard: React.FC = () => {
   const isButtonDisabled = !announcement.trim() || isSending;
   const usersList =
     householdMembers.length > 0 ? householdMembers : mockUsersList;
+  const flatListRef = React.useRef<FlatList<Announcement>>(null);
 
   const handleSendAnnouncement = async () => {
     const { user, householdId } = state;
@@ -202,6 +203,12 @@ const Dashboard: React.FC = () => {
   }, [resetImagePicker]);
 
   useEffect(() => {
+    if (announcementState.announcements.length > 0) {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [announcementState.announcements]);
+
+  useEffect(() => {
     console.log('Current UserContext State:', state);
   }, [state]); // Log the state when it changes
 
@@ -234,6 +241,7 @@ const Dashboard: React.FC = () => {
       <View style={styles.line} />
       <View style={styles.messagesSection}>
         <FlatList
+          ref={flatListRef}
           style={styles.userList}
           data={announcementState.announcements}
           renderItem={renderAnnouncement}
