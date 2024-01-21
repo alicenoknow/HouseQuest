@@ -143,7 +143,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const renderAnnouncement = ({ item }: { item: Announcement }) => {
+  const renderItem = ({ item }: { item: Announcement }) => (
+    <AnnouncementItem item={item} />
+  );
+
+  const AnnouncementItem = React.memo(({ item }: { item: Announcement }) => {
     return (
       <View
         style={{
@@ -186,7 +190,7 @@ const Dashboard: React.FC = () => {
         ) : null}
       </View>
     );
-  };
+  });
 
   const renderUserAvatar = ({ item }: { item: User }) => {
     return (
@@ -267,7 +271,7 @@ const Dashboard: React.FC = () => {
           ref={flatListRef}
           style={styles.userList}
           data={announcementState.announcements}
-          renderItem={renderAnnouncement}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id}
         />
 
