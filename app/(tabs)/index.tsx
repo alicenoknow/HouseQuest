@@ -97,10 +97,13 @@ const Dashboard: React.FC = () => {
       <Link
         href={`/users/${item.id}`}
         style={{
-          borderRadius: 10,
+          borderRadius: 15,
           marginLeft: 5,
+          padding: 2,
           backgroundColor:
-            item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
+            item.role == Role.CHILD ? Colors.pink : Colors.lightGreen,
+          justifyContent: 'center', // Center the child vertically
+          alignItems: 'center'
         }}
         asChild>
         <TouchableOpacity
