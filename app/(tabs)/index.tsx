@@ -153,6 +153,29 @@ const Dashboard: React.FC = () => {
           borderRadius: Style.radius
         }}>
         <View style={styles.announcementContainer}>
+          <Image
+            source={{
+              uri: usersList.find((user) => user.id === item.sender)?.photoURL
+            }}
+            style={styles.avatar}
+          />
+          <Text style={styles.announcementHeader}>
+            {usersList.find((user) => user.id === item.sender)?.displayName}
+          </Text>
+          <Text style={styles.announcementHeaderTime}>
+            {item.createdAt.getHours() +
+              ':' +
+              //make sure minutes are always 2 digits
+              (item.createdAt.getMinutes() < 10
+                ? '0' + item.createdAt.getMinutes()
+                : item.createdAt.getMinutes()) +
+              ' - ' +
+              item.createdAt.getDate().toLocaleString() +
+              '/' +
+              (item.createdAt.getMonth() + 1).toLocaleString()}
+          </Text>
+        </View>
+        <View style={styles.announcementContainer}>
           <Text style={styles.messageText}>{item.content}</Text>
         </View>
         {item.photoUri ? (
@@ -365,6 +388,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     color: 'white'
+  },
+  announcementHeaderTime: {
+    marginLeft: 10,
+    fontStyle: 'italic',
+    fontSize: 6
+  },
+  announcementHeader: {
+    marginLeft: 10,
+    fontStyle: 'normal',
+    fontWeight: 'bold'
   },
   messageText: {
     marginLeft: 10
