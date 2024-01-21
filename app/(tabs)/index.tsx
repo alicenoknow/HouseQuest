@@ -23,6 +23,7 @@ import { useUserContext } from '../../contexts/UserContext';
 import ImagePickerButton from '../../components/ImagePickerButton';
 import { createAnnouncement } from '../../remote/db';
 import { uploadImageToFirebase } from '../../remote/storage';
+import { useAnnouncementContext, AnnouncementActionType } from '../../contexts';
 
 async function addAnnouncement(
   announcementText: string,
@@ -101,6 +102,8 @@ const Dashboard: React.FC = () => {
   );
   const { state, dispatch } = useUserContext();
   const { householdMembers } = state;
+  const { state: announcementState, dispatch: announcementDispatch } =
+    useAnnouncementContext();
 
   const usersList =
     householdMembers.length > 0 ? householdMembers : mockUsersList;
@@ -109,15 +112,23 @@ const Dashboard: React.FC = () => {
     const { user, householdId } = state;
     if (user && householdId) {
       try {
-        await addAnnouncement(
-          announcement,
-          user,
-          householdId,
-          selectedImageUri
-        );
-        setAnnouncement('');
-        setSelectedImageUri(undefined);
-        setResetImagePicker(true); // Trigger the reset
+        await addAnnouncement(announcement, user, householdId, selectedImageUri)
+          .then(() => {
+            announcementDispatch({
+              type: AnnouncementActionType.ADD,
+              announcement: {
+                id: Date.now().toString(),
+                sender: user.id,
+                createdAt: new Date(),
+                content: announcement,
+                photoUri: selectedImageUri
+              }
+            });
+            setAnnouncement('');
+            setSelectedImageUri(undefined);
+            setResetImagePicker(true);
+          })
+          .catch((error) => console.log(error));
       } catch (error) {
         console.log(error);
       }
@@ -180,14 +191,18 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('Current UserContext State:', state);
-  }, [state]); // Log the state when it changes
-
-  useEffect(() => {
     if (resetImagePicker) {
       setResetImagePicker(false);
     }
   }, [resetImagePicker]);
+
+  useEffect(() => {
+    console.log('Current UserContext State:', state);
+  }, [state]); // Log the state when it changes
+
+  useEffect(() => {
+    console.log('Current AnnouncementContext State:', announcementState);
+  }, [announcementState]); // Log the state when it changes
 
   return (
     <SafeAreaView style={styles.container}>
@@ -215,7 +230,7 @@ const Dashboard: React.FC = () => {
       <View style={styles.messagesSection}>
         <FlatList
           style={styles.userList}
-          data={announcementsList}
+          data={announcementState.announcements}
           renderItem={renderAnnouncement}
           keyExtractor={(item) => item.id}
         />
