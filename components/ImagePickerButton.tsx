@@ -23,7 +23,7 @@ export default function ImagePickerButton() {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      <Button title="Pick an image" onPress={pickImage} />
       {image && (
         <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
       )}
