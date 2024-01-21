@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -21,11 +21,37 @@ import { Ionicons } from '@expo/vector-icons';
 // TODO refactor, basically rewrite, extract components, fix styling
 import { useUserContext } from '../../contexts/UserContext';
 import ImagePickerButton from '../../components/ImagePickerButton';
+import { createAnnouncement } from '../../remote/db';
+import { uploadImageToFirebase } from '../../remote/storage';
 
-async function addAnnouncement(announcement: string) {
-  const docRef = doc(db, 'messages', Date.now().toString());
-  const payload = { message: announcement };
-  setDoc(docRef, payload);
+async function addAnnouncement(
+  announcementText: string,
+  user: User,
+  householdId: string,
+  imageUri?: string
+) {
+  if (!user || !householdId) {
+    throw new Error('User or household ID is not defined');
+  }
+
+  let photoUrl = '';
+
+  // Check if an image URI is provided and upload the image
+  if (imageUri) {
+    const imageName = `announcement_${Date.now()}`; // Generate a unique image name
+    const imageDir = `households/${householdId}/announcements`; // Define the directory path
+    photoUrl = await uploadImageToFirebase(imageUri, imageName, imageDir);
+  }
+
+  const announcement: Announcement = {
+    id: Date.now().toString(),
+    sender: user.id,
+    createdAt: new Date(),
+    content: announcementText,
+    photoUri: photoUrl
+  };
+
+  await createAnnouncement(announcement, householdId);
 }
 
 const announcementsList: Announcement[] = [
@@ -68,7 +94,37 @@ const mockUsersList: User[] = [
 ];
 
 const Dashboard: React.FC = () => {
-  const [announcement, setAnnouncement] = React.useState('');
+  const [announcement, setAnnouncement] = useState('');
+  const [resetImagePicker, setResetImagePicker] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | undefined>(
+    undefined
+  );
+  const { state, dispatch } = useUserContext();
+  const { householdMembers } = state;
+
+  const usersList =
+    householdMembers.length > 0 ? householdMembers : mockUsersList;
+
+  const handleSendAnnouncement = async () => {
+    const { user, householdId } = state;
+    if (user && householdId) {
+      try {
+        await addAnnouncement(
+          announcement,
+          user,
+          householdId,
+          selectedImageUri
+        );
+        setAnnouncement('');
+        setSelectedImageUri(undefined);
+        setResetImagePicker(true); // Trigger the reset
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log('User or household ID is not defined');
+    }
+  };
 
   const renderAnnouncement = ({ item }: { item: Announcement }) => {
     return (
@@ -123,15 +179,16 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  const { state, dispatch } = useUserContext();
-  const { householdMembers } = state;
-
-  const usersList =
-    householdMembers.length > 0 ? householdMembers : mockUsersList;
-
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('Current UserContext State:', state);
   }, [state]); // Log the state when it changes
+
+  useEffect(() => {
+    if (resetImagePicker) {
+      setResetImagePicker(false);
+    }
+  }, [resetImagePicker]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -170,17 +227,13 @@ const Dashboard: React.FC = () => {
             onChangeText={(newText) => setAnnouncement(newText)}
             defaultValue={announcement}
           />
-          <ImagePickerButton />
+          <ImagePickerButton
+            onImageSelected={setSelectedImageUri}
+            resetSelection={resetImagePicker}
+          />
           <TouchableOpacity
             onPress={async () => {
-              console.log('Send button pressed');
-              await addAnnouncement(announcement)
-                .then(() => {
-                  setAnnouncement('');
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
+              await handleSendAnnouncement();
             }}>
             <Text style={styles.sendButton}>Send</Text>
           </TouchableOpacity>

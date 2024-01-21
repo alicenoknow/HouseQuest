@@ -18,13 +18,26 @@ import Colors from '../constants/Colors';
 import Style from '../constants/Style';
 import Fonts from '../constants/Fonts';
 
-export default function ImagePickerButton() {
+export default function ImagePickerButton({
+  onImageSelected,
+  resetSelection
+}: {
+  onImageSelected: (uri: string) => void;
+  resetSelection: boolean;
+}) {
   const [image, setImage] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (resetSelection) {
+      setImage(null);
+    }
+  }, [resetSelection]);
 
   const handleImageSelected = (uri: string) => {
     setImage(uri);
     setModalVisible(false); // Close modal after selection
+    onImageSelected(uri); // Lift the state up
   };
 
   return (
