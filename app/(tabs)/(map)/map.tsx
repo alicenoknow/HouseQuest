@@ -25,41 +25,34 @@ async function requestPermissions() {
 const Map: React.FC = () => {
   const [currentLocation, setCurrentLocation] =
     useState<Location.LocationObject | null>(null);
-  const mapRef: any = React.createRef();
+  const mapRef = useRef<MapView>(null);
+  const locationSubscription = useRef<Location.LocationSubscription | null>(
+    null
+  );
 
   useEffect(() => {
-    const fetchLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
+    requestPermissions();
 
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced
-      });
-      if (!location) {
-        console.error('No location data received');
-        return;
-      }
-      if (
-        currentLocation &&
-        location.coords.latitude === currentLocation.coords.latitude &&
-        location.coords.longitude === currentLocation.coords.longitude
-      ) {
-        console.log('Location has not changed');
-        return;
-      }
-
-      setCurrentLocation(location);
-      console.log('Updated Location:', location);
+    // Define an async function inside the effect for handling the promise
+    const subscribe = async () => {
+      locationSubscription.current = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, timeInterval: 5000 },
+        (newLocation) => {
+          console.log('New Location:', newLocation);
+          setCurrentLocation(newLocation);
+        }
+      );
     };
 
-    requestPermissions().then(() => fetchLocation());
-    const interval = setInterval(fetchLocation, 5000);
+    subscribe(); // Call the async function
 
-    return () => clearInterval(interval);
-  }, [currentLocation]); // Dependency on currentLocation to avoid unnecessary updates
+    return () => {
+      // Ensure to remove the subscription when the component unmounts
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+      }
+    };
+  }, []);
 
   const handleCenter = () => {
     if (currentLocation && mapRef.current) {
