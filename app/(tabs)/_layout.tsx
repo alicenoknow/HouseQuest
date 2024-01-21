@@ -34,15 +34,15 @@ export default function TabLayout() {
       console.log("household undefined")
       return;
     }
-    console.log("data fetching...")
-
 
     const fetchDataOnInit = async () => {
       await fetchMembers(householdId,
-        (member: User) => userDispatch({
-          type: UserActionType.UPDATE_MEMBER,
-          member,
-        }));
+        (member: User) => {
+          userDispatch({
+            type: UserActionType.UPDATE_MEMBER,
+            member,
+          })
+        });
 
       await fetchTasks(householdId,
         (task: Task) => taskDispatch({

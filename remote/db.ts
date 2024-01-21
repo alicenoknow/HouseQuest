@@ -30,7 +30,7 @@ export async function fetchMembers(
     const membersIds = membersSnapshot.data().members;
 
     membersIds.forEach(async (id: string) => {
-      const memberRef = doc(db, 'members', id);
+      const memberRef = doc(db, 'users', id);
       const memberDoc = await getDoc(memberRef);
 
       if (memberDoc.exists()) {
