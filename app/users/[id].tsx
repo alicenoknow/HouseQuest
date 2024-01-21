@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack, useGlobalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colors from '../../constants/Colors';
+import { useUserContext } from '../../contexts';
 
 type Props = {
   id: string;
@@ -18,32 +19,33 @@ interface ProfileProps {
 
 const imageUrl = 'https://via.placeholder.com/150';
 
-const UserDetail: React.FC<ProfileProps> = ({
-  photo,
-  name,
-  role,
-  score,
-  birthday,
-  householdName
-}) => {
+const UserDetail: React.FC<ProfileProps> = () => {
   const { id } = useGlobalSearchParams();
-
+  const { state } = useUserContext();
+  const user = state.householdMembers.find((user) => user.id === id);
+  const { householdId } = state;
+  user && console.log(user);
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.blueContainer}>
-          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          <Image
+            source={{ uri: user?.photoURL ? user.photoURL : imageUrl }}
+            style={styles.profileImage}
+          />
 
           {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
-          <Text style={styles.name}>{name}Teste</Text>
-          <Text style={styles.role}>{role}Parent</Text>
+          <Text style={styles.name}>{user?.displayName}</Text>
+          <Text style={styles.role}>{user?.role}</Text>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.score}>Score: {user?.totalPoints}</Text>
         </View>
         <View style={styles.info}>
-          <Text style={styles.birthday}>Birthday: {birthday}</Text>
-          <Text style={styles.householdName}>Household: {householdName}</Text>
+          <Text style={styles.birthday}>
+            Birthday: {String(user?.birthday)}
+          </Text>
+          <Text style={styles.householdName}>Household: {householdId}</Text>
         </View>
       </View>
       <Text>User ID: {id}</Text>
