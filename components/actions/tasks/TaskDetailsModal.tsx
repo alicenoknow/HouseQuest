@@ -80,6 +80,10 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
           type: UserActionType.UPDATE_MEMBER,
           member: updatedMember
         });
+        user.id == updatedMember.id && dispatchUser({
+          type: UserActionType.UPDATE_USER,
+          user: updatedMember
+        });
         await updateUser(updatedMember);
       }
     }
