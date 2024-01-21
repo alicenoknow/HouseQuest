@@ -21,7 +21,6 @@ interface ProfileProps {
   householdName: string;
   onPressSettings: () => void;
 }
-const imageUrl = 'https://via.placeholder.com/150';
 const Profile: React.FC = () => {
   const { state } = useUserContext();
   const { user, householdId } = state;
