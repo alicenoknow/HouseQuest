@@ -29,32 +29,6 @@ export const unstable_settings = {
   initialRouteName: '(tabs)'
 };
 
-const mockState = {
-  householdId: 'CJAqIX3OJFz3k9IUX48T',
-  user: {
-    id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
-    displayName: 'Alicja Niewiadomska',
-    email: 'miicek2000@gmail.com',
-    role: Role.PARENT,
-    totalPoints: 0,
-    currentPoints: 0,
-    photoUrl:
-      'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
-  },
-  householdMembers: [
-    {
-      id: 'ZCCW8ZX1qUe7nRvJnI28UrlCsPu1',
-      displayName: 'Alicja Niewiadomska',
-      email: 'micek2000@gmail.com',
-      role: Role.PARENT,
-      totalPoints: 0,
-      currentPoints: 0,
-      photoUrl:
-        'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
-    }
-  ]
-};
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {

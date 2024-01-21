@@ -1,6 +1,6 @@
 export enum KSAction {
-  KUDOS,
-  SLOBS
+  KUDOS = 'KUDOS',
+  SLOBS = 'SLOBS'
 }
 
 export interface KudosOrSlobs {

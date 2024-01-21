@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Image } from 'react-native';
 import { Task, TaskStatus } from '../../../models';
-import { TaskActionType, useTaskContext, useUserContext } from '../../../contexts';
+import { TaskActionType, UserActionType, useTaskContext, useUserContext } from '../../../contexts';
 import Spacers from '../../../constants/Spacers';
 import Fonts from '../../../constants/Fonts';
 import Colors from '../../../constants/Colors';
 import Style from '../../../constants/Style';
 import Icon from '../../common/Icon';
-import { removeTask, updateTask } from '../../../remote/db';
+import { removeTask, updateTask, updateUser } from '../../../remote/db';
 import ImagePickerView from '../../common/ImagePickerView';
 import { uploadImageToFirebase } from '../../../remote/storage';
 
@@ -19,7 +19,7 @@ interface TaskDetailsModalProps {
 
 
 const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetailsModalProps) => {
-  const { state: { user, householdId, householdMembers } } = useUserContext();
+  const { state: { user, householdId, householdMembers }, dispatch: dispatchUser } = useUserContext();
   const { dispatch } = useTaskContext();
   const [submissionPhotoUri, setSubmissionPhotoUri] = useState<string>('');
 
@@ -67,7 +67,23 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
 
   const onConfirm = async () => {
     const updatedTask = { ...task, status: TaskStatus.CONFIRMED };
+    const { assignee, points } = updatedTask;
     dispatch({ type: TaskActionType.CONFIRM, id: task.id });
+
+    if (assignee && points) {
+      const assigneeUser = householdMembers.filter(m => m.id === assignee)?.at(0);
+
+      if (assigneeUser) {
+        const { currentPoints, totalPoints } = assigneeUser;
+        const updatedMember = { ...assigneeUser, currentPoints: currentPoints + points, totalPoints: totalPoints + points };
+        dispatchUser({
+          type: UserActionType.UPDATE_MEMBER,
+          member: updatedMember
+        });
+        await updateUser(updatedMember);
+      }
+    }
+
     await updateTask(updatedTask);
     setModalVisible(false);
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, FlatList, Text } from 'react-native';
 import AnimatedSwitch, { SelectionMode } from '../../../components/actions/stats/AnimatedSwitch';
 import ScorePill from '../../../components/actions/stats/ScorePill';
@@ -8,73 +8,75 @@ import Colors from '../../../constants/Colors';
 import BarChart from '../../../components/actions/stats/BarPlot';
 import Fonts from '../../../constants/Fonts';
 import PointsListItem from '../../../components/actions/stats/PointsListItem';
+import { KSAction, KudosOrSlobs, Reward, RewardStatus, Task, TaskStatus, User } from '../../../models';
+import { useKudosOrSlobsContext, useRewardsContext, useTaskContext } from '../../../contexts';
 
-// TODO: change to values from db
-const MOCK_USERS_DATA = [
-    {
-        avatarUri: "https://static.wikia.nocookie.net/pkmnshuffle/images/f/f4/Charmander_%28Winking%29.png",
-        totalPoints: 123,
-        currentPoints: 43,
-    },
-    {
-        avatarUri: "https://miro.medium.com/v2/resize:fit:302/1*KuSu6ZTyLAcRDwOsI9ZzZA.png",
-        totalPoints: 42,
-        currentPoints: 32,
-    },
-    {
-        avatarUri: "https://shop7.webmodule.prestashop.net/pokedoge/11263-large_default/bulbasaur.jpg",
-        totalPoints: 78,
-        currentPoints: 55,
-    },
-]
+interface PointsItemProps {
+    value: number;
+    title: string;
+    subtitle: string;
+}
 
-// TODO: change to values from db: rewards, kudos, slobs, tasks and filter by our user to get relevant data and transform to ths form
-const MOCK_POINTS_DATA = [
-    {
-        value: 10,
-        title: "Cleaning bathroom",
-        subtitle: "Task",
-    },
-    {
-        value: -5,
-        title: "Left dirty dishes",
-        subtitle: "Slobs",
-    },
-    {
-        value: -7,
-        title: "Ice cream",
-        subtitle: "Reward",
-    },
-    {
-        value: 4,
-        title: "Help in the garden",
-        subtitle: "Kudos",
-    }
-]
 
 const Statistics: React.FC = () => {
-    const { state: userState } = useUserContext();
-    const { photoUrl, totalPoints, currentPoints } = userState.user ?? {};
+    const { state } = useUserContext();
+    const { state: { tasks } } = useTaskContext();
+    const { state: { kudosOrSlobs } } = useKudosOrSlobsContext();
+    const { state: { rewards } } = useRewardsContext();
+    const { id, photoURL, totalPoints, currentPoints } = state.user ?? {};
+    const { householdId, householdMembers } = state ?? {};
     const [selectionMode, setSelectionMode] = useState<SelectionMode>("LEFT");
+    console.log("stats user context", state);
+
 
     const isPointsMode = selectionMode === "LEFT";
 
     // TODO user undefined, go to auth
-    if (!photoUrl || totalPoints == undefined || currentPoints == undefined) return null;
+    if (!photoURL || totalPoints == undefined || currentPoints == undefined || householdId == undefined) return null;
 
-    const getData = (data: any[], selectionMode: SelectionMode) => {
+    const getUsersData = (data: ReadonlyArray<User>, selectionMode: SelectionMode) => {
         if (selectionMode == "LEFT") {
             return data.map(data => ({
                 value: data.totalPoints,
-                bottomImage: data.avatarUri,
+                bottomImage: data.photoURL,
             }));
         }
         return data.map(data => ({
             value: data.currentPoints,
-            bottomImage: data.avatarUri,
+            bottomImage: data.photoURL,
         }));
 
     }
+
+    const getPointsData = (tasks: ReadonlyArray<Task>,
+        rewards: ReadonlyArray<Reward>,
+        kudosOrSlobs: ReadonlyArray<KudosOrSlobs>): ReadonlyArray<PointsItemProps> => {
+        const taskPoints = tasks
+            .filter(task => task.assignee == id && task.status == TaskStatus.CONFIRMED)
+            .map(task => ({
+                value: task.points ?? 0,
+                title: task.title,
+                subtitle: "Task",
+            }));
+        const rewardsPoints = rewards
+            .filter(reward => reward.recipient == id && reward.status == RewardStatus.GRANTED)
+            .map(reward => ({
+                value: reward.points ?? 0,
+                title: reward.title,
+                subtitle: "Reward",
+            }));
+        console.warn("kudosOrSlobs", kudosOrSlobs)
+        const kudosPoints = kudosOrSlobs
+            .filter(kudos => kudos.receiver == id)
+            .map(kudos => ({
+                value: kudos.points ?? 0,
+                title: kudos.message,
+                subtitle: kudos.type == KSAction.KUDOS ? "Kudos" : "Slobs",
+            }));
+        return [...taskPoints, ...rewardsPoints, ...kudosPoints];
+    }
+
+    const pointsData = useMemo(() => getPointsData(tasks, rewards, kudosOrSlobs), [tasks, rewards, kudosOrSlobs])
 
     const renderListItem = ({ item }: { item: PointsListItem }) => {
         return <PointsListItem {...item} />
@@ -91,13 +93,13 @@ const Statistics: React.FC = () => {
             />
             <View style={styles.divider} />
             <ScorePill
-                avatarUri={photoUrl}
+                avatarUri={photoURL}
                 score={isPointsMode ? totalPoints : currentPoints}
                 scoreEmoji={isPointsMode ? "🔥" : "💲"}
             />
             <View style={styles.divider} />
             <Text style={styles.plotTitle}>{isPointsMode ? "🔥 Points Ranking 🔥" : "💲 Coins Ranking 💲"}</Text>
-            <BarChart data={getData([{ photoUrl, totalPoints, currentPoints }, ...MOCK_USERS_DATA], selectionMode)} />
+            <BarChart data={getUsersData(householdMembers, selectionMode)} />
             <View style={styles.divider} />
         </View>)
     }
@@ -105,7 +107,7 @@ const Statistics: React.FC = () => {
     return (
         <View style={styles.container}>
             <FlatList
-                data={MOCK_POINTS_DATA}
+                data={pointsData}
                 style={styles.list}
                 ListHeaderComponent={renderListHeader()}
                 keyExtractor={(_, index) => index.toString()}

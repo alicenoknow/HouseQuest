@@ -13,6 +13,6 @@ export interface User {
   totalPoints: number;
   currentPoints: number;
   birthday?: Date;
-  photoUrl?: string;
+  photoURL?: string;
   location?: LatLng;
 }

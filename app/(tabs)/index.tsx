@@ -52,7 +52,7 @@ const usersList: User[] = [
     role: Role.PARENT,
     totalPoints: 100,
     currentPoints: 50,
-    photoUrl:
+    photoURL:
       'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
   },
   {
@@ -61,7 +61,7 @@ const usersList: User[] = [
     role: Role.CHILD,
     totalPoints: 80,
     currentPoints: 60,
-    photoUrl:
+    photoURL:
       'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
   }
 ];
@@ -112,7 +112,7 @@ const Dashboard: React.FC = () => {
           onPress={() =>
             console.log(`User avatar pressed ${item.displayName}`)
           }>
-          <Image source={{ uri: item.photoUrl }} style={styles.avatar} />
+          <Image source={{ uri: item.photoURL }} style={styles.avatar} />
         </TouchableOpacity>
       </Link>
     );

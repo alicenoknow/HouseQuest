@@ -42,7 +42,7 @@ export async function fetchMembers(
           totalPoints: data.totalPoints ?? 0,
           currentPoints: data.currentPoints ?? 0,
           birthday: data.birthday,
-          photoUrl: data.photoUrl,
+          photoURL: data.photoURL,
           location: data.location
         };
         onMemberCallback(member);
@@ -304,4 +304,16 @@ export async function removeTask(taskId: string, householdId: string) {
   await updateDoc(householdRef, {
     tasks: arrayRemove(taskId)
   });
+}
+
+export async function updateUser(user: User) {
+  const usersRef = doc(db, 'users', user.id);
+
+  Object.keys(user).forEach((key) => {
+    if (user[key as keyof User] == null) {
+      delete user[key as keyof User];
+    }
+  });
+
+  await updateDoc(usersRef, { ...user });
 }
