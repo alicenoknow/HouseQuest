@@ -24,10 +24,10 @@ interface ProfileProps {
 const Profile: React.FC = () => {
   const { state } = useUserContext();
   const { user, householdId } = state;
-  const { photoUrl, displayName, role, totalPoints, birthday } = user
+  const { photoURL, displayName, role, totalPoints, birthday } = user
     ? user
     : {
-        photoUrl: 'https://via.placeholder.com/150',
+        photoURL: 'https://via.placeholder.com/150',
         displayName: 'Name',
         role: 'Role',
         totalPoints: 0,
@@ -38,7 +38,7 @@ const Profile: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.blueContainer}>
-          <Image source={{ uri: photoUrl }} style={styles.profileImage} />
+          <Image source={{ uri: photoURL }} style={styles.profileImage} />
 
           {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
           <Text style={styles.name}>{displayName}</Text>

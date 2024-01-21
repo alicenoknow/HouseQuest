@@ -38,7 +38,7 @@ const mockState = {
     role: Role.PARENT,
     totalPoints: 0,
     currentPoints: 0,
-    photoUrl:
+    photoURL:
       'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
   },
   householdMembers: [
@@ -49,7 +49,7 @@ const mockState = {
       role: Role.PARENT,
       totalPoints: 0,
       currentPoints: 0,
-      photoUrl:
+      photoURL:
         'https://lh3.googleusercontent.com/a/ACg8ocKfud8LsMN1tL_lZRNjDcoeHvBFhqSwzikbomi4TzZO=s96-c'
     }
   ]
@@ -63,7 +63,9 @@ export default function RootLayout() {
     ...FontAwesome.font
   });
   const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean | null>(null);
-  const [isUserInHousehold, setIsUserInHousehold] = useState<boolean | null>(null);
+  const [isUserInHousehold, setIsUserInHousehold] = useState<boolean | null>(
+    null
+  );
   const [user, setUser] = useState<string | null>(null);
   const [householdId, setHouseholdId] = useState<string | null>(null);
 
@@ -111,7 +113,6 @@ export default function RootLayout() {
         householdId={householdId}
       />
     </UserProvider>
-
   );
 }
 
@@ -163,18 +164,18 @@ function RootLayoutNav({
       setParsedHouseholdId(householdId);
       dispatch({
         type: UserActionType.UPDATE_HOUSEHOLD,
-        householdId: householdId,
+        householdId: householdId
       });
     }
 
     if (!isUserLoggedIn) {
-      console.log("entering auth")
+      console.log('entering auth');
       router.replace('/auth');
     } else if (!isUserInHousehold) {
       console.log('entering household creation');
       router.replace('/household');
     } else {
-      console.log("entring tabs")
+      console.log('entring tabs');
       router.replace('(tabs)');
     }
   }, [isUserLoggedIn, isUserInHousehold, user, householdId]);

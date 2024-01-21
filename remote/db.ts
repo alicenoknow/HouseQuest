@@ -42,7 +42,7 @@ export async function fetchMembers(
           totalPoints: data.totalPoints ?? 0,
           currentPoints: data.currentPoints ?? 0,
           birthday: data.birthday,
-          photoUrl: data.photoUrl,
+          photoURL: data.photoURL,
           location: data.location
         };
         onMemberCallback(member);

@@ -10,7 +10,7 @@ export const parseGoogleUserData = (googleUserData: firebaseUser): User => {
       role: Role.PARENT, // Assuming a default role
       totalPoints: 0, // Default or calculated value
       currentPoints: 0, // Default or calculated value
-      photoUrl: googleUserData.photoURL,
+      photoURL: googleUserData.photoURL,
       location: undefined // Default or actual value
     };
   };
