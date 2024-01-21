@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  ActivityIndicator
 } from 'react-native';
 import { Announcement, Role, User } from '../../models';
 import Spacers from '../../constants/Spacers';
@@ -20,11 +21,39 @@ import { Ionicons } from '@expo/vector-icons';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 import { useUserContext } from '../../contexts/UserContext';
+import ImagePickerButton from '../../components/ImagePickerButton';
+import { createAnnouncement } from '../../remote/db';
+import { uploadImageToFirebase } from '../../remote/storage';
+import { useAnnouncementContext, AnnouncementActionType } from '../../contexts';
 
-async function addAnnouncement(announcement: string) {
-  const docRef = doc(db, 'messages', Date.now().toString());
-  const payload = { message: announcement };
-  setDoc(docRef, payload);
+async function addAnnouncement(
+  announcementText: string,
+  user: User,
+  householdId: string,
+  imageUri?: string
+) {
+  if (!user || !householdId) {
+    throw new Error('User or household ID is not defined');
+  }
+
+  let photoUrl = '';
+
+  // Check if an image URI is provided and upload the image
+  if (imageUri) {
+    const imageName = `announcement_${Date.now()}`; // Generate a unique image name
+    const imageDir = `households/${householdId}/announcements`; // Define the directory path
+    photoUrl = await uploadImageToFirebase(imageUri, imageName, imageDir);
+  }
+
+  const announcement: Announcement = {
+    id: Date.now().toString(),
+    sender: user.id,
+    createdAt: new Date(),
+    content: announcementText,
+    photoUri: photoUrl
+  };
+
+  await createAnnouncement(announcement, householdId);
 }
 
 const announcementsList: Announcement[] = [
@@ -45,7 +74,7 @@ const announcementsList: Announcement[] = [
   }
 ];
 
-const usersList: User[] = [
+const mockUsersList: User[] = [
   {
     id: '1',
     displayName: 'User 1',
@@ -67,7 +96,53 @@ const usersList: User[] = [
 ];
 
 const Dashboard: React.FC = () => {
-  const [announcement, setAnnouncement] = React.useState('');
+  const [announcement, setAnnouncement] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [resetImagePicker, setResetImagePicker] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | undefined>(
+    undefined
+  );
+  const { state, dispatch } = useUserContext();
+  const { householdMembers } = state;
+  const { state: announcementState, dispatch: announcementDispatch } =
+    useAnnouncementContext();
+  const isButtonDisabled = !announcement.trim() || isSending;
+  const usersList =
+    householdMembers.length > 0 ? householdMembers : mockUsersList;
+  const flatListRef = React.useRef<FlatList<Announcement>>(null);
+
+  const handleSendAnnouncement = async () => {
+    const { user, householdId } = state;
+    if (user && householdId) {
+      setIsSending(true);
+      try {
+        await addAnnouncement(announcement, user, householdId, selectedImageUri)
+          .then(() => {
+            announcementDispatch({
+              type: AnnouncementActionType.ADD,
+              announcement: {
+                id: Date.now().toString(),
+                sender: user.id,
+                createdAt: new Date(),
+                content: announcement,
+                photoUri: selectedImageUri
+              }
+            });
+            setAnnouncement('');
+            setSelectedImageUri(undefined);
+            setResetImagePicker(true);
+          })
+          .catch((error) => console.log(error));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsSending(false);
+      }
+    } else {
+      console.log('User or household ID is not defined');
+    }
+  };
+
   const renderAnnouncement = ({ item }: { item: Announcement }) => {
     return (
       <View
@@ -95,10 +170,13 @@ const Dashboard: React.FC = () => {
       <Link
         href={`/users/${item.id}`}
         style={{
-          borderRadius: 10,
+          borderRadius: 15,
           marginLeft: 5,
+          padding: 2,
           backgroundColor:
-            item.role == Role.CHILD ? Colors.pink : Colors.lightGreen
+            item.role == Role.CHILD ? Colors.pink : Colors.lightGreen,
+          justifyContent: 'center', // Center the child vertically
+          alignItems: 'center'
         }}
         asChild>
         <TouchableOpacity
@@ -118,11 +196,26 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  const { state, dispatch } = useUserContext();
+  useEffect(() => {
+    if (resetImagePicker) {
+      setResetImagePicker(false);
+    }
+  }, [resetImagePicker]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (announcementState.announcements.length > 0) {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [announcementState.announcements]);
+
+  useEffect(() => {
     console.log('Current UserContext State:', state);
   }, [state]); // Log the state when it changes
+
+  useEffect(() => {
+    console.log('Current AnnouncementContext State:', announcementState);
+  }, [announcementState]); // Log the state when it changes
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -148,8 +241,9 @@ const Dashboard: React.FC = () => {
       <View style={styles.line} />
       <View style={styles.messagesSection}>
         <FlatList
+          ref={flatListRef}
           style={styles.userList}
-          data={announcementsList}
+          data={announcementState.announcements}
           renderItem={renderAnnouncement}
           keyExtractor={(item) => item.id}
         />
@@ -161,19 +255,30 @@ const Dashboard: React.FC = () => {
             onChangeText={(newText) => setAnnouncement(newText)}
             defaultValue={announcement}
           />
-          <TouchableOpacity
-            onPress={async () => {
-              console.log('Send button pressed');
-              await addAnnouncement(announcement)
-                .then(() => {
-                  setAnnouncement('');
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
-            }}>
-            <Text style={styles.sendButton}>Send</Text>
-          </TouchableOpacity>
+          <ImagePickerButton
+            onImageSelected={setSelectedImageUri}
+            resetSelection={resetImagePicker}
+          />
+          {isSending ? (
+            <ActivityIndicator size="large" color={Colors.darkGreen} />
+          ) : (
+            <TouchableOpacity
+              onPress={async () => {
+                await handleSendAnnouncement();
+              }}
+              disabled={isButtonDisabled}
+              style={[
+                styles.sendButton,
+                isButtonDisabled ? styles.disabledButton : null
+              ]}>
+              <Text
+                style={
+                  isButtonDisabled ? styles.disabledButton : styles.sendButton
+                }>
+                Send
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -284,6 +389,9 @@ const styles = StyleSheet.create({
     marginLeft: 80,
     marginTop: 10,
     marginBottom: 10
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc' // A lighter shade to indicate disabled state
   }
 });
 

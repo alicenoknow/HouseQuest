@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, FlatList, Text } from 'react-native';
-import AnimatedSwitch, { SelectionMode } from '../../../components/actions/stats/AnimatedSwitch';
+import AnimatedSwitch, {
+  SelectionMode
+} from '../../../components/actions/stats/AnimatedSwitch';
 import ScorePill from '../../../components/actions/stats/ScorePill';
 import { useUserContext } from '../../../contexts/UserContext';
 import Spacers from '../../../constants/Spacers';
@@ -19,6 +21,7 @@ interface PointsItemProps {
     title: string;
     subtitle: string;
 }
+
 
 
 
@@ -58,7 +61,20 @@ const Statistics: React.FC = () => {
             bottomImage: data.photoURL,
         }));
 
+
+  const getData = (data: any[], selectionMode: SelectionMode) => {
+    if (selectionMode == 'LEFT') {
+      return data.map((data) => ({
+        value: data.totalPoints,
+        bottomImage: data.avatarUri
+      }));
     }
+    return data.map((data) => ({
+      value: data.currentPoints,
+      bottomImage: data.avatarUri
+    }));
+  };
+
 
     const getPointsData = (tasks: ReadonlyArray<Task>,
         rewards: ReadonlyArray<Reward>,
@@ -115,6 +131,8 @@ const Statistics: React.FC = () => {
         </View>)
     }
 
+
+  const renderListHeader = () => {
     return (
         <View style={styles.container}>
             <FlatList
@@ -126,32 +144,45 @@ const Statistics: React.FC = () => {
             />
         </View>
     );
+  };
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={MOCK_POINTS_DATA}
+        style={styles.list}
+        ListHeaderComponent={renderListHeader()}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={renderListItem}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        marginTop: Spacers.large,
-        alignItems: 'center',
-    },
-    list: {
-        flex: 1,
-        width: "100%",
-    },
-    listHeader: {
-        justifyContent: "center",
-        alignContent: "center",
-        alignItems: "center",
-    },
-    divider: {
-        width: "100%",
-        height: Spacers.medium,
-    },
-    plotTitle: {
-        fontSize: Fonts.large,
-        fontWeight: "bold",
-        margin: Spacers.medium,
-    }
+  container: {
+    flex: 1,
+    marginTop: Spacers.large,
+    alignItems: 'center'
+  },
+  list: {
+    flex: 1,
+    width: '100%'
+  },
+  listHeader: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center'
+  },
+  divider: {
+    width: '100%',
+    height: Spacers.medium
+  },
+  plotTitle: {
+    fontSize: Fonts.large,
+    fontWeight: 'bold',
+    margin: Spacers.medium
+  }
 });
 
 export default Statistics;
