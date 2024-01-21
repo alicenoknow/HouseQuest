@@ -143,7 +143,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const renderAnnouncement = ({ item }: { item: Announcement }) => {
+  const renderItem = ({ item }: { item: Announcement }) => (
+    <AnnouncementItem item={item} />
+  );
+
+  const AnnouncementItem = React.memo(({ item }: { item: Announcement }) => {
     return (
       <View
         style={{
@@ -152,6 +156,29 @@ const Dashboard: React.FC = () => {
           backgroundColor: Colors.lightGreen,
           borderRadius: Style.radius
         }}>
+        <View style={styles.announcementContainer}>
+          <Image
+            source={{
+              uri: usersList.find((user) => user.id === item.sender)?.photoURL
+            }}
+            style={styles.avatar}
+          />
+          <Text style={styles.announcementHeader}>
+            {usersList.find((user) => user.id === item.sender)?.displayName}
+          </Text>
+          <Text style={styles.announcementHeaderTime}>
+            {item.createdAt.getHours() +
+              ':' +
+              //make sure minutes are always 2 digits
+              (item.createdAt.getMinutes() < 10
+                ? '0' + item.createdAt.getMinutes()
+                : item.createdAt.getMinutes()) +
+              ' - ' +
+              item.createdAt.getDate().toLocaleString() +
+              '/' +
+              (item.createdAt.getMonth() + 1).toLocaleString()}
+          </Text>
+        </View>
         <View style={styles.announcementContainer}>
           <Text style={styles.messageText}>{item.content}</Text>
         </View>
@@ -163,7 +190,7 @@ const Dashboard: React.FC = () => {
         ) : null}
       </View>
     );
-  };
+  });
 
   const renderUserAvatar = ({ item }: { item: User }) => {
     return (
@@ -244,7 +271,7 @@ const Dashboard: React.FC = () => {
           ref={flatListRef}
           style={styles.userList}
           data={announcementState.announcements}
-          renderItem={renderAnnouncement}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id}
         />
 
@@ -254,6 +281,7 @@ const Dashboard: React.FC = () => {
             placeholder="Type your message..."
             onChangeText={(newText) => setAnnouncement(newText)}
             defaultValue={announcement}
+            editable={!isSending}
           />
           <ImagePickerButton
             onImageSelected={setSelectedImageUri}
@@ -365,6 +393,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     color: 'white'
+  },
+  announcementHeaderTime: {
+    marginLeft: 10,
+    fontStyle: 'italic',
+    fontSize: 6
+  },
+  announcementHeader: {
+    marginLeft: 10,
+    fontStyle: 'normal',
+    fontWeight: 'bold'
   },
   messageText: {
     marginLeft: 10

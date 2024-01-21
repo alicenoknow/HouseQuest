@@ -150,7 +150,6 @@ function RootLayoutNav({
   }, [isUserLoggedIn, isUserInHousehold, user, householdId]);
 
   return (
-
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RemoteDataProvider>
         <Stack>
@@ -158,6 +157,7 @@ function RootLayoutNav({
           <Stack.Screen name="users" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(household)" options={{ headerShown: false }} />
+          <Stack.Screen name="invite" options={{ headerShown: false }} />
         </Stack>
       </RemoteDataProvider>
     </ThemeProvider>
