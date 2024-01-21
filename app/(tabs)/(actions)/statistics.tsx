@@ -65,7 +65,6 @@ const Statistics: React.FC = () => {
                 title: reward.title,
                 subtitle: "Reward",
             }));
-        console.warn("kudosOrSlobs", kudosOrSlobs)
         const kudosPoints = kudosOrSlobs
             .filter(kudos => kudos.receiver == id)
             .map(kudos => ({

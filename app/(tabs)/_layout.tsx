@@ -25,19 +25,25 @@ export default function TabLayout() {
   const { dispatch: taskDispatch } = useTaskContext();
   const { dispatch: rewardsDispatch } = useRewardsContext();
   const { dispatch: kudosSlobsDispatch } = useKudosOrSlobsContext();
-  const householdId = state.householdId;
+  const { user, householdId } = state;
 
   useEffect(() => {
 
-    if (householdId == undefined) {
+    if (householdId == undefined || user == undefined) {
       // TODO navigate to create household screen or so
-      console.log("household undefined")
+      console.log("household or user undefined")
       return;
     }
 
     const fetchDataOnInit = async () => {
       await fetchMembers(householdId,
         (member: User) => {
+          if (member.id == user.id) {
+            userDispatch({
+              type: UserActionType.UPDATE_USER,
+              user: member,
+            })
+          }
           userDispatch({
             type: UserActionType.UPDATE_MEMBER,
             member,
