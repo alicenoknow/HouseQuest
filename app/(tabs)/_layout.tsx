@@ -7,7 +7,6 @@ import { LocationShareProvider } from '../../contexts/LocationShareContext';
 import { fetchAnnouncements, fetchKudosSlobs, fetchMembers, fetchRewards, fetchTasks, fetchTodos } from '../../remote/db';
 import { Announcement, KudosOrSlobs, Reward, Task, Todo, User } from '../../models';
 
-
 export const unstable_settings = {
   initialRouteName: 'index'
 };

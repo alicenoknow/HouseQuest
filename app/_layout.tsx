@@ -14,12 +14,7 @@ import {
   UserProvider,
   useUserContext
 } from '../contexts/UserContext';
-import { Role, User } from '../models/user';
-import { AnnouncementProvider } from '../contexts/AnnouncementsContext';
-import { TodoProvider } from '../contexts/TodoContext';
-import { RewardsProvider } from '../contexts/RewardsContext';
-import { KudosOrSlobsProvider } from '../contexts/KudosContext';
-import { TaskProvider } from '../contexts/TasksContext';
+import { User } from '../models/user';
 import RemoteDataProvider from '../components/data/RemoteDataProvider';
 import { parseGoogleUserData } from '../functions/parseGoogleUserData';
 
@@ -154,6 +149,7 @@ function RootLayoutNav({
   }, [isUserLoggedIn, isUserInHousehold, user, householdId]);
 
   return (
+
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RemoteDataProvider>
         <Stack>
