@@ -25,14 +25,17 @@ export default function TabLayout() {
   const { dispatch: taskDispatch } = useTaskContext();
   const { dispatch: rewardsDispatch } = useRewardsContext();
   const { dispatch: kudosSlobsDispatch } = useKudosOrSlobsContext();
+  const householdId = state.householdId;
 
   useEffect(() => {
-    const householdId = state.householdId;
 
     if (householdId == undefined) {
       // TODO navigate to create household screen or so
+      console.log("household undefined")
       return;
     }
+    console.log("data fetching...")
+
 
     const fetchDataOnInit = async () => {
       await fetchMembers(householdId,
@@ -73,7 +76,7 @@ export default function TabLayout() {
     };
 
     fetchDataOnInit();
-  }, []);
+  }, [householdId]);
 
   return (
     <LocationShareProvider>
