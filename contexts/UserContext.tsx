@@ -51,11 +51,10 @@ const reducer: Reducer<UserState, UserAction> = (
   switch (action.type) {
     case UserActionType.UPDATE_USER: {
       console.log("context user update")
-
-      type A = typeof action.user;
       return { ...state, user: { ...action.user } };
     }
     case UserActionType.UPDATE_MEMBER: {
+      console.log("context user member")
       const others = householdMembers.filter((t) => t.id != action.member?.id);
       return { ...state, householdMembers: [...others, action.member] };
     }
@@ -103,15 +102,9 @@ const reducer: Reducer<UserState, UserAction> = (
   }
 };
 
-export function UserProvider({
-  // initialState,
-  children
-}: {
-  // initialState: UserState;
-  children: React.ReactNode;
-}) {
+export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  console.log(" UserProvider ", state)
   return (
     <UserContext.Provider value={{ state, dispatch }}>
       {children}
