@@ -25,21 +25,24 @@ export default function TabLayout() {
   const { dispatch: taskDispatch } = useTaskContext();
   const { dispatch: rewardsDispatch } = useRewardsContext();
   const { dispatch: kudosSlobsDispatch } = useKudosOrSlobsContext();
+  const householdId = state.householdId;
 
   useEffect(() => {
-    const householdId = state.householdId;
 
     if (householdId == undefined) {
       // TODO navigate to create household screen or so
+      console.log("household undefined")
       return;
     }
 
     const fetchDataOnInit = async () => {
       await fetchMembers(householdId,
-        (member: User) => userDispatch({
-          type: UserActionType.UPDATE_MEMBER,
-          member,
-        }));
+        (member: User) => {
+          userDispatch({
+            type: UserActionType.UPDATE_MEMBER,
+            member,
+          })
+        });
 
       await fetchTasks(householdId,
         (task: Task) => taskDispatch({
@@ -73,7 +76,7 @@ export default function TabLayout() {
     };
 
     fetchDataOnInit();
-  }, []);
+  }, [householdId]);
 
   return (
     <LocationShareProvider>

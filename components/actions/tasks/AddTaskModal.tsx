@@ -22,7 +22,8 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
 
     if (user === undefined || householdId === undefined) {
         // TODO handle the user null case
-        setModalVisible(false);
+        console.log("user undef");
+        // setModalVisible(false);
         return null;
     }
 

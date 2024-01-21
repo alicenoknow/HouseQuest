@@ -1,7 +1,10 @@
 import { AnnouncementProvider, KudosOrSlobsProvider, RewardsProvider, TaskProvider, TodoProvider } from "../../contexts";
 
-
-export default function RemoteDataProvider({ children }: { children: React.ReactNode }) {
+export default function RemoteDataProvider({
+    children
+}: {
+    children: React.ReactNode;
+}) {
     return (
         <TodoProvider>
             <AnnouncementProvider>
