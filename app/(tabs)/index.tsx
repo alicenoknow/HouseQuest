@@ -281,6 +281,7 @@ const Dashboard: React.FC = () => {
             placeholder="Type your message..."
             onChangeText={(newText) => setAnnouncement(newText)}
             defaultValue={announcement}
+            editable={!isSending}
           />
           <ImagePickerButton
             onImageSelected={setSelectedImageUri}
