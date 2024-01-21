@@ -22,31 +22,37 @@ interface ProfileProps {
   onPressSettings: () => void;
 }
 const imageUrl = 'https://via.placeholder.com/150';
-const Profile: React.FC<ProfileProps> = ({
-  photo,
-  name,
-  role,
-  score,
-  birthday,
-  householdName,
-  onPressSettings
-}) => {
+const Profile: React.FC = () => {
+  const { state } = useUserContext();
+  const { user, householdId } = state;
+  const { photoUrl, displayName, role, totalPoints, birthday } = user
+    ? user
+    : {
+        photoUrl: 'https://via.placeholder.com/150',
+        displayName: 'Name',
+        role: 'Role',
+        totalPoints: 0,
+        birthday: new Date()
+      };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.blueContainer}>
-          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          <Image source={{ uri: photoUrl }} style={styles.profileImage} />
 
           {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
-          <Text style={styles.name}>{name}Teste</Text>
-          <Text style={styles.role}>{role}Parent</Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.role}>{role}</Text>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.score}>Score: {totalPoints}</Text>
         </View>
         <View style={styles.info}>
-          <Text style={styles.birthday}>Birthday: {birthday}</Text>
-          <Text style={styles.householdName}>Household: {householdName}</Text>
+          <Text style={styles.birthday}>
+            Birthday: {birthday?.toLocaleString()}
+          </Text>
+          <Text style={styles.householdName}>Household: {householdId}</Text>
         </View>
       </View>
       {/* // auth buttons navigation */}
@@ -67,7 +73,11 @@ const Profile: React.FC<ProfileProps> = ({
         </Pressable>
       </Link>
       {/* // end auth buttons navigation */}
-      <TouchableOpacity style={styles.settingsButton} onPress={onPressSettings}>
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={() => {
+          return;
+        }}>
         <Text style={styles.settingsText}>Settings</Text>
       </TouchableOpacity>
       <SignoutGoogle />
