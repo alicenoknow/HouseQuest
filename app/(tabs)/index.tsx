@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  ActivityIndicator
 } from 'react-native';
 import { Announcement, Role, User } from '../../models';
 import Spacers from '../../constants/Spacers';
@@ -96,6 +97,7 @@ const mockUsersList: User[] = [
 
 const Dashboard: React.FC = () => {
   const [announcement, setAnnouncement] = useState('');
+  const [isSending, setIsSending] = useState(false);
   const [resetImagePicker, setResetImagePicker] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | undefined>(
     undefined
@@ -104,13 +106,14 @@ const Dashboard: React.FC = () => {
   const { householdMembers } = state;
   const { state: announcementState, dispatch: announcementDispatch } =
     useAnnouncementContext();
-
+  const isButtonDisabled = !announcement.trim() || isSending;
   const usersList =
     householdMembers.length > 0 ? householdMembers : mockUsersList;
 
   const handleSendAnnouncement = async () => {
     const { user, householdId } = state;
     if (user && householdId) {
+      setIsSending(true);
       try {
         await addAnnouncement(announcement, user, householdId, selectedImageUri)
           .then(() => {
@@ -131,6 +134,8 @@ const Dashboard: React.FC = () => {
           .catch((error) => console.log(error));
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsSending(false);
       }
     } else {
       console.log('User or household ID is not defined');
@@ -246,12 +251,26 @@ const Dashboard: React.FC = () => {
             onImageSelected={setSelectedImageUri}
             resetSelection={resetImagePicker}
           />
-          <TouchableOpacity
-            onPress={async () => {
-              await handleSendAnnouncement();
-            }}>
-            <Text style={styles.sendButton}>Send</Text>
-          </TouchableOpacity>
+          {isSending ? (
+            <ActivityIndicator size="large" color={Colors.darkGreen} />
+          ) : (
+            <TouchableOpacity
+              onPress={async () => {
+                await handleSendAnnouncement();
+              }}
+              disabled={isButtonDisabled}
+              style={[
+                styles.sendButton,
+                isButtonDisabled ? styles.disabledButton : null
+              ]}>
+              <Text
+                style={
+                  isButtonDisabled ? styles.disabledButton : styles.sendButton
+                }>
+                Send
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -362,6 +381,9 @@ const styles = StyleSheet.create({
     marginLeft: 80,
     marginTop: 10,
     marginBottom: 10
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc' // A lighter shade to indicate disabled state
   }
 });
 
