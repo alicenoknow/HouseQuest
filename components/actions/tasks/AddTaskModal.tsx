@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
-import { TaskStatus, TaskWithoutId } from '../../../models';
+import { Modal, StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import Spacers from '../../../constants/Spacers';
-import Colors from '../../../constants/Colors';
-import Style from '../../../constants/Style';
-import Fonts from '../../../constants/Fonts';
+import { TaskStatus, TaskWithoutId } from '../../../models';
+import { Spacers, Colors, Style, Fonts } from '../../../constants';
 import { TaskActionType, useTaskContext, useUserContext } from '../../../contexts';
 import { createTask } from '../../../remote/db';
+import { verifyHousehold, verifyUser } from '../../../functions/verify';
+import { router } from 'expo-router';
 
 
 export default function AddTaskModal({ isModalVisible, setModalVisible }: { isModalVisible: boolean, setModalVisible: (isVisible: boolean) => void }) {
@@ -16,15 +15,21 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
     const [points, setPoints] = useState(5);
     const [customPoints, setCustomPoints] = useState(0);
     const [assignee, setAssignee] = useState('');
+    const [isLoading, setLoading] = useState(false);
 
     const { state: { user, householdId, householdMembers } } = useUserContext();
     const { dispatch } = useTaskContext();
 
-    if (user === undefined || householdId === undefined) {
-        // TODO handle the user null case
-        console.log("user undef");
-        // setModalVisible(false);
-        return null;
+    if (!verifyUser(user)) {
+        console.log("user undefined")
+        router.replace('/auth');
+        return;
+    }
+
+    if (!verifyHousehold(householdId)) {
+        console.log("household undefined")
+        router.replace('/household');
+        return;
     }
 
     const disableAddButton = title === '' || description === '';
@@ -37,6 +42,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
     }
 
     const handleAddButton = async () => {
+        setLoading(true);
         const task: TaskWithoutId = {
             title,
             description,
@@ -49,6 +55,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         }
         const taskId = await createTask(task, householdId);
         dispatch({ type: TaskActionType.ADD, task: { ...task, id: taskId } });
+        setLoading(false);
         clearStates();
         setModalVisible(!isModalVisible);
     };
@@ -112,12 +119,12 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
                         style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
                         disabled={disableAddButton}
                         onPress={handleAddButton}>
-                        <Text style={styles.mediumText}>Add Task</Text>
+                        {!isLoading ? <Text style={styles.mediumText}>Add Task</Text> : <ActivityIndicator />}
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.button, styles.buttonCancel]}
                         onPress={() => setModalVisible(false)}>
-                        <Text style={styles.mediumText}>Cancel</Text>
+                        {!isLoading ? <Text style={styles.mediumText}>Cancel</Text> : <ActivityIndicator />}
                     </TouchableOpacity>
                 </View>
             </View>

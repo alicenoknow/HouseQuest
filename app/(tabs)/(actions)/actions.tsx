@@ -5,7 +5,6 @@ import ActionCard from '../../../components/actions/ActionCard';
 
 export default function Actions() {
   return (
-
     <View style={styles.container}>
       <View style={styles.title}>
         <Text style={styles.title}>Task</Text>
