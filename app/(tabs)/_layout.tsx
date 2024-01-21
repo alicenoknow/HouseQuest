@@ -1,18 +1,12 @@
-import { Tabs } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Tabs, router, useRootNavigation } from 'expo-router';
 import Colors from '../../constants/Colors';
 import Icon from '../../components/common/Icon';
-import { TodoActionType, TodoProvider, useTodoContext } from '../../contexts/TodoContext';
-import { AnnouncementActionType, AnnouncementProvider, useAnnouncementContext } from '../../contexts/AnnouncementsContext';
-import { TaskActionType, TaskProvider, useTaskContext } from '../../contexts/TasksContext';
-import { RewardsActionType, RewardsProvider, useRewardsContext } from '../../contexts/RewardsContext';
-import { KudosOrSlobsActionType, KudosOrSlobsProvider, useKudosOrSlobsContext } from '../../contexts/KudosContext';
+import { TodoActionType, useTodoContext, AnnouncementActionType, useAnnouncementContext, TaskActionType, useTaskContext, UserActionType, useUserContext, KudosOrSlobsActionType, useKudosOrSlobsContext, RewardsActionType, useRewardsContext } from '../../contexts/';
 import { LocationShareProvider } from '../../contexts/LocationShareContext';
-import { useContext, useEffect } from 'react';
-import { UserActionType, useUserContext } from '../../contexts/UserContext';
 import { fetchAnnouncements, fetchKudosSlobs, fetchMembers, fetchRewards, fetchTasks, fetchTodos } from '../../remote/db';
 import { Announcement, KudosOrSlobs, Reward, Task, Todo, User } from '../../models';
 
-// TODO place providers in correct place and fetch data from db on init
 
 export const unstable_settings = {
   initialRouteName: 'index'
@@ -27,14 +21,22 @@ export default function TabLayout() {
   const { dispatch: kudosSlobsDispatch } = useKudosOrSlobsContext();
   const { user, householdId } = state;
 
+  const rootNavigation = useRootNavigation();
+
+  if (!rootNavigation?.isReady()) return null;
+
+  if (user == undefined) {
+    console.log("user undefined")
+    router.replace('/auth');
+    return;
+  }
+  if (householdId == undefined) {
+    console.log("household undefined")
+    router.replace('/household');
+    return;
+  }
+
   useEffect(() => {
-
-    if (householdId == undefined || user == undefined) {
-      // TODO navigate to create household screen or so
-      console.log("household or user undefined")
-      return;
-    }
-
     const fetchDataOnInit = async () => {
       await fetchMembers(householdId,
         (member: User) => {

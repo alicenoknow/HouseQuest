@@ -10,6 +10,9 @@ import Fonts from '../../../constants/Fonts';
 import PointsListItem from '../../../components/actions/stats/PointsListItem';
 import { KSAction, KudosOrSlobs, Reward, RewardStatus, Task, TaskStatus, User } from '../../../models';
 import { useKudosOrSlobsContext, useRewardsContext, useTaskContext } from '../../../contexts';
+import { router } from 'expo-router';
+import { verifyHousehold, verifyUser } from '../../../functions/verify';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface PointsItemProps {
     value: number;
@@ -18,21 +21,30 @@ interface PointsItemProps {
 }
 
 
+
 const Statistics: React.FC = () => {
     const { state } = useUserContext();
     const { state: { tasks } } = useTaskContext();
     const { state: { kudosOrSlobs } } = useKudosOrSlobsContext();
     const { state: { rewards } } = useRewardsContext();
-    const { id, photoURL, totalPoints, currentPoints } = state.user ?? {};
-    const { householdId, householdMembers } = state ?? {};
     const [selectionMode, setSelectionMode] = useState<SelectionMode>("LEFT");
-    console.log("stats user context", state);
 
+    const { user, householdId, householdMembers } = state ?? {};
 
+    if (!verifyUser(user)) {
+        console.log("user undefined")
+        router.replace('/auth');
+        return;
+    }
+
+    if (!verifyHousehold(householdId)) {
+        console.log("household undefined")
+        router.replace('/household');
+        return;
+    }
+
+    const { id, photoURL, totalPoints, currentPoints } = user;
     const isPointsMode = selectionMode === "LEFT";
-
-    // TODO user undefined, go to auth
-    if (!photoURL || totalPoints == undefined || currentPoints == undefined || householdId == undefined) return null;
 
     const getUsersData = (data: ReadonlyArray<User>, selectionMode: SelectionMode) => {
         if (selectionMode == "LEFT") {
@@ -92,7 +104,7 @@ const Statistics: React.FC = () => {
             />
             <View style={styles.divider} />
             <ScorePill
-                avatarUri={photoURL}
+                avatarUri={photoURL ?? ''}
                 score={isPointsMode ? totalPoints : currentPoints}
                 scoreEmoji={isPointsMode ? "🔥" : "💲"}
             />
