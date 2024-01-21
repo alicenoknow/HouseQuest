@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 import { useUserContext } from '../../contexts/UserContext';
+import ImagePickerButton from '../../components/ImagePickerButton';
 
 async function addAnnouncement(announcement: string) {
   const docRef = doc(db, 'messages', Date.now().toString());
@@ -161,6 +162,7 @@ const Dashboard: React.FC = () => {
             onChangeText={(newText) => setAnnouncement(newText)}
             defaultValue={announcement}
           />
+          <ImagePickerButton />
           <TouchableOpacity
             onPress={async () => {
               console.log('Send button pressed');
