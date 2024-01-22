@@ -11,6 +11,7 @@ import { KudosOrSlobs, KSAction } from '../../../models';
 import Colors from '../../../constants/Colors';
 import { useKudosOrSlobsContext, useUserContext } from '../../../contexts';
 import { Fonts, Spacers, Style } from '../../../constants';
+import AddFeedbackModal from '../../../components/actions/kudos/AddFeedbackModal';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 
@@ -89,9 +90,15 @@ const Kudos: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
       />
-      <TouchableOpacity style={styles.button} onPress={() => {}}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Give Feedback</Text>
       </TouchableOpacity>
+      <AddFeedbackModal
+        isModalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     </View>
   );
 };
@@ -145,6 +152,43 @@ const styles = StyleSheet.create({
     fontSize: Fonts.medium,
     fontWeight: 'bold',
     color: Colors.white
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  buttonClose: {
+    backgroundColor: Colors.darkGreen,
+    borderRadius: Style.radius,
+    padding: Spacers.medium,
+    elevation: 2,
+    marginTop: 15
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center'
   }
 });
 
