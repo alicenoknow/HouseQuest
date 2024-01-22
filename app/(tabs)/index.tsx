@@ -57,24 +57,6 @@ async function addAnnouncement(
   await createAnnouncement(announcement, householdId);
 }
 
-const announcementsList: Announcement[] = [
-  {
-    id: '1',
-    sender: 'User 1',
-    createdAt: new Date(),
-    content:
-      'Shower is not working, please DO NOT USE IT! t will be fixed tomorrow.'
-  },
-  {
-    id: '2',
-    sender: 'User 2',
-    createdAt: new Date(),
-    content: 'Greetings from Iceland!',
-    photoUri:
-      'https://www.happiness.com/en/uploads/monthly_2019_07/iceland-happy-people.jpg.49f396d9196668eddb06cf311d0732d9.jpg'
-  }
-];
-
 const mockUsersList: User[] = [
   {
     id: '1',
