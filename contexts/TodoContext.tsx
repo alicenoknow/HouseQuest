@@ -5,14 +5,12 @@ export enum TodoActionType {
     ADD = "ADD",
     REMOVE = "REMOVE",
     DONE = "DONE",
-    UNDONE = "UNDONE"
 }
 
 type TodoAction =
     | { type: TodoActionType.ADD, todo: Todo }
     | { type: TodoActionType.REMOVE, id: string }
-    | { type: TodoActionType.DONE, id: string }
-    | { type: TodoActionType.UNDONE, id: string };
+    | { type: TodoActionType.DONE, id: string };
 
 interface TodoState {
     todos: ReadonlyArray<Todo>;
@@ -31,7 +29,8 @@ function reducer(state: TodoState, action: TodoAction) {
     const { todos } = state;
     switch (action.type) {
         case TodoActionType.ADD: {
-            return { ...state, todos: [...todos, action.todo] };
+            const others = todos.filter(t => t.id != action.todo.id);
+            return { ...state, todos: [...others, action.todo] };
         }
         case TodoActionType.REMOVE: {
             return {
@@ -41,16 +40,11 @@ function reducer(state: TodoState, action: TodoAction) {
         }
         case TodoActionType.DONE: {
             const toChange = todos.filter(t => t.id == action.id)?.at(0);
+            const others = todos.filter(t => t.id != action.id);
             if (toChange) {
-                return { ...state, todos: [...todos, { ...toChange, status: TodoStatus.DONE }] };
+                return { ...state, todos: [...others, { ...toChange, status: TodoStatus.DONE }] };
             }
             return state;
-        }
-        case TodoActionType.UNDONE: {
-            const toChange = todos.filter(t => t.id == action.id)?.at(0);
-            if (toChange) {
-                return { ...state, todos: [...todos, { ...toChange, status: TodoStatus.WAITING }] };
-            }
         }
         default: {
             console.warn("Invalid todo context action: ", action);

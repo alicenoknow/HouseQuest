@@ -8,5 +8,6 @@ export default {
   white: '#FFF',
   blue: '#1a62d6',
   lightBlue: '#c7dcfc',
-  darkGrey: '#878787'
+  darkGrey: '#878787',
+  lightPink: '#fca4b5'
 };
