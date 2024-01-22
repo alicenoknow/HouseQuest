@@ -37,8 +37,17 @@ const data: ReadonlyArray<KudosOrSlobs> = [
 
 const Kudos: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [kudosOrSlobs, setKudosOrSlobs] = useState<KudosOrSlobs[]>([]);
   const { state: stateKudosOrSlobs } = useKudosOrSlobsContext();
   const { state: stateUser } = useUserContext();
+
+  useEffect(() => {
+    setKudosOrSlobs([...stateKudosOrSlobs.kudosOrSlobs]);
+  }, [stateKudosOrSlobs]);
+
+  useEffect(() => {
+    console.log('Kudos.tsx: Current state of kudosOrSlobs: \n', kudosOrSlobs);
+  }, [kudosOrSlobs]);
 
   const renderMessage = (item: KudosOrSlobs) => {
     const borderColor =
@@ -62,8 +71,8 @@ const Kudos: React.FC = () => {
     return (
       <View style={styles.item}>
         {renderMessage(item)}
-        {item.points && (
-          <Text style={styles.points}>Points: {item.points}</Text>
+        {item.points !== null && item.points !== undefined && (
+          <Text style={styles.points}>Points: {String(item.points)}</Text>
         )}
         <Text>Sender: {item.sender}</Text>
         <Text>Receiver: {item.receiver}</Text>
@@ -86,7 +95,7 @@ const Kudos: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={kudosOrSlobs}
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
       />
