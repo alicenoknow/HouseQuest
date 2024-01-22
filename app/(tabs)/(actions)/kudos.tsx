@@ -35,7 +35,9 @@ const data: ReadonlyArray<KudosOrSlobs> = [
 ];
 
 const Kudos: React.FC = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const { state: stateKudosOrSlobs } = useKudosOrSlobsContext();
+  const { state: stateUser } = useUserContext();
 
   const renderMessage = (item: KudosOrSlobs) => {
     const borderColor =
@@ -70,6 +72,10 @@ const Kudos: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log('Kudos.tsx: Current state of userContext: \n', stateUser);
+  }, [stateUser]);
+
+  useEffect(() => {
     console.log(
       'Kudos.tsx: Current state of kudosOrSlobsContext: \n',
       stateKudosOrSlobs
@@ -83,6 +89,9 @@ const Kudos: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
       />
+      <TouchableOpacity style={styles.button} onPress={() => {}}>
+        <Text style={styles.buttonText}>Give Feedback</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -124,6 +133,18 @@ const styles = StyleSheet.create({
   points: {
     marginTop: 5,
     fontWeight: 'bold'
+  },
+  button: {
+    backgroundColor: Colors.darkGreen,
+    margin: Spacers.medium,
+    padding: Spacers.medium,
+    alignItems: 'center',
+    borderRadius: Style.radius
+  },
+  buttonText: {
+    fontSize: Fonts.medium,
+    fontWeight: 'bold',
+    color: Colors.white
   }
 });
 
