@@ -4,8 +4,7 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
-  Modal
+  TouchableOpacity
 } from 'react-native';
 import { KudosOrSlobs, KSAction } from '../../../models';
 import Colors from '../../../constants/Colors';
@@ -14,26 +13,6 @@ import { Fonts, Spacers, Style } from '../../../constants';
 import AddFeedbackModal from '../../../components/actions/kudos/AddFeedbackModal';
 
 // TODO refactor, basically rewrite, extract components, fix styling
-
-const data: ReadonlyArray<KudosOrSlobs> = [
-  {
-    id: '1',
-    type: KSAction.KUDOS,
-    sender: 'Sender1',
-    receiver: 'Receiver1',
-    message: 'Great job on the project!',
-    timestamp: new Date(),
-    points: 10
-  },
-  {
-    id: '2',
-    type: KSAction.SLOBS,
-    sender: 'Sender2',
-    receiver: 'Receiver2',
-    message: 'Thanks for the help!',
-    timestamp: new Date()
-  }
-];
 
 const Kudos: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
