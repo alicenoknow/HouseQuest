@@ -3,7 +3,7 @@ import { Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Todo, TodoCategory, TodoStatus } from '../../models';
 import { Dimensions } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Extrapolation, FadeIn, FadeOut, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Colors, Fonts, Spacers, Style } from '../../constants';
 import Icon from '../common/Icon';
 
@@ -101,20 +101,19 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ todo, color, onDelete, onCo
 
     const renderItemContent = () =>
         <Animated.View style={[styles.item, { backgroundColor: color }, animatedStyles]}>
-            {isLoading ? <ActivityIndicator /> :
-                <View style={styles.todoContainer}>
-                    {isDone ? <Icon name="checkmark-circle-outline" color={Colors.darkGreen} /> : null}
-                    <Text style={styles.todoText}>{todo.description}</Text>
-                </ View>}
+            <View style={styles.todoContainer}>
+                {isDone ? <Icon name="checkmark-circle-outline" color={Colors.darkGreen} /> : null}
+                <Text style={styles.todoText}>{todo.description}</Text>
+            </ View>
         </Animated.View>
 
     return (<GestureDetector gesture={pan}>
-        <View style={styles.itemContainer}>
+        <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.itemContainer}>
             {renderItemContent()}
             {renderDoneActionIcon()}
             {renderDeleteActionIcon()}
-        </View>
-    </GestureDetector>)
+        </Animated.View>
+    </GestureDetector >)
 };
 export default TodoListItem;
 

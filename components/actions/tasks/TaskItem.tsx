@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Task, TaskStatus } from '../../../models';
+import { Task } from '../../../models';
 import Colors from '../../../constants/Colors';
 import Style from '../../../constants/Style';
 import Spacers from '../../../constants/Spacers';
 import Fonts from '../../../constants/Fonts';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 interface TaskItemProps {
     index: number;
@@ -18,15 +19,17 @@ export default function TaskItem({ index, task, onTaskPressed }: TaskItemProps) 
     const itemColor = taskItemsColors[index % taskItemsColors.length];
     const { title, status, points } = task;
     return (
-        <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={onTaskPressed}>
-            <View style={styles.circle}>
-                <Text style={styles.pointsText}>{`🔥${points}` ?? "🛠"}</Text>
-            </View>
-            <View style={styles.detailsContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.status}>{status}</Text>
-            </View>
-        </TouchableOpacity>
+        <Animated.View entering={FadeIn} exiting={FadeOut}>
+            <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={onTaskPressed}>
+                <View style={styles.circle}>
+                    <Text style={styles.pointsText}>{`🔥${points}` ?? "🛠"}</Text>
+                </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.status}>{status}</Text>
+                </View>
+            </TouchableOpacity>
+        </Animated.View>
     );
 };
 
