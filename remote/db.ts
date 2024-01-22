@@ -257,7 +257,7 @@ export async function createKudosSlobs(
 }
 
 export async function createTodo(
-  todo: Todo,
+  todo: Omit<Todo, 'id'>,
   householdId: string
 ): Promise<string> {
   const todoRef = await addDoc(collection(db, 'todos'), todo);
@@ -285,15 +285,21 @@ export async function createAnnouncement(
 
 // ===================================================================
 
+// idk why but otherwise firebase breaks
+function clearEmptyFields<T extends object>(obj: T) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key as keyof T] == null) {
+      delete obj[key as keyof T];
+    }
+  });
+  return obj;
+}
+
 export async function updateTask(task: Task) {
   const tasksRef = doc(db, 'tasks', task.id);
 
-  Object.keys(task).forEach((key) => {
-    if (task[key as keyof Task] == null) {
-      delete task[key as keyof Task];
-    }
-  });
-  await updateDoc(tasksRef, { ...task });
+  const clearedTask = clearEmptyFields<Task>(task);
+  await updateDoc(tasksRef, { ...clearedTask });
 }
 
 export async function removeTask(taskId: string, householdId: string) {
@@ -309,11 +315,23 @@ export async function removeTask(taskId: string, householdId: string) {
 export async function updateUser(user: User) {
   const usersRef = doc(db, 'users', user.id);
 
-  Object.keys(user).forEach((key) => {
-    if (user[key as keyof User] == null) {
-      delete user[key as keyof User];
-    }
-  });
+  const clearedUser = clearEmptyFields<User>(user);
+  await updateDoc(usersRef, { ...clearedUser });
+}
 
-  await updateDoc(usersRef, { ...user });
+export async function updateTodo(todo: Todo) {
+  const todoRef = doc(db, 'todos', todo.id);
+
+  const clearedTodo = clearEmptyFields<Todo>(todo);
+  await updateDoc(todoRef, { ...clearedTodo });
+}
+
+export async function removeTodo(todoId: string, householdId: string) {
+  const todosRef = doc(db, 'todos', todoId);
+  await deleteDoc(todosRef);
+
+  const householdRef = doc(db, 'households', householdId);
+  await updateDoc(householdRef, {
+    todos: arrayRemove(todoId)
+  });
 }

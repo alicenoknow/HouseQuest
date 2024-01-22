@@ -1,142 +1,203 @@
 import { Picker } from '@react-native-picker/picker';
-import React, { useReducer, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   TextInput,
   TouchableOpacity,
   SectionList,
   StyleSheet,
+  SectionListData,
+  ActivityIndicator,
 } from 'react-native';
-import Colors from '../../../constants/Colors';
-import Style from '../../../constants/Style';
-import Spacers from '../../../constants/Spacers';
+import { Colors, Style, Spacers, Fonts } from '../../../constants';
 import { Text } from '../../../components/Themed';
+import { TodoActionType, useTodoContext, useUserContext } from '../../../contexts';
+import { Todo, TodoCategory, TodoStatus } from '../../../models';
+import { createTodo, removeTodo, updateTodo } from '../../../remote/db';
+import { router } from 'expo-router';
+import { verifyUser, verifyHousehold } from '../../../functions/verify';
+import Icon from '../../../components/common/Icon';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import TodoListItem from '../../../components/todo/TodoListItem';
+import Divider from '../../../components/common/Divider';
 
-// TODO refactor, basically rewrite, extract components, fix styling
-
-interface TodoItem {
-  id: string;
-  text: string;
-  category: string;
-}
 
 
-const Todo: React.FC = () => {
+const categories = [
+  { title: TodoCategory.GENERAL, color: Colors.lightBlue },
+  { title: TodoCategory.SHOPPING, color: Colors.lightGreen },
+  { title: TodoCategory.SCHOOL, color: Colors.lightGrey },
+  { title: TodoCategory.PET, color: Colors.yellow },
+  { title: TodoCategory.OTHER, color: Colors.lightPink }
+]
+
+const Todos: React.FC = () => {
+  const [isLoading, setLoading] = useState(false);
   const [inputText, setInputText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('General');
-  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(TodoCategory.GENERAL);
 
+  const { state, dispatch } = useTodoContext();
+  const { state: userState } = useUserContext();
 
-  const addTodo = () => {
+  const { user, householdId } = userState ?? {};
+
+  if (!verifyUser(user)) {
+    console.log('user undefined');
+    router.replace('/auth');
+    return;
+  }
+
+  if (!verifyHousehold(householdId)) {
+    console.log('household undefined');
+    router.replace('/household');
+    return;
+  }
+
+  const addTodo = async () => {
     if (inputText.trim() !== '') {
-      const newTodo: TodoItem = {
-        id: Math.random().toString(),
-        text: inputText,
+      setLoading(true);
+      const newTodo: Omit<Todo, 'id'> = {
+        timestamp: new Date(Date.now()),
+        status: TodoStatus.WAITING,
+        description: inputText,
         category: selectedCategory,
-      };
-      setTodos([...todos, newTodo]);
+      }
+      const id = await createTodo(newTodo, householdId);
+      dispatch({
+        type: TodoActionType.ADD,
+        todo: { ...newTodo, id }
+      });
       setInputText('');
+      setLoading(false);
     }
   };
 
-  const removeTodo = (id: string) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-  };
-
-  const groupedTodos = todos.reduce((group: { [key: string]: TodoItem[] }, todo) => {
-    if (!group[todo.category]) {
-      group[todo.category] = [];
+  const markTodoAsDone = async (todo: Todo) => {
+    const doneTodo = {
+      ...todo,
+      status: TodoStatus.DONE,
     }
-    group[todo.category].push(todo);
-    return group;
-  }, {});
+    await updateTodo(doneTodo);
+    dispatch({
+      type: TodoActionType.DONE,
+      id: doneTodo.id,
+    });
+  }
 
-  const sections = Object.keys(groupedTodos).map((category) => ({
-    title: category,
-    data: groupedTodos[category],
-  }));
+  const removeTodoFromList = async (todo: Todo) => {
+    await removeTodo(todo.id, householdId);
+    dispatch({
+      type: TodoActionType.REMOVE,
+      id: todo.id,
+    });
+  }
 
+  const sections = useMemo(() => {
+    const groupedTodos = state.todos.reduce((group: { [key: string]: Todo[] }, todo) => {
+      if (!group[todo.category]) {
+        group[todo.category] = [];
+      }
+      group[todo.category].push(todo);
+      return group;
+    }, {});
 
+    return Object.keys(groupedTodos).map((category) => ({
+      title: category,
+      data: groupedTodos[category],
+    }));
+  }, [state]);
+
+  const renderCategoryPicker = () => {
+    const circleColor = categories.find(c => c.title === selectedCategory)?.color;
+    return (
+      <>
+        <Text>Select category:</Text >
+        <View style={styles.inputContainer}>
+          {circleColor && <View style={[styles.pickerCircle, { backgroundColor: circleColor }]} />}
+          <Picker
+            style={styles.picker}
+            selectedValue={selectedCategory}
+            onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          >
+            <Picker.Item key={TodoCategory.GENERAL} label={TodoCategory.GENERAL} value={TodoCategory.GENERAL} style={styles.pickerItem} />
+            <Picker.Item key={TodoCategory.SHOPPING} label={TodoCategory.SHOPPING} value={TodoCategory.SHOPPING} style={styles.pickerItem} />
+            <Picker.Item key={TodoCategory.SCHOOL} label={TodoCategory.SCHOOL} value={TodoCategory.SCHOOL} style={styles.pickerItem} />
+            <Picker.Item key={TodoCategory.PET} label={TodoCategory.PET} value={TodoCategory.PET} style={styles.pickerItem} />
+            <Picker.Item key={TodoCategory.OTHER} label={TodoCategory.OTHER} value={TodoCategory.OTHER} style={styles.pickerItem} />
+          </Picker>
+        </View></>);
+  }
+
+  const renderInput = () => (
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={styles.input}
+        value={inputText}
+        onChangeText={(text) => setInputText(text)}
+        placeholder="Add Todo..."
+      />
+      <TouchableOpacity onPress={addTodo} style={styles.addButton}>
+        {isLoading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.addButtonText}><Icon name="add-outline" color={Colors.white} /></Text>}
+      </TouchableOpacity>
+    </View>)
+
+  const renderSectionHeader = ({ section: { title } }: { section: SectionListData<Todo> }) => {
+    const circleColor = categories.find(c => c.title === title)?.color;
+    return (
+      <View style={styles.inputContainer}>
+        {circleColor && <View style={[styles.pickerCircle, { backgroundColor: circleColor }]} />}
+        <Text style={styles.sectionHeader}>{title}</Text>
+      </View>
+    )
+  }
+
+  const renderItem = ({ item }: { item: Todo }) => {
+    const color = categories.find(c => c.title == item.category)?.color ?? Colors.lightBlue;
+    return <TodoListItem key={item.id} todo={item} color={color} onDelete={removeTodoFromList} onComplete={markTodoAsDone} />;
+  }
 
   return (
-
-    <View style={styles.container}>
-      <View style={styles.subtitle}>
-        <Text style={styles.subtitle}>List</Text>
-      </View>
-
-      <View style={styles.title}>
-        <Text style={styles.title}>To Do</Text>
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Picker
-          style={styles.picker}
-          selectedValue={selectedCategory}
-          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-        >
-          <Picker.Item label="General" value="General" style={{ fontSize: 14 }} />
-          <Picker.Item label="Pet" value="Pet" style={{ fontSize: 14 }} />
-          <Picker.Item label="School" value="School" style={{ fontSize: 14 }} />
-          <Picker.Item label="Shopping" value="Shopping" style={{ fontSize: 14 }} />
-        </Picker>
-      </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={(text) => setInputText(text)}
-          placeholder="Add Todo..."
-        />
-        <TouchableOpacity onPress={addTodo} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
+    <GestureHandlerRootView style={styles.container}>
+      {renderCategoryPicker()}
+      {renderInput()}
+      <Divider marginX={Spacers.medium} marginY={Spacers.medium} />
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => removeTodo(item.id)} style={styles.todoItem}>
-            <Text>{item.text}</Text>
-          </TouchableOpacity>
-        )}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.sectionHeader}>{title}</Text>
-        )}
+        renderItem={renderItem}
+        renderSectionHeader={renderSectionHeader}
       />
-    </View>
-
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 40,
-
-
+    padding: Spacers.medium,
+    paddingTop: Spacers.xLarge,
   },
   inputContainer: {
     width: "100%",
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: Spacers.medium,
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: Style.largeRadius,
   },
   picker: {
     flex: 1,
   },
+  pickerItem: {
+    fontSize: Fonts.medium,
+  },
   input: {
-    flex: 2,
+    flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginRight: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 12,
-    height: 35,
+    borderColor: Colors.lightGrey,
+    marginRight: Spacers.medium,
+    padding: Spacers.medium,
+    borderRadius: Style.largeRadius,
+    height: 40,
   },
   addButton: {
     backgroundColor: Colors.darkGreen,
@@ -144,48 +205,32 @@ const styles = StyleSheet.create({
     padding: Spacers.small,
     justifyContent: 'center',
     alignItems: 'center',
-
-
+    height: 40,
+    width: 40,
   },
   addButtonText: {
-    color: 'white',
+    color: Colors.white,
     fontWeight: 'bold',
   },
   todoItem: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: "white",
-    marginBottom: 10,
-    padding: 8,
-    borderRadius: 12,
-    marginLeft: 4,
-    marginRight: 8,
+    backgroundColor: Colors.white,
+    marginBottom: Spacers.small,
+    padding: Spacers.small,
+    borderRadius: Style.radius,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: Colors.black,
-    marginLeft: 10,
-    marginTop: 10,
-
-  },
-
-  subtitle: {
-    fontSize: 20,
-    marginBottom: -5,
-    color: Colors.black,
-    marginLeft: 10,
-    marginTop: 20,
-  },
-
   sectionHeader: {
-    fontSize: 16,
+    fontSize: Fonts.medium,
     fontWeight: 'bold',
-    backgroundColor: '#f2f2f2',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginTop: 15,
+    paddingVertical: Spacers.small,
+    paddingHorizontal: Spacers.small,
+    alignSelf: 'center',
   },
+  pickerCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: Style.largeRadius,
+  }
 });
 
-export default Todo;
+export default Todos;
