@@ -1,8 +1,16 @@
-import React, { useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Modal
+} from 'react-native';
 import { KudosOrSlobs, KSAction } from '../../../models';
 import Colors from '../../../constants/Colors';
-import { useKudosOrSlobsContext } from '../../../contexts';
+import { useKudosOrSlobsContext, useUserContext } from '../../../contexts';
+import { Fonts, Spacers, Style } from '../../../constants';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 
