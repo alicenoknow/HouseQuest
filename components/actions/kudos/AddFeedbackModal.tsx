@@ -10,21 +10,21 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { TaskStatus, TaskWithoutId } from '../../../models';
+import { TaskStatus, TaskWithoutId, User } from '../../../models';
 import { Spacers, Colors, Style, Fonts } from '../../../constants';
 import {
   TaskActionType,
   useTaskContext,
   useUserContext
 } from '../../../contexts';
-import { createTask } from '../../../remote/db';
+import { createKudosSlobs } from '../../../remote/db';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
 import {
   useKudosOrSlobsContext,
   KudosOrSlobsActionType
 } from '../../../contexts';
-import { KSAction } from '../../../models';
+import { KSAction, KudosOrSlobs } from '../../../models';
 import { BlurView } from '@react-native-community/blur';
 
 export default function AddFeedbackModal({
@@ -34,18 +34,17 @@ export default function AddFeedbackModal({
   isModalVisible: boolean;
   setModalVisible: (isVisible: boolean) => void;
 }) {
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [points, setPoints] = useState(5);
   const [customPoints, setCustomPoints] = useState(0);
-  const [assignee, setAssignee] = useState('');
+  const [assignee, setAssignee] = useState<string | undefined>(undefined);
   const [isLoading, setLoading] = useState(false);
   const [actions, setActions] = useState<KSAction>(KSAction.KUDOS);
 
   const {
     state: { user, householdId, householdMembers }
   } = useUserContext();
-  const { dispatch } = useTaskContext();
+  const { state, dispatch } = useKudosOrSlobsContext();
 
   if (!verifyUser(user)) {
     console.log('user undefined');
@@ -60,33 +59,39 @@ export default function AddFeedbackModal({
   }
 
   const disableAddButton =
-    title === '' ||
     description === '' ||
     isLoading ||
     points === undefined ||
     assignee === undefined;
 
   const clearStates = () => {
-    setTitle('');
     setDescription('');
     setPoints(5);
-    setAssignee('');
+    setAssignee(undefined);
+    setCustomPoints(0);
   };
 
   const handleAddButton = async () => {
     setLoading(true);
-    const task: TaskWithoutId = {
-      title,
-      description,
-      points: points === undefined ? customPoints : points,
-      assignee,
-      status: assignee ? TaskStatus.ASSIGNED : TaskStatus.UNASSIGNED,
-      creator: user.id,
-      createdAt: new Date(Date.now()),
-      submissionPhoto: ''
+    if (!assignee) {
+      return;
+    }
+
+    const ks: KudosOrSlobs = {
+      id: '',
+      type: actions,
+      sender: user.id,
+      receiver: assignee,
+      message: description,
+      timestamp: new Date(),
+      points: points === undefined ? customPoints : points
     };
-    const taskId = await createTask(task, householdId);
-    dispatch({ type: TaskActionType.ADD, task: { ...task, id: taskId } });
+
+    const ksId = await createKudosSlobs(ks, householdId);
+    dispatch({
+      type: KudosOrSlobsActionType.ADD,
+      kudosOrSlobs: { ...ks, id: ksId }
+    });
     setLoading(false);
     clearStates();
     setModalVisible(!isModalVisible);
@@ -125,13 +130,6 @@ export default function AddFeedbackModal({
                     <Picker.Item label="Slobs" value={KSAction.SLOBS} />
                   </Picker>
                 </View>
-
-                <Text style={styles.header}>Title:</Text>
-                <TextInput
-                  value={title}
-                  onChangeText={(text) => setTitle(text)}
-                  style={styles.input}
-                />
 
                 <Text style={styles.header}>Description:</Text>
                 <TextInput
