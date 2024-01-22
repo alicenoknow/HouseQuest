@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { KudosOrSlobs, KSAction } from '../../../models';
 import Colors from '../../../constants/Colors';
+import { useKudosOrSlobsContext } from '../../../contexts';
 
 // TODO refactor, basically rewrite, extract components, fix styling
 
@@ -26,6 +27,8 @@ const data: ReadonlyArray<KudosOrSlobs> = [
 ];
 
 const Kudos: React.FC = () => {
+  const { state: stateKudosOrSlobs } = useKudosOrSlobsContext();
+
   const renderMessage = (item: KudosOrSlobs) => {
     const borderColor =
       item.type === KSAction.KUDOS ? Colors.lightGreen : Colors.pink;
@@ -57,6 +60,13 @@ const Kudos: React.FC = () => {
       </View>
     );
   };
+
+  useEffect(() => {
+    console.log(
+      'Kudos.tsx: Current state of kudosOrSlobsContext: \n',
+      stateKudosOrSlobs
+    );
+  }, [stateKudosOrSlobs]);
 
   return (
     <View style={styles.container}>
