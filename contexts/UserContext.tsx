@@ -9,7 +9,8 @@ export enum UserActionType {
   LOGIN_USER = 'LOGIN_USER',
   LOGOUT_USER = 'LOGOUT_USER',
   UPDATE_HOUSEHOLD = 'UPDATE_HOUSEHOLD',
-  REMOVE_HOUSEHOLD = 'REMOVE_HOUSEHOLD'
+  REMOVE_HOUSEHOLD = 'REMOVE_HOUSEHOLD',
+  ADD_BIRTHDAY = 'ADD_BIRTHDAY'
 }
 
 type UserAction =
@@ -19,7 +20,8 @@ type UserAction =
   | { type: UserActionType.LOGIN_USER; user: User }
   | { type: UserActionType.LOGOUT_USER; user: null }
   | { type: UserActionType.UPDATE_HOUSEHOLD; householdId: string }
-  | { type: UserActionType.REMOVE_HOUSEHOLD; householdId: undefined };
+  | { type: UserActionType.REMOVE_HOUSEHOLD; householdId: undefined }
+  | { type: UserActionType.ADD_BIRTHDAY; user: User };
 
 interface UserState {
   householdId: string | undefined;
@@ -40,7 +42,7 @@ const initialState: UserState = {
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => { }
+  dispatch: () => {}
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -50,11 +52,11 @@ const reducer: Reducer<UserState, UserAction> = (
   const { user, householdMembers } = state;
   switch (action.type) {
     case UserActionType.UPDATE_USER: {
-      console.log("context user update")
+      console.log('context user update');
       return { ...state, user: { ...action.user } };
     }
     case UserActionType.UPDATE_MEMBER: {
-      console.log("context user member")
+      console.log('context user member');
       const others = householdMembers.filter((t) => t.id != action.member?.id);
       return { ...state, householdMembers: [...others, action.member] };
     }
@@ -63,14 +65,14 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-            ...user,
-            location: action.location
-          }
+              ...user,
+              location: action.location
+            }
           : undefined
       };
     }
     case UserActionType.LOGIN_USER: {
-      console.log("context user login")
+      console.log('context user login');
       return {
         ...state,
         user: action.user
@@ -83,7 +85,7 @@ const reducer: Reducer<UserState, UserAction> = (
       };
     }
     case UserActionType.UPDATE_HOUSEHOLD: {
-      console.log("context action household", action.householdId)
+      console.log('context action household', action.householdId);
       return {
         ...state,
         householdId: action.householdId
@@ -95,6 +97,17 @@ const reducer: Reducer<UserState, UserAction> = (
         householdId: undefined
       };
     }
+    case UserActionType.ADD_BIRTHDAY: {
+      return {
+        ...state,
+        user: user
+          ? {
+              ...user,
+              birthday: action.user?.birthday
+            }
+          : undefined
+      };
+    }
     default: {
       console.warn('Invalid user context action: ', action);
       return state;
@@ -104,7 +117,7 @@ const reducer: Reducer<UserState, UserAction> = (
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  console.log(" UserProvider ", state)
+  console.log(' UserProvider ', state);
   return (
     <UserContext.Provider value={{ state, dispatch }}>
       {children}
