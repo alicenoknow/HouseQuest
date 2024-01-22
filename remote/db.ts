@@ -231,18 +231,34 @@ export async function createTask(
   return tasksRef.id;
 }
 
-export async function createReward(
-  reward: Reward,
-  householdId: string
-): Promise<string> {
-  const rewardsRef = await addDoc(collection(db, 'tasks'), reward);
-  const householdRef = doc(db, 'households', householdId);
-  await updateDoc(householdRef, {
-    rewards: arrayUnion(rewardsRef.id)
-  });
+// export async function createReward(
+//   reward: Reward,
+//   householdId: string
+// ): Promise<string> {
+//   const rewardsRef = await addDoc(collection(db, 'tasks'), reward);
+//   const householdRef = doc(db, 'households', householdId);
+//   await updateDoc(householdRef, {
+//     rewards: arrayUnion(rewardsRef.id)
+//   });
 
-  return rewardsRef.id;
+//   return rewardsRef.id;
+// }
+export async function createReward(reward: Reward, householdId: string): Promise<string> {
+  try {
+    const rewardsRef = await addDoc(collection(db, 'rewards'), reward);
+    const householdRef = doc(db, 'households', householdId);
+
+    await updateDoc(householdRef, {
+      rewards: arrayUnion(rewardsRef.id)
+    });
+
+    return rewardsRef.id;
+  } catch (error) {
+    console.error('Erro ao adicionar recompensa:', error);
+    throw error; // Rethrow the error for further handling
+  }
 }
+
 
 export async function createKudosSlobs(
   kudosSlobs: KudosOrSlobs,

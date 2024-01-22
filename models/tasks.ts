@@ -27,6 +27,7 @@ export enum RewardStatus {
 }
 
 export interface Reward {
+
   id: string;
   title: string;
   description: string;
@@ -34,5 +35,5 @@ export interface Reward {
   creator: string;
   status: RewardStatus;
   recipient?: string;
-  points?: number;
+  points: number;
 }
