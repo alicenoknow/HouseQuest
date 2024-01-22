@@ -59,7 +59,12 @@ export default function AddFeedbackModal({
     return;
   }
 
-  const disableAddButton = title === '' || description === '';
+  const disableAddButton =
+    title === '' ||
+    description === '' ||
+    isLoading ||
+    points === undefined ||
+    assignee === undefined;
 
   const clearStates = () => {
     setTitle('');
@@ -93,111 +98,120 @@ export default function AddFeedbackModal({
       transparent={true}
       visible={isModalVisible}
       onRequestClose={() => setModalVisible(!isModalVisible)}>
-      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setModalVisible(false);
+        }}>
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="light"
           blurAmount={10}
           reducedTransparencyFallbackColor="white">
           <View style={styles.centeredView}>
-            <View
-              style={{
-                ...styles.modalView,
-                backgroundColor:
-                  actions === KSAction.KUDOS ? Colors.lightGreen : Colors.pink
-              }}>
-              <Text style={styles.header}>Type:</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  style={styles.pickerContainer}
-                  selectedValue={actions}
-                  onValueChange={(itemValue) => setActions(itemValue)}>
-                  <Picker.Item label="Kudos" value={KSAction.KUDOS} />
-                  <Picker.Item label="Slobs" value={KSAction.SLOBS} />
-                </Picker>
-              </View>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View
+                style={{
+                  ...styles.modalView,
+                  backgroundColor:
+                    actions === KSAction.KUDOS ? Colors.lightGreen : Colors.pink
+                }}>
+                <Text style={styles.header}>Type:</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    style={styles.pickerContainer}
+                    selectedValue={actions}
+                    onValueChange={(itemValue) => setActions(itemValue)}>
+                    <Picker.Item label="Kudos" value={KSAction.KUDOS} />
+                    <Picker.Item label="Slobs" value={KSAction.SLOBS} />
+                  </Picker>
+                </View>
 
-              <Text style={styles.header}>Title:</Text>
-              <TextInput
-                value={title}
-                onChangeText={(text) => setTitle(text)}
-                style={styles.input}
-              />
-
-              <Text style={styles.header}>Description:</Text>
-              <TextInput
-                value={description}
-                onChangeText={(text) => setDescription(text)}
-                style={styles.input}
-                multiline
-                numberOfLines={3}
-              />
-
-              <Text style={styles.header}>
-                {actions === KSAction.KUDOS ? 'Add' : 'Remove'} how many points:
-              </Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={points}
-                  onValueChange={(itemValue) => setPoints(itemValue)}>
-                  <Picker.Item label="1" value={1} />
-                  <Picker.Item label="5" value={5} />
-                  <Picker.Item label="10" value={10} />
-                  <Picker.Item label="15" value={15} />
-                  <Picker.Item label="Custom" value={undefined} />
-                </Picker>
-              </View>
-
-              {points === undefined && (
+                <Text style={styles.header}>Title:</Text>
                 <TextInput
-                  placeholder="Enter points"
-                  keyboardType="numeric"
-                  value={`${customPoints}`}
-                  onChangeText={(text) => {
-                    setCustomPoints(Number(text));
-                  }}
+                  value={title}
+                  onChangeText={(text) => setTitle(text)}
                   style={styles.input}
                 />
-              )}
 
-              <Text style={styles.header}>
-                {'Award ' + actions.toLowerCase() + ' to:'}
-              </Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={assignee}
-                  onValueChange={(itemValue) => setAssignee(itemValue)}>
-                  <Picker.Item label="Unassigned" value={undefined} />
-                  {householdMembers.map((member) => (
-                    <Picker.Item
-                      key={member.displayName}
-                      label={member.displayName}
-                      value={member.id}
-                    />
-                  ))}
-                </Picker>
+                <Text style={styles.header}>Description:</Text>
+                <TextInput
+                  value={description}
+                  onChangeText={(text) => setDescription(text)}
+                  style={styles.input}
+                  multiline
+                  numberOfLines={3}
+                />
+
+                <Text style={styles.header}>
+                  {actions === KSAction.KUDOS ? 'Add' : 'Remove'} how many
+                  points:
+                </Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={points}
+                    onValueChange={(itemValue) => setPoints(itemValue)}>
+                    <Picker.Item label="1" value={1} />
+                    <Picker.Item label="5" value={5} />
+                    <Picker.Item label="10" value={10} />
+                    <Picker.Item label="15" value={15} />
+                    <Picker.Item label="Custom" value={undefined} />
+                  </Picker>
+                </View>
+
+                {points === undefined && (
+                  <TextInput
+                    placeholder="Enter points"
+                    keyboardType="numeric"
+                    value={`${customPoints}`}
+                    onChangeText={(text) => {
+                      setCustomPoints(Number(text));
+                    }}
+                    style={styles.input}
+                  />
+                )}
+
+                <Text style={styles.header}>
+                  {'Award ' + actions.toLowerCase() + ' to:'}
+                </Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={assignee}
+                    onValueChange={(itemValue) => setAssignee(itemValue)}>
+                    <Picker.Item label="Unassigned" value={undefined} />
+                    {householdMembers.map((member) => (
+                      <Picker.Item
+                        key={member.displayName}
+                        label={member.displayName}
+                        value={member.id}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    { opacity: disableAddButton ? 0.5 : 1 }
+                  ]}
+                  disabled={disableAddButton}
+                  onPress={handleAddButton}>
+                  {!isLoading ? (
+                    <Text style={styles.mediumText}>Submit</Text>
+                  ) : (
+                    <ActivityIndicator />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonCancel]}
+                  onPress={() => setModalVisible(false)}>
+                  {!isLoading ? (
+                    <Text style={styles.mediumText}>Cancel</Text>
+                  ) : (
+                    <ActivityIndicator />
+                  )}
+                </TouchableOpacity>
               </View>
-
-              <TouchableOpacity
-                style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
-                disabled={disableAddButton}
-                onPress={handleAddButton}>
-                {!isLoading ? (
-                  <Text style={styles.mediumText}>Submit</Text>
-                ) : (
-                  <ActivityIndicator />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonCancel]}
-                onPress={() => setModalVisible(false)}>
-                {!isLoading ? (
-                  <Text style={styles.mediumText}>Cancel</Text>
-                ) : (
-                  <ActivityIndicator />
-                )}
-              </TouchableOpacity>
-            </View>
+            </TouchableWithoutFeedback>
           </View>
         </BlurView>
       </TouchableWithoutFeedback>
