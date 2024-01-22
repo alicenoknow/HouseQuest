@@ -59,10 +59,7 @@ export default function AddFeedbackModal({
   }
 
   const disableAddButton =
-    description === '' ||
-    isLoading ||
-    points === undefined ||
-    assignee === undefined;
+    description === '' || isLoading || assignee === undefined;
 
   const clearStates = () => {
     setDescription('');
