@@ -10,14 +10,9 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { TaskStatus, TaskWithoutId, User } from '../../../models';
 import { Spacers, Colors, Style, Fonts } from '../../../constants';
-import {
-  TaskActionType,
-  useTaskContext,
-  useUserContext
-} from '../../../contexts';
-import { createKudosSlobs } from '../../../remote/db';
+import { UserActionType, useUserContext } from '../../../contexts';
+import { createKudosSlobs, updateUser } from '../../../remote/db';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
 import {
@@ -40,9 +35,9 @@ export default function AddFeedbackModal({
   const [assignee, setAssignee] = useState<string | undefined>(undefined);
   const [isLoading, setLoading] = useState(false);
   const [actions, setActions] = useState<KSAction>(KSAction.KUDOS);
-
   const {
-    state: { user, householdId, householdMembers }
+    state: { user, householdId, householdMembers },
+    dispatch: dispatchUser
   } = useUserContext();
   const { state, dispatch } = useKudosOrSlobsContext();
 
@@ -73,6 +68,11 @@ export default function AddFeedbackModal({
     if (!assignee) {
       return;
     }
+    const updatePoints = points ? points : customPoints;
+    const adjustedUpdatePoints =
+      actions === KSAction.KUDOS
+        ? Math.abs(updatePoints)
+        : -1 * Math.abs(updatePoints);
 
     const ks: KudosOrSlobs = {
       id: '',
@@ -89,6 +89,35 @@ export default function AddFeedbackModal({
       type: KudosOrSlobsActionType.ADD,
       kudosOrSlobs: { ...ks, id: ksId }
     });
+
+    if (assignee && updatePoints !== null && updatePoints !== undefined) {
+      const assigneeUser = householdMembers
+        .filter((m) => m.id === assignee)
+        ?.at(0);
+      if (assigneeUser) {
+        let newCurrentPoints = Math.max(
+          0,
+          assigneeUser.currentPoints + adjustedUpdatePoints
+        );
+
+        const { currentPoints, totalPoints } = assigneeUser;
+        const updatedMember = {
+          ...assigneeUser,
+          currentPoints: newCurrentPoints,
+          totalPoints: Math.max(totalPoints, totalPoints + adjustedUpdatePoints)
+        };
+        dispatchUser({
+          type: UserActionType.UPDATE_MEMBER,
+          member: updatedMember
+        });
+        user.id == updatedMember.id &&
+          dispatchUser({
+            type: UserActionType.UPDATE_USER,
+            user: updatedMember
+          });
+        await updateUser(updatedMember);
+      }
+    }
     setLoading(false);
     clearStates();
     setModalVisible(!isModalVisible);
