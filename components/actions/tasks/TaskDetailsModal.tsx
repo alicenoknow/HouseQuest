@@ -78,7 +78,8 @@ const TaskDetailsModal = ({
   const clearState = () => {
     setSubmissionPhotoUri('');
     setLoading(false);
-  };
+    setModalVisible(false);
+  }
 
   const getDisplayName = (id: string) => {
     return (
@@ -96,8 +97,7 @@ const TaskDetailsModal = ({
     };
     dispatch({ type: TaskActionType.ASSIGN, id: task.id, user: user.id });
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const onSubmit = async () => {
@@ -122,7 +122,6 @@ const TaskDetailsModal = ({
     });
     await updateTask(updatedTask);
     clearState();
-    setModalVisible(false);
   };
 
   const onDecline = async () => {
@@ -130,8 +129,7 @@ const TaskDetailsModal = ({
     const updatedTask = { ...task, status: TaskStatus.ASSIGNED };
     dispatch({ type: TaskActionType.DECLINE, id: task.id });
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const onConfirm = async () => {
@@ -166,16 +164,14 @@ const TaskDetailsModal = ({
     }
 
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const onRemove = async () => {
     setLoading(true);
     dispatch({ type: TaskActionType.REMOVE, id: task.id });
     await removeTask(task.id, householdId);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const renderTopRow = () => (
@@ -197,9 +193,8 @@ const TaskDetailsModal = ({
       <Text style={styles.contentText}>{`Creator: ${getDisplayName(
         creator
       )}`}</Text>
-      <Text style={styles.contentText}>{`Assignee: ${
-        assignee ? getDisplayName(assignee) : 'Unassigned'
-      }`}</Text>
+      <Text style={styles.contentText}>{`Assignee: ${assignee ? getDisplayName(assignee) : 'Unassigned'
+        }`}</Text>
       {submissionPhoto && (
         <Image style={styles.image} source={{ uri: submissionPhoto }} />
       )}
@@ -287,7 +282,7 @@ const TaskDetailsModal = ({
         reducedTransparencyFallbackColor="white">
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.centeredView}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={() => { }}>
               <View style={styles.modalView}>
                 {renderTopRow()}
                 {renderContent()}
