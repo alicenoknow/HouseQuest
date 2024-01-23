@@ -134,7 +134,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         </TouchableOpacity>
         <TouchableOpacity
             style={[styles.button, styles.buttonCancel]}
-            onPress={() => setModalVisible(false)}>
+            onPress={() => { clearStates(); setModalVisible(false) }}>
             {!isLoading ? <Text style={styles.mediumText}>Cancel</Text> : <ActivityIndicator />}
         </TouchableOpacity></>
 
