@@ -40,7 +40,7 @@ const Map: React.FC = () => {
     // Define an async function inside the effect for handling the promise
     const subscribe = async () => {
       locationSubscription.current = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 5000 },
+        { accuracy: Location.Accuracy.High, timeInterval: 30000 },
         (newLocation) => {
           console.log('New Location:', newLocation);
           setCurrentLocation(newLocation);
