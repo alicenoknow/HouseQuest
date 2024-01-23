@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginRight: 8, // Add some spacing between the text and the switch
+    paddingLeft: 8,
     color: 'white', // You can change the color to fit your design
     fontSize: 16 // Adjust the font size as needed
   }
