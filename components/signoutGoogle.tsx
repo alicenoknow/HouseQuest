@@ -14,21 +14,18 @@ const SignOutGoogle: React.FC = () => {
     await signOut(auth).then(async () => {
       await AsyncStorage.removeItem('@user');
       await AsyncStorage.removeItem('@household');
-      console.warn("remove")
+      console.warn('remove');
       dispatch({
         type: UserActionType.LOGOUT_USER,
         user: null
       });
-      dispatch({ type: UserActionType.REMOVE_HOUSEHOLD, });
+      dispatch({ type: UserActionType.REMOVE_HOUSEHOLD });
       router.replace('/auth');
-    })
-  }
+    });
+  };
 
   return (
-    <TouchableOpacity
-      style={styles.button}
-      onPress={onSignOut}
-    >
+    <TouchableOpacity style={styles.button} onPress={onSignOut}>
       <Text style={styles.text}>Sign out</Text>
     </TouchableOpacity>
   );
@@ -38,13 +35,13 @@ const styles = StyleSheet.create({
   button: {
     padding: Spacers.medium,
     borderRadius: Style.radius,
-    backgroundColor: Colors.pink,
+    backgroundColor: Colors.pink
   },
   text: {
     fontSize: Fonts.medium,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.white,
-    textAlign: "center",
+    textAlign: 'center'
   }
 });
 
