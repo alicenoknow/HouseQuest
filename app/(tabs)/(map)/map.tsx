@@ -35,12 +35,6 @@ async function requestPermissions() {
     console.error('Foreground permission not granted');
     return;
   }
-
-  status = (await Location.requestBackgroundPermissionsAsync()).status;
-  if (status !== 'granted') {
-    console.error('Background permission not granted');
-    return;
-  }
 }
 
 const Map: React.FC = () => {
