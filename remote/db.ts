@@ -2,6 +2,7 @@ import {
   Announcement,
   KudosOrSlobs,
   Reward,
+  RewardStatus,
   Task,
   TaskWithoutId,
   Todo,
@@ -243,9 +244,14 @@ export async function createTask(
 
 //   return rewardsRef.id;
 // }
+
+
 export async function createReward(reward: Reward, householdId: string): Promise<string> {
   try {
-    const rewardsRef = await addDoc(collection(db, 'rewards'), reward);
+    const rewardsRef = await addDoc(collection(db, 'rewards'), {
+      ...reward,
+      status: reward.status.toString(),
+    });
     const householdRef = doc(db, 'households', householdId);
 
     await updateDoc(householdRef, {
@@ -255,10 +261,23 @@ export async function createReward(reward: Reward, householdId: string): Promise
     return rewardsRef.id;
   } catch (error) {
     console.error('Erro ao adicionar recompensa:', error);
-    throw error; // Rethrow the error for further handling
+    throw error;
   }
 }
 
+
+
+
+
+export async function updateRewardStatus(rewardId: string, newStatus: RewardStatus): Promise<void> {
+  try {
+    const rewardRef = doc(db, 'rewards', rewardId);
+    await updateDoc(rewardRef, { status: newStatus });
+  } catch (error) {
+    console.error('Error updating reward status:', error);
+    throw error;
+  }
+}
 
 export async function createKudosSlobs(
   kudosSlobs: KudosOrSlobs,
@@ -312,6 +331,7 @@ export async function updateTask(task: Task) {
   await updateDoc(tasksRef, { ...task });
 }
 
+
 export async function removeTask(taskId: string, householdId: string) {
   const tasksRef = doc(db, 'tasks', taskId);
   await deleteDoc(tasksRef);
@@ -333,3 +353,4 @@ export async function updateUser(user: User) {
 
   await updateDoc(usersRef, { ...user });
 }
+

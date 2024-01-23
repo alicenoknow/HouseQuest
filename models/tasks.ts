@@ -21,9 +21,9 @@ export interface Task {
 export type TaskWithoutId = Omit<Task, 'id'>;
 
 export enum RewardStatus {
-  AVAILABLE,
-  REQUESTED,
-  GRANTED
+  AVAILABLE = "AVAILABLE",
+  REQUESTED = "REQUESTED",
+  GRANTED = "GRANTED",
 }
 
 export interface Reward {
