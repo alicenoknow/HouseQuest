@@ -111,17 +111,28 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={{ color: 'black' }}>X</Text>
           </TouchableOpacity>
-          {reward && (
+          {!!reward && (
             <View>
-              <Text>Title: {reward.title}</Text>
-              <Text>Description: {reward.description}</Text>
-              {reward.points && <Text>Points: {reward.points}</Text>}
-              <Text>Creator: {reward.creator}</Text>
-              <Text>Status: {RewardStatus[reward.status]}</Text>
+              <Text style={styles.detail}>Title: {reward.title}</Text>
+              <Text style={styles.detail}>
+                Description: {reward.description}
+              </Text>
+              {reward.points && (
+                <Text style={styles.detail}>Points: {reward.points}</Text>
+              )}
+              <Text style={styles.detail}>Creator: {reward.creator}</Text>
+              <Text style={styles.detail}>
+                Status: {RewardStatus[reward.status]}
+              </Text>
 
               {reward.creator === userState.user?.displayName &&
                 reward.status !== RewardStatus.GRANTED && (
-                  <Button title="Remove Reward" onPress={handleRemoveReward} />
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={handleRemoveReward}>
+                    <Text style={{ color: 'black' }}>Remove Reward</Text>
+                  </TouchableOpacity>
+                  // <Button title="Remove Reward" onPress={handleRemoveReward}  />
                 )}
 
               {/* Ações com base no status da recompensa */}
@@ -179,7 +190,7 @@ const RewardItem: React.FC<{ item: Reward; onPress: () => void }> = ({
   return (
     <TouchableOpacity onPress={() => onPress()}>
       <View style={[styles.rewardItem, { backgroundColor }]}>
-        {item.points && (
+        {!!item.points && (
           <View style={styles.circleContainer}>
             <Text style={styles.circleText}>{item.points}</Text>
           </View>
@@ -316,16 +327,19 @@ const Rewards: React.FC = () => {
                 setNewReward({ ...newReward, points: parseInt(text, 10) || 0 })
               }
             />
-            <Button
-              title="Add"
-              onPress={handleAddReward}
-              style={styles.addButton}
-            />
-            <Button
-              title="Cancel"
-              onPress={handleCreateModalClose}
-              style={styles.cancelButton}
-            />
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.greenButton]}
+                onPress={handleAddReward}>
+                <Text style={{ color: 'black' }}>Add</Text>
+              </TouchableOpacity>
+              {/* <TouchableOpacity
+                style={[styles.actionButton, styles.redButton]}
+                onPress={handleCreateModalClose}>
+                <Text style={{ color: 'black' }}>Cancel</Text>
+              </TouchableOpacity> */}
+            </View>
           </View>
         </View>
       </Modal>
@@ -420,11 +434,16 @@ const styles = StyleSheet.create({
   },
 
   inputField: {
-    marginBottom: 10,
+    marginBottom: 14,
     padding: 10,
     borderWidth: 1,
     borderColor: Colors.darkGreen,
-    borderRadius: 5
+    borderRadius: 12
+  },
+
+  detail: {
+    borderRadius: 12,
+    fontWeight: 'bold'
   },
 
   addButton: {
@@ -440,6 +459,16 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     borderRadius: 5
+  },
+
+  removeButton: {
+    backgroundColor: Colors.pink,
+    marginTop: 10,
+    padding: 15,
+    alignItems: 'center',
+    borderRadius: 10,
+    marginHorizontal: 5,
+    color: 'black'
   },
   // Add styles for the button container
   buttonContainer: {
