@@ -56,7 +56,7 @@ export default function SpinningWheelModal({ isModalVisible, setModalVisible, se
         if (!selectedMember) return null;
         return <View style={styles.selectedContainer}>
             {selectedMember.photoURL && <UserAvatar avatarUri={selectedMember.photoURL} />}
-            <Text style={[styles.mediumText, { textAlign: "center", color: Colors.white }]}>✨ {selectedMember.displayName} was selected! ✨</Text>
+            <Text style={[styles.mediumText, { textAlign: "center" }]}>✨ {selectedMember.displayName} was selected! ✨</Text>
         </View>
     }
 
@@ -109,7 +109,7 @@ export default function SpinningWheelModal({ isModalVisible, setModalVisible, se
 const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.white,
     },
     scrollView: {
         flex: 1,
