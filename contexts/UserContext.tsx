@@ -66,7 +66,8 @@ const reducer: Reducer<UserState, UserAction> = (
         user: user
           ? {
               ...user,
-              location: action.location
+              location: action.location,
+              locationUpdatedAt: new Date(Date.now())
             }
           : undefined
       };
