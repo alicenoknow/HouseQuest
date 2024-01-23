@@ -130,15 +130,25 @@ const Dashboard: React.FC = () => {
           borderRadius: Style.radius
         }}>
         <View style={styles.announcementContainer}>
-          <Image
-            source={{
-              uri: usersList.find((user) => user.id === item.sender)?.photoURL
-            }}
-            style={styles.avatar}
-          />
-          <Text style={styles.announcementHeader}>
-            {usersList.find((user) => user.id === item.sender)?.displayName}
-          </Text>
+          {usersList.find((user) => user.id === item.sender)?.photoURL ? (
+            <>
+              <Image
+                source={{
+                  uri: usersList.find((user) => user.id === item.sender)
+                    ?.photoURL
+                }}
+                style={styles.avatar}
+              />
+              <Text style={styles.announcementHeader}>
+                {usersList.find((user) => user.id === item.sender)?.displayName}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Icon name="person" color="white" />
+              <Text style={styles.announcementHeader}>Unkown User</Text>
+            </>
+          )}
           <Text style={styles.announcementHeaderTime}>
             {item.createdAt.getHours() +
               ':' +
@@ -276,15 +286,12 @@ const Dashboard: React.FC = () => {
                 styles.sendButton,
                 { opacity: isButtonDisabled ? 0.6 : 1 }
               ]}>
-              <Text
-                style={styles.sendButtonText}>
-                Send
-              </Text>
+              <Text style={styles.sendButtonText}>Send</Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 };
 
@@ -367,7 +374,7 @@ const styles = StyleSheet.create({
     padding: Spacers.small,
     paddingHorizontal: Spacers.medium,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   sendButtonText: {
     color: Colors.white
