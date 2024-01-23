@@ -6,10 +6,6 @@ import ActionCard from '../../../components/actions/ActionCard';
 export default function Actions() {
   return (
     <View style={styles.container}>
-      <View style={styles.title}>
-        <Text style={styles.title}>Task</Text>
-      </View>
-
       <View style={styles.row}>
         <ActionCard
           color={Colors.yellow}
@@ -54,18 +50,10 @@ export default function Actions() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: Spacers.xLarge,
     height: '100%',
 
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: Colors.black,
-    marginLeft: 10,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-
   subtitle: {
     fontSize: 20,
     marginBottom: -5,
@@ -80,6 +68,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
   },
-
-
 });

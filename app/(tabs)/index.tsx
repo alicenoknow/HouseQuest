@@ -297,19 +297,17 @@ const Dashboard: React.FC = () => {
               disabled={isButtonDisabled}
               style={[
                 styles.sendButton,
-                isButtonDisabled ? styles.disabledButton : null
+                { opacity: isButtonDisabled ? 0.6 : 1 }
               ]}>
               <Text
-                style={
-                  isButtonDisabled ? styles.disabledButton : styles.sendButton
-                }>
+                style={styles.sendButtonText}>
                 Send
               </Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 
@@ -390,9 +388,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.darkGreen,
     borderRadius: Style.radius,
     padding: Spacers.small,
+    paddingHorizontal: Spacers.medium,
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white'
+  },
+  sendButtonText: {
+    color: Colors.white
   },
   announcementHeaderTime: {
     marginLeft: 10,
@@ -429,6 +430,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   disabledButton: {
+    paddingHorizontal: Spacers.medium,
     backgroundColor: '#cccccc' // A lighter shade to indicate disabled state
   }
 });

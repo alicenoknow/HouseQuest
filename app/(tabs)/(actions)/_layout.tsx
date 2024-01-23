@@ -1,6 +1,5 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, SafeAreaView } from 'react-native';
-import Spacers from '../../../constants/Spacers';
 
 export const unstable_settings = {
     initialRouteName: 'actions',

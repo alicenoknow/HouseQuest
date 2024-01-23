@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { TaskStatus, TaskWithoutId } from '../../../models';
 import { Spacers, Colors, Style, Fonts } from '../../../constants';
@@ -7,6 +7,8 @@ import { TaskActionType, useTaskContext, useUserContext } from '../../../context
 import { createTask } from '../../../remote/db';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
+import SpinningWheelModal from './SpinningWheelModal';
+import { transform } from '@babel/core';
 
 
 export default function AddTaskModal({ isModalVisible, setModalVisible }: { isModalVisible: boolean, setModalVisible: (isVisible: boolean) => void }) {
@@ -16,6 +18,7 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
     const [customPoints, setCustomPoints] = useState(0);
     const [assignee, setAssignee] = useState('');
     const [isLoading, setLoading] = useState(false);
+    const [isRandomModalVisible, setRandomModalVisible] = useState(false);
 
     const { state: { user, householdId, householdMembers } } = useUserContext();
     const { dispatch } = useTaskContext();
@@ -60,74 +63,97 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         setModalVisible(!isModalVisible);
     };
 
+    const renderTitle = () => <>
+        <Text style={styles.mediumText}>Title:</Text>
+        <TextInput
+            value={title}
+            onChangeText={text => setTitle(text)}
+            style={styles.input}
+        />
+    </>
+
+    const renderDescription = () => <>
+        <Text style={styles.mediumText}>Description:</Text>
+        <TextInput
+            value={description}
+            onChangeText={text => setDescription(text)}
+            style={styles.input}
+            multiline
+            numberOfLines={4}
+        /></>
+
+    const renderPointsPicker = () => <>
+        <Text style={styles.mediumText}>Points:</Text>
+        <Picker
+            selectedValue={points}
+            onValueChange={itemValue => setPoints(itemValue)}
+        >
+            <Picker.Item label="5" value={5} />
+            <Picker.Item label="10" value={10} />
+            <Picker.Item label="15" value={15} />
+            <Picker.Item label="Custom" value={undefined} />
+        </Picker></>
+
+    {
+        points === undefined && (
+            <TextInput
+                placeholder="Enter points"
+                keyboardType="numeric"
+                value={`${customPoints}`}
+                onChangeText={text => { setCustomPoints(Number(text)) }}
+                style={styles.input}
+            />
+        )
+    }
+
+    const renderAssigneePicker = () => <View >
+        <Text style={styles.mediumText}>Assignee:</Text>
+        <View style={styles.pickerContainer}>
+            <Picker
+                style={{ flex: 1, }}
+                selectedValue={assignee}
+                onValueChange={itemValue => setAssignee(itemValue)}
+            >
+                <Picker.Item label="Unassigned" value={undefined} />
+                {householdMembers.map((member) => <Picker.Item key={member.displayName} label={member.displayName} value={member.id} />)}
+            </Picker>
+            <TouchableOpacity
+                style={[styles.button, styles.randomButton]}
+                onPress={() => setRandomModalVisible(true)}>
+                <Text style={{ fontSize: 40 }}> 🎲</Text>
+            </TouchableOpacity>
+        </View>
+    </View>
+
+    const renderButtons = () => <>
+        <TouchableOpacity
+            style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
+            disabled={disableAddButton}
+            onPress={handleAddButton}>
+            {!isLoading ? <Text style={styles.mediumText}>Add Task</Text> : <ActivityIndicator />}
+        </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.button, styles.buttonCancel]}
+            onPress={() => setModalVisible(false)}>
+            {!isLoading ? <Text style={styles.mediumText}>Cancel</Text> : <ActivityIndicator />}
+        </TouchableOpacity></>
+
     return (
         <Modal
             animationType="slide"
             transparent={true}
             visible={isModalVisible}
             onRequestClose={() => setModalVisible(!isModalVisible)}>
-            <View style={styles.centeredView}>
+            <ScrollView contentContainerStyle={styles.scrollView} style={styles.centeredView}>
                 <View style={styles.modalView}>
-
-                    <Text style={styles.mediumText}>Title:</Text>
-                    <TextInput
-                        value={title}
-                        onChangeText={text => setTitle(text)}
-                        style={styles.input}
-                    />
-
-                    <Text style={styles.mediumText}>Description:</Text>
-                    <TextInput
-                        value={description}
-                        onChangeText={text => setDescription(text)}
-                        style={styles.input}
-                        multiline
-                        numberOfLines={4}
-                    />
-
-                    <Text style={styles.mediumText}>Points:</Text>
-                    <Picker
-                        selectedValue={points}
-                        onValueChange={itemValue => setPoints(itemValue)}
-                    >
-                        <Picker.Item label="5" value={5} />
-                        <Picker.Item label="10" value={10} />
-                        <Picker.Item label="15" value={15} />
-                        <Picker.Item label="Custom" value={undefined} />
-                    </Picker>
-
-                    {points === undefined && (
-                        <TextInput
-                            placeholder="Enter points"
-                            keyboardType="numeric"
-                            value={`${customPoints}`}
-                            onChangeText={text => { setCustomPoints(Number(text)) }}
-                            style={styles.input}
-                        />
-                    )}
-
-                    <Text style={styles.mediumText}>Assignee:</Text>
-                    <Picker
-                        selectedValue={assignee}
-                        onValueChange={itemValue => setAssignee(itemValue)}
-                    >
-                        <Picker.Item label="Unassigned" value={undefined} />
-                        {householdMembers.map((member) => <Picker.Item key={member.displayName} label={member.displayName} value={member.id} />)}
-                    </Picker>
-
-                    <TouchableOpacity
-                        style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
-                        disabled={disableAddButton}
-                        onPress={handleAddButton}>
-                        {!isLoading ? <Text style={styles.mediumText}>Add Task</Text> : <ActivityIndicator />}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.button, styles.buttonCancel]}
-                        onPress={() => setModalVisible(false)}>
-                        {!isLoading ? <Text style={styles.mediumText}>Cancel</Text> : <ActivityIndicator />}
-                    </TouchableOpacity>
+                    {renderTitle()}
+                    {renderDescription()}
+                    {renderPointsPicker()}
+                    {renderAssigneePicker()}
+                    {renderButtons()}
                 </View>
-            </View>
+            </ScrollView>
+            <SpinningWheelModal isModalVisible={isRandomModalVisible} setModalVisible={setRandomModalVisible} setAssignee={setAssignee} />
         </Modal>
 
     );
@@ -137,8 +163,10 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
 const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
-        justifyContent: 'center',
         marginTop: Spacers.medium,
+    },
+    scrollView: {
+        justifyContent: 'center',
     },
     modalView: {
         margin: Spacers.medium,
@@ -175,7 +203,18 @@ const styles = StyleSheet.create({
         padding: Spacers.small,
         fontSize: Fonts.small,
         marginVertical: Spacers.small
-
-    }
+    },
+    randomButton: {
+        padding: Spacers.small,
+        backgroundColor: "transparent",
+        justifyContent: "center",
+        alignContent: "center",
+    },
+    pickerContainer: {
+        flex: 1,
+        flexDirection: "row",
+        width: "100%",
+        paddingVertical: Spacers.small,
+    },
 
 });
