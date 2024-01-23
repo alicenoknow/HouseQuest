@@ -1,16 +1,34 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, StyleSheet, View, Image } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TouchableOpacity
+} from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { useUserContext } from '../../../contexts';
+import {
+  UserActionType,
+  useLocationShare,
+  useUserContext
+} from '../../../contexts';
 import { fetchMembers, updateUserLocation } from '../../../remote/db';
-import updateUserContextWithMembers from '../../../functions/updateUserContextWithMembers';
 import ShareLocationOverlay from './ShareLocationOverlay';
 import blueMarker from './blueMarker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { User } from '../../../models';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../../config';
 
 // TODO refactor, basically rewrite, extract components, fix styling
+
+interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+}
+
 async function requestPermissions() {
   let { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
@@ -26,7 +44,8 @@ async function requestPermissions() {
 }
 
 const Map: React.FC = () => {
-  const { state: userState } = useUserContext();
+  const { state: locationShareState } = useLocationShare();
+  const { state: userState, dispatch: dispatchUserState } = useUserContext();
   const { user, householdId, householdMembers } = userState;
   const userId = user?.id;
   const [currentLocation, setCurrentLocation] =
@@ -35,41 +54,100 @@ const Map: React.FC = () => {
   const locationSubscription = useRef<Location.LocationSubscription | null>(
     null
   );
-  const [memberLocations, setMemberLocations] = useState<User[]>([]);
+  const [members, setMembers] = useState<User[]>([]);
   const memberUpdateTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setMemberLocations([...householdMembers]);
+    setMembers([...householdMembers]);
+    console.log('householdMembers', householdMembers);
   }, [userState]);
 
   useEffect(() => {
-    if (householdId) {
-      updateUserContextWithMembers();
+    if (!currentLocation) return;
+
+    const currentLocationLatLng: LatLng = {
+      latitude: currentLocation.coords.latitude,
+      longitude: currentLocation.coords.longitude
+    };
+    if (locationShareState.isEnabled) {
+      updateUserLocation(userId!, currentLocationLatLng);
     }
-  }, [householdId]);
+  }, [currentLocation]);
 
   useEffect(() => {
     requestPermissions();
 
     // Update user location every 30 seconds
-    Location.watchPositionAsync(
+    const locationUpdateSubscription = Location.watchPositionAsync(
       { accuracy: Location.Accuracy.High, timeInterval: 30000 },
       (newLocation) => {
         setCurrentLocation(newLocation);
       }
     );
 
-    // Fetch and update member locations every 3 minutes
-    memberUpdateTimer.current = setInterval(() => {
-      updateUserContextWithMembers();
+    const updateMembers = async () => {
+      if (!householdId) return;
+
+      // Fetch members' data from Firestore
+      try {
+        const membersRef = doc(db, 'households', householdId);
+        const snapshot = await getDoc(membersRef);
+
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const memberIds = data.members;
+
+          const fetchedMembers = await Promise.all(
+            memberIds.map(async (id: string) => {
+              const memberRef = doc(db, 'users', id);
+              const memberDoc = await getDoc(memberRef);
+              if (memberDoc.exists()) {
+                return memberDoc.data() as User;
+              }
+              throw new Error(`Member not found: ${id}`);
+            })
+          );
+
+          // Update members' data in state
+          fetchedMembers.forEach((member) => {
+            dispatchUserState({
+              type: UserActionType.UPDATE_MEMBER,
+              member: member
+            });
+          });
+
+          // If the current user's data is also fetched
+          const currentUserData = fetchedMembers.find(
+            (member) => member.id === userId
+          );
+          if (currentUserData) {
+            dispatchUserState({
+              type: UserActionType.UPDATE_USER,
+              user: currentUserData
+            });
+          }
+        } else {
+          throw new Error('Household not found');
+        }
+      } catch (error) {
+        console.error('Failed to fetch members:', error);
+      }
+    };
+
+    // Initialize member location update process
+    updateMembers();
+
+    // Set interval to update member locations every 3 minutes
+    const memberUpdateInterval = setInterval(() => {
+      updateMembers();
+      console.log('Updated members:', members);
     }, 180000); // 3 minutes
 
     return () => {
-      if (memberUpdateTimer.current) {
-        clearInterval(memberUpdateTimer.current);
-      }
+      locationUpdateSubscription.then((subscription) => subscription.remove());
+      clearInterval(memberUpdateInterval);
     };
-  }, []);
+  }, [householdId]);
 
   const handleCenter = () => {
     if (currentLocation && mapRef.current) {
@@ -110,7 +188,7 @@ const Map: React.FC = () => {
           description="Marker Description">
           <View>{blueMarker()}</View>
         </Marker>
-        {memberLocations
+        {members
           .filter(
             (member) =>
               member.location &&
@@ -119,22 +197,45 @@ const Map: React.FC = () => {
               member.location?.latitude &&
               member.location?.longitude
           )
-          .map((member) => (
-            <Marker
-              key={member.id}
-              coordinate={{
-                latitude: member.location!.latitude,
-                longitude: member.location!.longitude
-              }}
-              title={member.displayName}>
-              <View>
-                <Image
-                  source={{ uri: member.photoURL }}
-                  style={{ width: 30, height: 30, borderRadius: 15 }}
-                />
-              </View>
-            </Marker>
-          ))}
+          .map((member) => {
+            const formatDateFromFirestoreTimestamp = (
+              timestamp: FirestoreTimestamp | undefined
+            ) => {
+              if (!timestamp || typeof timestamp.seconds !== 'number') {
+                return 'Not Available';
+              }
+              const date = new Date(timestamp.seconds * 1000);
+              return date.toLocaleString(); // Returns the date in the local time zone.
+            };
+
+            return (
+              <Marker
+                key={member.id}
+                coordinate={{
+                  latitude: member.location!.latitude,
+                  longitude: member.location!.longitude
+                }}
+                title={member.displayName}
+                description={`Last Updated: ${formatDateFromFirestoreTimestamp(
+                  member.locationUpdatedAt
+                )}`}
+                onPress={() => {
+                  console.log('pressed');
+                }}>
+                <View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('pressed');
+                    }}>
+                    <Image
+                      source={{ uri: member.photoURL }}
+                      style={{ width: 30, height: 30, borderRadius: 15 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Marker>
+            );
+          })}
         {/* otherMarkers.map((marker) => ( */}
       </MapView>
       <MaterialCommunityIcons

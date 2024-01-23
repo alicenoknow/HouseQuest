@@ -5,6 +5,12 @@ export enum Role {
   CHILD = 'CHILD'
 }
 
+interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+}
+
+
 export interface User {
   id: string;
   displayName: string;
@@ -15,5 +21,5 @@ export interface User {
   birthday?: Date;
   photoURL?: string;
   location?: LatLng;
-  locationUpdatedAt?: Date;
+  locationUpdatedAt?: FirestoreTimestamp;
 }
