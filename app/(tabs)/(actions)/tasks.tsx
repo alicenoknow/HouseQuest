@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { Task } from '../../../models';
+import { Task, TaskStatus } from '../../../models';
 import Colors from '../../../constants/Colors';
 import { useTaskContext } from '../../../contexts';
 import TaskItem from '../../../components/actions/tasks/TaskItem';
@@ -24,20 +24,29 @@ const Tasks: React.FC = () => {
     const [isAddModalVisible, setAddModalVisible] = useState(false);
     const [isDetailsModalVisible, setDetailsModalVisible] = useState(false);
 
+    const getSortedTasks = () => {
+        return [...tasks].sort((a, b) => {
+            const statusOrder = [TaskStatus.UNASSIGNED, TaskStatus.ASSIGNED, TaskStatus.SUBMITTED, TaskStatus.CONFIRMED];
+            return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+        })
+    }
+
+    const sortedTasks = useMemo(() => getSortedTasks(), [tasks]);
+
     const onTaskPressed = (task: Task) => {
         setSelectedTask(task);
         setDetailsModalVisible(true);
     }
 
-    const renderTask = ({ item, index }: { item: Task; index: number }) => {
+    const renderTask = ({ item }: { item: Task }) => {
         return (
-            <TaskItem index={index} task={item} onTaskPressed={() => onTaskPressed(item)} />
+            <TaskItem task={item} onTaskPressed={() => onTaskPressed(item)} />
         );
     };
     return (
         <View style={styles.container}>
             <FlatList
-                data={tasks}
+                data={sortedTasks}
                 renderItem={renderTask}
                 keyExtractor={(_, index) => index.toString()}
             />

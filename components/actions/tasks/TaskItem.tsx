@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Task } from '../../../models';
+import { Task, TaskStatus } from '../../../models';
 import Colors from '../../../constants/Colors';
 import Style from '../../../constants/Style';
 import Spacers from '../../../constants/Spacers';
@@ -8,16 +8,28 @@ import Fonts from '../../../constants/Fonts';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 interface TaskItemProps {
-    index: number;
     task: Task;
     onTaskPressed: () => void;
 }
 
-const taskItemsColors = [Colors.lightBlue, Colors.lightGreen, Colors.yellow];
 
-export default function TaskItem({ index, task, onTaskPressed }: TaskItemProps) {
-    const itemColor = taskItemsColors[index % taskItemsColors.length];
+export default function TaskItem({ task, onTaskPressed }: TaskItemProps) {
+
+    const getColor = (status: TaskStatus) => {
+        switch (status) {
+            case TaskStatus.UNASSIGNED:
+                return Colors.lightGrey;
+            case TaskStatus.ASSIGNED:
+                return Colors.lightBlue;
+            case TaskStatus.SUBMITTED:
+                return Colors.lightBlue;
+            case TaskStatus.CONFIRMED:
+                return Colors.lightGreen;
+        }
+    }
+
     const { title, status, points } = task;
+    const itemColor = getColor(status);
     return (
         <Animated.View entering={FadeIn} exiting={FadeOut}>
             <TouchableOpacity style={[styles.container, { backgroundColor: itemColor }]} onPress={onTaskPressed}>
