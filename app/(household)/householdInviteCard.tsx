@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Colors, Fonts, Spacers, Style } from '../../constants';
+import Icon from '../../components/common/Icon';
 
 interface InviteProps {
   householdName: any;
@@ -15,14 +17,13 @@ const HouseholdInvite: React.FC<InviteProps> = ({ householdName, onPress }) => {
     setShowInvite(true);
   }, []);
 
-  console.log('householdName', householdName);
-
   return (
     <View style={styles.container}>
       {showInvite && (
         <TouchableOpacity onPress={onPress} style={styles.invite}>
+          <Icon name="add-circle-outline" color={Colors.darkGreen} />
           <Text style={styles.inviteText}>
-            You have been invited to join {householdName.household}
+            Invitation to {householdName.name ?? householdName.id}
           </Text>
         </TouchableOpacity>
       )}
@@ -32,21 +33,21 @@ const HouseholdInvite: React.FC<InviteProps> = ({ householdName, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0, 122, 255, 0.7)', // Feel free to change the background color
-    padding: 5,
-    borderRadius: 20,
-    elevation: 3, // Shadow for Android
-    shadowOpacity: 0.3, // Shadow for iOS
-    zIndex: 1,
-    shadowRadius: 5,
-    shadowOffset: { width: 1, height: 1 }
+    backgroundColor: Colors.lightGreen, // Feel free to change the background color
+    borderRadius: Style.radius,
+    padding: Spacers.small,
   },
   invite: {
-    padding: 5
+    flexDirection: "row",
+    padding: Spacers.small,
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center"
   },
   inviteText: {
-    color: 'white',
-    fontSize: 16
+    color: Colors.black,
+    fontSize: Fonts.small,
+    marginLeft: Spacers.small,
   }
 });
 

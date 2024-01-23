@@ -12,9 +12,12 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../constants/Colors';
+import { Fonts, Spacers } from '../../constants';
+import Animated, { BounceIn, BounceInUp, BounceOutUp, FadeInUp } from 'react-native-reanimated';
 
 const InviteScreen = () => {
   const [email, setEmail] = useState('');
+  const [isSent, setSent] = useState(false);
   const [role, setRole] = useState('PARENT');
   const [senderId, setSenderId] = useState(null);
   const [householdId, setHouseholdId] = useState('');
@@ -33,6 +36,7 @@ const InviteScreen = () => {
     };
 
     fetchUser();
+    return () => setSent(false);
   }, []);
 
   const sendInvite = async () => {
@@ -42,6 +46,7 @@ const InviteScreen = () => {
     }
 
     setIsLoading(true);
+    setSent(false);
     try {
       await addDoc(collection(db, 'invites'), {
         receiver_email: email,
@@ -50,6 +55,7 @@ const InviteScreen = () => {
         household: householdId
       });
       console.log('Invite sent');
+      setSent(true);
     } catch (error) {
       console.error('Error sending invite:', error);
     } finally {
@@ -61,6 +67,7 @@ const InviteScreen = () => {
 
   return (
     <View style={styles.container}>
+      {isSent ? <Animated.Text entering={BounceInUp} exiting={FadeInUp} style={[styles.buttonText, { color: Colors.darkGreen, marginBottom: Spacers.medium }]}> Invite sent 👍</Animated.Text> : null}
       <TextInput
         style={styles.input}
         placeholder="Enter email address of the person you want to invite"
@@ -85,7 +92,7 @@ const InviteScreen = () => {
           <Text style={styles.buttonText}>Send Invite</Text>
         )}
       </TouchableOpacity>
-    </View>
+    </View >
   );
 };
 
@@ -120,7 +127,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: Fonts.medium
   }
 });
 

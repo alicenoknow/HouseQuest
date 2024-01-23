@@ -12,8 +12,9 @@ const SignOutGoogle: React.FC = () => {
 
   const onSignOut = async () => {
     await signOut(auth).then(async () => {
-      AsyncStorage.removeItem('@user');
-      AsyncStorage.removeItem('@household');
+      await AsyncStorage.removeItem('@user');
+      await AsyncStorage.removeItem('@household');
+      console.warn("remove")
       dispatch({
         type: UserActionType.LOGOUT_USER,
         user: null

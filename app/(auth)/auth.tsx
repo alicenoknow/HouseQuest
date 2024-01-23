@@ -1,6 +1,6 @@
 // React and React Native imports
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
 // Firebase imports
 import {
@@ -27,7 +27,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
 
 // Local imports
-import SigninWithGoogle from './signinWithGoogle';
+import SignInWithGoogle from './signinWithGoogle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
 import { parseGoogleUserData } from '../../functions/parseGoogleUserData';
@@ -43,10 +43,7 @@ const redirectUri = makeRedirectUri({
   path: '/auth'
 });
 
-const checkAndCreateUserInFirestore = async (
-  user: FirebaseUser,
-  setInvites: React.Dispatch<React.SetStateAction<any[]>>
-) => {
+const checkAndCreateUserInFirestore = async (user: FirebaseUser) => {
   const userRef = doc(db, 'users', user.uid);
   const docSnap = await getDoc(userRef);
 
@@ -58,32 +55,12 @@ const checkAndCreateUserInFirestore = async (
       photoURL: user.photoURL
     });
   }
-
-  if (docSnap.exists() && !docSnap.data().household) {
-    // 'household' field does not exist, check for invites
-    const invitesQuery = query(
-      collection(db, 'invites'),
-      where('receiver_email', '==', user.email)
-    );
-    const querySnapshot = await getDocs(invitesQuery);
-
-    querySnapshot.forEach((doc) => {
-      // Process each invite
-      console.log(`Invite found: ${doc.id}`, doc.data());
-      // Here, you can handle the invite, like assigning the household ID to the user
-    });
-    const invitesData = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    setInvites(invitesData); // Update the state with the invites
-  }
 };
 
 const AuthViewComponent = () => {
-  const [userInfo, setUserInfo] = useState<FirebaseUser | undefined>(undefined);
-  const [invites, setInvites] = useState<any[]>([]);
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [isLoading, setLoading] = useState(false);
+
+  const [_request, response, promptAsync] = Google.useAuthRequest({
     redirectUri,
     androidClientId: ANDROID_CLIENT_ID,
     webClientId: WEB_CLIENT_ID
@@ -95,7 +72,6 @@ const AuthViewComponent = () => {
       await AsyncStorage.getItem('@user').then((user) => {
         if (user) {
           const userJson = JSON.parse(user);
-          setUserInfo(userJson);
           const parsedUser = parseGoogleUserData(userJson);
           dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
           router.replace('/household');
@@ -142,21 +118,21 @@ const AuthViewComponent = () => {
     checkIfUserLoggedIn();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUserInfo(user);
-        await checkAndCreateUserInFirestore(user, setInvites);
+        setLoading(true);
+        await checkAndCreateUserInFirestore(user);
         await AsyncStorage.setItem('@user', JSON.stringify(user));
         router.replace('/household');
+        setLoading(false);
       }
     });
     return unsubscribe;
   }, []);
 
   return (
-    <>
-      <View style={{ flex: 1 }}>
-        <SigninWithGoogle promptAsync={promptAsync} />
-      </View>
-    </>
+    <View style={{ flex: 1, justifyContent: "center", alignContent: "center" }}>
+      {isLoading ? <ActivityIndicator size={40} /> :
+        <SignInWithGoogle promptAsync={promptAsync} />}
+    </View>
   );
 };
 
