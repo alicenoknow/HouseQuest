@@ -140,7 +140,10 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         <TouchableOpacity
                           style={styles.removeButton}
                           onPress={handleRemoveReward}>
-                          <Text style={{ color: 'black' }}>Remove Reward</Text>
+                          <Text
+                            style={{ color: 'black', fontSize: Fonts.medium }}>
+                            Remove Reward
+                          </Text>
                         </TouchableOpacity>
                         // <Button title="Remove Reward" onPress={handleRemoveReward}  />
                       )}
@@ -150,7 +153,10 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         <TouchableOpacity
                           style={[styles.actionButton, styles.greenButton]}
                           onPress={handleRequestReward}>
-                          <Text style={{ color: 'black' }}>Request Reward</Text>
+                          <Text
+                            style={{ color: 'black', fontSize: Fonts.medium }}>
+                            Request Reward
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -159,12 +165,16 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         <TouchableOpacity
                           style={[styles.actionButton, styles.greenButton]}
                           onPress={handleGrantReward}>
-                          <Text style={{ color: 'black' }}>Grant Reward</Text>
+                          <Text
+                            style={{ color: 'black', fontSize: Fonts.medium }}>
+                            Grant Reward
+                          </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={[styles.actionButton, styles.redButton]}
                           onPress={handleDeclineReward}>
-                          <Text style={{ color: 'black' }}>
+                          <Text
+                            style={{ color: 'black', fontSize: Fonts.medium }}>
                             Decline Request
                           </Text>
                         </TouchableOpacity>
