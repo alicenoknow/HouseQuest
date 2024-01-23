@@ -25,6 +25,7 @@ import ImagePickerButton from '../../components/ImagePickerButton';
 import { createAnnouncement } from '../../remote/db';
 import { uploadImageToFirebase } from '../../remote/storage';
 import { useAnnouncementContext, AnnouncementActionType } from '../../contexts';
+import Icon from '../../components/common/Icon';
 
 async function addAnnouncement(
   announcementText: string,
@@ -56,42 +57,14 @@ async function addAnnouncement(
   await createAnnouncement(announcement, householdId);
 }
 
-const announcementsList: Announcement[] = [
-  {
-    id: '1',
-    sender: 'User 1',
-    createdAt: new Date(),
-    content:
-      'Shower is not working, please DO NOT USE IT! t will be fixed tomorrow.'
-  },
-  {
-    id: '2',
-    sender: 'User 2',
-    createdAt: new Date(),
-    content: 'Greetings from Iceland!',
-    photoUri:
-      'https://www.happiness.com/en/uploads/monthly_2019_07/iceland-happy-people.jpg.49f396d9196668eddb06cf311d0732d9.jpg'
-  }
-];
-
 const mockUsersList: User[] = [
   {
     id: '1',
     displayName: 'User 1',
     role: Role.PARENT,
-    totalPoints: 100,
-    currentPoints: 50,
-    photoURL:
-      'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
-  },
-  {
-    id: '2',
-    displayName: 'User 2',
-    role: Role.CHILD,
-    totalPoints: 80,
-    currentPoints: 60,
-    photoURL:
-      'https://user-images.githubusercontent.com/63087888/87461299-8582b900-c60e-11ea-82ff-7a27a51859d0.png'
+    totalPoints: 0,
+    currentPoints: 0,
+    photoURL: ''
   }
 ];
 
@@ -217,7 +190,11 @@ const Dashboard: React.FC = () => {
           onPress={() =>
             console.log(`User avatar pressed ${item.displayName}`)
           }>
-          <Image source={{ uri: item.photoURL }} style={styles.avatar} />
+          {item.photoURL ? (
+            <Image source={{ uri: item.photoURL }} style={styles.avatar} />
+          ) : (
+            <Icon name="person" color="white" />
+          )}
         </TouchableOpacity>
       </Link>
     );

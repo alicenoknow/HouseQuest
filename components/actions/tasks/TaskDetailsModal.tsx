@@ -1,7 +1,21 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Image, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Image,
+  ActivityIndicator,
+  TouchableWithoutFeedback
+} from 'react-native';
 import { Task, TaskStatus } from '../../../models';
-import { TaskActionType, UserActionType, useTaskContext, useUserContext } from '../../../contexts';
+import {
+  TaskActionType,
+  UserActionType,
+  useTaskContext,
+  useUserContext
+} from '../../../contexts';
 import Spacers from '../../../constants/Spacers';
 import Fonts from '../../../constants/Fonts';
 import Colors from '../../../constants/Colors';
@@ -12,6 +26,7 @@ import ImagePickerView from '../../common/ImagePickerView';
 import { uploadImageToFirebase } from '../../../remote/storage';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
+import { BlurView } from '@react-native-community/blur';
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -19,45 +34,67 @@ interface TaskDetailsModalProps {
   setModalVisible: (isVisible: boolean) => void;
 }
 
-
-const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetailsModalProps) => {
-  const { state: { user, householdId, householdMembers }, dispatch: dispatchUser } = useUserContext();
+const TaskDetailsModal = ({
+  task,
+  isModalVisible,
+  setModalVisible
+}: TaskDetailsModalProps) => {
+  const {
+    state: { user, householdId, householdMembers },
+    dispatch: dispatchUser
+  } = useUserContext();
   const { dispatch } = useTaskContext();
   const [submissionPhotoUri, setSubmissionPhotoUri] = useState<string>('');
   const [isLoading, setLoading] = useState(false);
 
   if (!verifyUser(user)) {
-    console.log("user undefined")
+    console.log('user undefined');
     router.replace('/auth');
     return;
   }
 
   if (!verifyHousehold(householdId)) {
-    console.log("household undefined")
+    console.log('household undefined');
     router.replace('/household');
     return;
   }
 
-  const { title, description, status, points, creator, assignee, submissionPhoto } = task;
+  const {
+    title,
+    description,
+    status,
+    points,
+    creator,
+    assignee,
+    submissionPhoto
+  } = task;
   const showAssignButton = status === TaskStatus.UNASSIGNED;
-  const showSubmitButton = status === TaskStatus.ASSIGNED && assignee === user.id;
-  const showDeclineConfirmButtons = status === TaskStatus.SUBMITTED && creator === user.id;
+  const showSubmitButton =
+    status === TaskStatus.ASSIGNED && assignee === user.id;
+  const showDeclineConfirmButtons =
+    status === TaskStatus.SUBMITTED && creator === user.id;
   const showRemoveButton = creator === user.id;
 
   const clearState = () => {
     setSubmissionPhotoUri('');
     setLoading(false);
-    setLoading(false);
     setModalVisible(false);
   }
 
   const getDisplayName = (id: string) => {
-    return householdMembers?.filter(member => member.id === id)?.at(0)?.displayName ?? '';
-  }
+    return (
+      householdMembers?.filter((member) => member.id === id)?.at(0)
+        ?.displayName ?? ''
+    );
+  };
 
   const onAssign = async () => {
     setLoading(true);
-    const updatedTask = { ...task, status: TaskStatus.ASSIGNED, assignee: user.id };
+    const updatedTask = {
+      ...task,
+      status: TaskStatus.ASSIGNED,
+      assignee: user.id
+    };
     dispatch({ type: TaskActionType.ASSIGN, id: task.id, user: user.id });
     await updateTask(updatedTask);
     clearState();
@@ -66,9 +103,23 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
   const onSubmit = async () => {
     setLoading(true);
     const timestamp = new Date(Date.now());
-    const submissionPhotoRemoteUri = await uploadImageToFirebase(submissionPhotoUri, timestamp.toString(), "tasks");
-    const updatedTask = { ...task, status: TaskStatus.SUBMITTED, submissionPhoto: submissionPhotoRemoteUri, submittedAt: timestamp };
-    dispatch({ type: TaskActionType.SUBMIT, id: task.id, submissionPhoto: submissionPhotoRemoteUri, submittedAt: timestamp });
+    const submissionPhotoRemoteUri = await uploadImageToFirebase(
+      submissionPhotoUri,
+      timestamp.toString(),
+      'tasks'
+    );
+    const updatedTask = {
+      ...task,
+      status: TaskStatus.SUBMITTED,
+      submissionPhoto: submissionPhotoRemoteUri,
+      submittedAt: timestamp
+    };
+    dispatch({
+      type: TaskActionType.SUBMIT,
+      id: task.id,
+      submissionPhoto: submissionPhotoRemoteUri,
+      submittedAt: timestamp
+    });
     await updateTask(updatedTask);
     clearState();
   };
@@ -88,19 +139,26 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     dispatch({ type: TaskActionType.CONFIRM, id: task.id });
 
     if (assignee && points) {
-      const assigneeUser = householdMembers.filter(m => m.id === assignee)?.at(0);
+      const assigneeUser = householdMembers
+        .filter((m) => m.id === assignee)
+        ?.at(0);
 
       if (assigneeUser) {
         const { currentPoints, totalPoints } = assigneeUser;
-        const updatedMember = { ...assigneeUser, currentPoints: currentPoints + points, totalPoints: totalPoints + points };
+        const updatedMember = {
+          ...assigneeUser,
+          currentPoints: currentPoints + points,
+          totalPoints: totalPoints + points
+        };
         dispatchUser({
           type: UserActionType.UPDATE_MEMBER,
           member: updatedMember
         });
-        user.id == updatedMember.id && dispatchUser({
-          type: UserActionType.UPDATE_USER,
-          user: updatedMember
-        });
+        user.id == updatedMember.id &&
+          dispatchUser({
+            type: UserActionType.UPDATE_USER,
+            user: updatedMember
+          });
         await updateUser(updatedMember);
       }
     }
@@ -108,7 +166,6 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     await updateTask(updatedTask);
     clearState();
   };
-
 
   const onRemove = async () => {
     setLoading(true);
@@ -126,48 +183,91 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
       <TouchableOpacity onPress={() => setModalVisible(false)}>
         <Icon name="close-outline" size={Fonts.large} color={Colors.black} />
       </TouchableOpacity>
-    </View>)
+    </View>
+  );
 
   const renderContent = () => (
     <View style={styles.content}>
       <Text style={styles.description}>{description}</Text>
       <Text style={styles.contentText}>{`Status: ${status}`}</Text>
-      <Text style={styles.contentText}>{`Creator: ${getDisplayName(creator)}`}</Text>
-      <Text style={styles.contentText}>{`Assignee: ${assignee ? getDisplayName(assignee) : 'Unassigned'}`}</Text>
-      {submissionPhoto && <Image style={styles.image} source={{ uri: submissionPhoto }} />}
-      {showSubmitButton && <ImagePickerView onImageSelected={setSubmissionPhotoUri} />}
+      <Text style={styles.contentText}>{`Creator: ${getDisplayName(
+        creator
+      )}`}</Text>
+      <Text style={styles.contentText}>{`Assignee: ${assignee ? getDisplayName(assignee) : 'Unassigned'
+        }`}</Text>
+      {submissionPhoto && (
+        <Image style={styles.image} source={{ uri: submissionPhoto }} />
+      )}
+      {showSubmitButton && (
+        <ImagePickerView onImageSelected={setSubmissionPhotoUri} />
+      )}
     </View>
-  )
+  );
 
   const renderButtons = () => (
     <>
       {showAssignButton && (
-        <TouchableOpacity style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={onAssign}>
-          {isLoading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Assign me</Text>}
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: Colors.lightGreen }]}
+          onPress={onAssign}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Assign me</Text>
+          )}
         </TouchableOpacity>
       )}
       {showSubmitButton && (
-        <TouchableOpacity disabled={!submissionPhotoUri} style={[styles.button, { backgroundColor: Colors.lightGreen, opacity: !!submissionPhotoUri ? 1 : 0.5 }]} onPress={onSubmit}>
-          {isLoading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Submit task</Text>}
+        <TouchableOpacity
+          disabled={!submissionPhotoUri}
+          style={[
+            styles.button,
+            {
+              backgroundColor: Colors.lightGreen,
+              opacity: !!submissionPhotoUri ? 1 : 0.5
+            }
+          ]}
+          onPress={onSubmit}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Submit task</Text>
+          )}
         </TouchableOpacity>
       )}
       {showDeclineConfirmButtons && (
         <>
-          <TouchableOpacity style={[styles.button, { backgroundColor: Colors.lightGreen }]} onPress={onConfirm}>
-            {isLoading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Confirm task</Text>}
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: Colors.lightGreen }]}
+            onPress={onConfirm}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={styles.buttonText}>Confirm task</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { backgroundColor: Colors.pink }]} onPress={onDecline}>
-            {isLoading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Decline submission</Text>}
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: Colors.pink }]}
+            onPress={onDecline}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={styles.buttonText}>Decline submission</Text>
+            )}
           </TouchableOpacity>
         </>
       )}
       {showRemoveButton && (
         <TouchableOpacity style={styles.button} onPress={onRemove}>
-          {isLoading ? <ActivityIndicator /> : <Text style={styles.buttonText}>Remove task</Text>}
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Remove task</Text>
+          )}
         </TouchableOpacity>
       )}
     </>
-  )
+  );
 
   return (
     <Modal
@@ -175,22 +275,32 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
       transparent={true}
       visible={isModalVisible}
       onRequestClose={() => setModalVisible(!isModalVisible)}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          {renderTopRow()}
-          {renderContent()}
-          {renderButtons()}
-        </View>
-      </View>
-    </Modal >
-  )
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="light"
+        blurAmount={10}
+        reducedTransparencyFallbackColor="white">
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.centeredView}>
+            <TouchableWithoutFeedback onPress={() => { }}>
+              <View style={styles.modalView}>
+                {renderTopRow()}
+                {renderContent()}
+                {renderButtons()}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </BlurView>
+    </Modal>
+  );
 };
 
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: Spacers.medium,
+    marginTop: Spacers.medium
   },
   modalView: {
     margin: Spacers.medium,
@@ -200,18 +310,18 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 2
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 5
   },
   topRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    alignItems: "center",
-    marginRight: Spacers.medium,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+    marginRight: Spacers.medium
   },
   circle: {
     width: 90,
@@ -220,29 +330,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.lightGrey,
-    padding: Spacers.small,
+    padding: Spacers.small
   },
   pointsText: {
     fontSize: Fonts.large,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   content: {
     marginHorizontal: Spacers.medium,
-    marginVertical: Spacers.small,
+    marginVertical: Spacers.small
   },
   title: {
     fontSize: Fonts.medium,
     fontWeight: 'bold',
-    marginBottom: Spacers.small,
+    marginBottom: Spacers.small
   },
   description: {
     fontSize: Fonts.medium,
-    marginBottom: Spacers.small,
+    marginBottom: Spacers.small
   },
   contentText: {
     fontSize: Fonts.medium,
     color: Colors.darkGrey,
-    marginBottom: Spacers.small,
+    marginBottom: Spacers.small
   },
   button: {
     backgroundColor: Colors.yellow,
@@ -250,12 +360,12 @@ const styles = StyleSheet.create({
     padding: Spacers.medium,
     alignItems: 'center',
     borderRadius: Style.radius,
-    fontSize: Fonts.large,
+    fontSize: Fonts.large
   },
   buttonText: {
     color: Colors.black,
     fontWeight: 'bold',
-    fontSize: Fonts.medium,
+    fontSize: Fonts.medium
   },
   image: {
     width: 150,
@@ -263,12 +373,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderRadius: Style.radius,
     marginTop: Spacers.small,
-    alignSelf: "center"
+    alignSelf: 'center'
   },
   imageContainer: {
     marginVertical: Spacers.medium,
-    alignItems: 'center',
-  },
+    alignItems: 'center'
+  }
 });
 
 export default TaskDetailsModal;
