@@ -44,7 +44,8 @@ export async function fetchMembers(
           currentPoints: data.currentPoints ?? 0,
           birthday: data.birthday,
           photoURL: data.photoURL,
-          location: data.location
+          location: data.location, // Add location
+          locationUpdatedAt: data.locationUpdatedAt // Add locationUpdatedAt
         };
         onMemberCallback(member);
       }

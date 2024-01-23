@@ -15,4 +15,5 @@ export interface User {
   birthday?: Date;
   photoURL?: string;
   location?: LatLng;
+  locationUpdatedAt?: Date;
 }
