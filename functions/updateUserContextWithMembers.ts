@@ -7,7 +7,6 @@ import { UserActionType, useUserContext } from "../contexts";
 const { state, dispatch: userDispatch } = useUserContext();
 const { user, householdId } = state;
 
-
 const updateUserContextWithMembers = async () => {
   if (user == undefined) {
     console.log("user undefined")
@@ -32,3 +31,4 @@ const updateUserContextWithMembers = async () => {
       });
     });
   };
+export default updateUserContextWithMembers;
