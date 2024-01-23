@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, StyleSheet, View, Image } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TouchableOpacity
+} from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useUserContext } from '../../../contexts';
@@ -11,6 +18,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { User } from '../../../models';
 
 // TODO refactor, basically rewrite, extract components, fix styling
+
+interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+}
+
 async function requestPermissions() {
   let { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
@@ -44,7 +57,7 @@ const Map: React.FC = () => {
 
   useEffect(() => {
     if (householdId) {
-      updateUserContextWithMembers();
+      // updateUserContextWithMembers();
     }
   }, [householdId]);
 
@@ -119,22 +132,45 @@ const Map: React.FC = () => {
               member.location?.latitude &&
               member.location?.longitude
           )
-          .map((member) => (
-            <Marker
-              key={member.id}
-              coordinate={{
-                latitude: member.location!.latitude,
-                longitude: member.location!.longitude
-              }}
-              title={member.displayName}>
-              <View>
-                <Image
-                  source={{ uri: member.photoURL }}
-                  style={{ width: 30, height: 30, borderRadius: 15 }}
-                />
-              </View>
-            </Marker>
-          ))}
+          .map((member) => {
+            const formatDateFromFirestoreTimestamp = (
+              timestamp: FirestoreTimestamp | undefined
+            ) => {
+              if (!timestamp || typeof timestamp.seconds !== 'number') {
+                return 'Not Available';
+              }
+              const date = new Date(timestamp.seconds * 1000);
+              return date.toLocaleString(); // Returns the date in the local time zone.
+            };
+
+            return (
+              <Marker
+                key={member.id}
+                coordinate={{
+                  latitude: member.location!.latitude,
+                  longitude: member.location!.longitude
+                }}
+                title={member.displayName}
+                description={`Last Updated: ${formatDateFromFirestoreTimestamp(
+                  member.locationUpdatedAt
+                )}`}
+                onPress={() => {
+                  console.log('pressed');
+                }}>
+                <View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('pressed');
+                    }}>
+                    <Image
+                      source={{ uri: member.photoURL }}
+                      style={{ width: 30, height: 30, borderRadius: 15 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Marker>
+            );
+          })}
         {/* otherMarkers.map((marker) => ( */}
       </MapView>
       <MaterialCommunityIcons
