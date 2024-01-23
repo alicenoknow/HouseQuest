@@ -2,6 +2,7 @@ import {
   Announcement,
   KudosOrSlobs,
   Reward,
+  RewardStatus,
   Task,
   TaskWithoutId,
   Todo,
@@ -246,17 +247,60 @@ export async function createTask(
   return tasksRef.id;
 }
 
-export async function createReward(
-  reward: Reward,
-  householdId: string
-): Promise<string> {
-  const rewardsRef = await addDoc(collection(db, 'tasks'), reward);
+// export async function createReward(
+//   reward: Reward,
+//   householdId: string
+// ): Promise<string> {
+//   const rewardsRef = await addDoc(collection(db, 'tasks'), reward);
+//   const householdRef = doc(db, 'households', householdId);
+//   await updateDoc(householdRef, {
+//     rewards: arrayUnion(rewardsRef.id)
+//   });
+
+//   return rewardsRef.id;
+// }
+
+
+export async function createReward(reward: Reward, householdId: string): Promise<string> {
+  try {
+    const rewardsRef = await addDoc(collection(db, 'rewards'), {
+      ...reward,
+      status: reward.status.toString(),
+    });
+    const householdRef = doc(db, 'households', householdId);
+
+    await updateDoc(householdRef, {
+      rewards: arrayUnion(rewardsRef.id)
+    });
+
+    return rewardsRef.id;
+  } catch (error) {
+    console.error('Erro ao adicionar recompensa:', error);
+    throw error;
+  }
+}
+
+export async function removeReward(rewardId: string, householdId: string) {
+  console.log('Removing reward:', rewardId);
+  const rewardRef = doc(db, 'rewards', rewardId);
+  await deleteDoc(rewardRef);
+
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
-    rewards: arrayUnion(rewardsRef.id)
+    rewards: arrayRemove(rewardId)
   });
+}
 
-  return rewardsRef.id;
+
+
+export async function updateRewardStatus(rewardId: string, newStatus: RewardStatus): Promise<void> {
+  try {
+    const rewardRef = doc(db, 'rewards', rewardId);
+    await updateDoc(rewardRef, { status: newStatus });
+  } catch (error) {
+    console.error('Error updating reward status:', error);
+    throw error;
+  }
 }
 
 export async function createKudosSlobs(
@@ -316,6 +360,7 @@ export async function updateTask(task: Task) {
   const clearedTask = clearEmptyFields<Task>(task);
   await updateDoc(tasksRef, { ...clearedTask });
 }
+
 
 export async function removeTask(taskId: string, householdId: string) {
   const tasksRef = doc(db, 'tasks', taskId);
