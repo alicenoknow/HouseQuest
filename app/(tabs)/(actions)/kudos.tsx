@@ -4,9 +4,10 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  Image
 } from 'react-native';
-import { KudosOrSlobs, KSAction } from '../../../models';
+import { KudosOrSlobs, KSAction, Role } from '../../../models';
 import Colors from '../../../constants/Colors';
 import { useKudosOrSlobsContext, useUserContext } from '../../../contexts';
 import { Fonts, Spacers, Style } from '../../../constants';
@@ -28,34 +29,56 @@ const Kudos: React.FC = () => {
     console.log('Kudos.tsx: Current state of kudosOrSlobs: \n', kudosOrSlobs);
   }, [kudosOrSlobs]);
 
-  const renderMessage = (item: KudosOrSlobs) => {
-    const borderColor =
-      item.type === KSAction.KUDOS ? Colors.lightGreen : Colors.pink;
-    const backgroundColor =
-      item.type === KSAction.KUDOS ? Colors.lightGreen : Colors.pink;
-
-    return (
-      <View style={[styles.messageContainer, { borderColor, backgroundColor }]}>
-        <View style={styles.avatars}>
-          {/* <Avatar username={item.sender} />
-                    <Avatar username={item.receiver} /> */}
-        </View>
-        <Text>{item.message}</Text>
-        <Text>{item.points}</Text>
-      </View>
+  const renderAvatar = (userId: string) => {
+    const user = stateUser.householdMembers.find(
+      (member) => member.id === userId
+    );
+    return user ? (
+      <Image source={{ uri: user.photoURL }} style={styles.avatar} />
+    ) : (
+      <View style={styles.avatar} /> // Placeholder for missing avatar
     );
   };
 
+  const formatDate = (timestamp: Date) => {
+    return `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`;
+  };
+
   const renderItem = ({ item }: { item: KudosOrSlobs }) => {
+    const senderName =
+      stateUser.householdMembers.find((member) => member.id === item.sender)
+        ?.displayName || 'Unknown';
+    const receiverName =
+      stateUser.householdMembers.find((member) => member.id === item.receiver)
+        ?.displayName || 'Unknown';
+
     return (
       <View style={styles.item}>
-        {renderMessage(item)}
-        {item.points !== null && item.points !== undefined && (
-          <Text style={styles.points}>Points: {String(item.points)}</Text>
-        )}
-        <Text>Sender: {item.sender}</Text>
-        <Text>Receiver: {item.receiver}</Text>
-        <Text>Timestamp: {item.timestamp.toISOString()}</Text>
+        <View
+          style={[
+            styles.messageContainer,
+            {
+              borderColor:
+                item.type === KSAction.KUDOS ? Colors.lightGreen : Colors.pink,
+              backgroundColor:
+                item.type === KSAction.KUDOS ? Colors.lightGreen : Colors.pink
+            }
+          ]}>
+          <View style={{ flexDirection: 'column' }}>
+            <Text style={styles.messageText}>{item.message}</Text>
+            {item.points !== null && item.points !== undefined && (
+              <Text style={styles.points}>Points: {String(item.points)}</Text>
+            )}
+            <Text style={styles.timestamp}>{formatDate(item.timestamp)}</Text>
+          </View>
+        </View>
+        <View style={styles.userContainer}>
+          {renderAvatar(item.sender)}
+          <Text style={styles.userName}>{senderName}</Text>
+          <Text style={styles.toText}> to </Text>
+          {renderAvatar(item.receiver)}
+          <Text style={styles.userName}>{receiverName}</Text>
+        </View>
       </View>
     );
   };
@@ -78,11 +101,13 @@ const Kudos: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
       />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setModalVisible(true)}>
-        <Text style={styles.buttonText}>Give Feedback</Text>
-      </TouchableOpacity>
+      {stateUser.user?.role !== Role.CHILD && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Give Feedback</Text>
+        </TouchableOpacity>
+      )}
       <AddFeedbackModal
         isModalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -114,16 +139,16 @@ const styles = StyleSheet.create({
   },
   avatars: {
     flexDirection: 'row',
-    marginRight: 10
+    marginRight: 10,
+    marginLeft: 10
   },
   avatar: {
     backgroundColor: 'lightgray',
     width: 30,
     height: 30,
     borderRadius: 15,
-    textAlign: 'center',
-    lineHeight: 30,
-    marginRight: 5
+    marginRight: 5,
+    marginLeft: 5
   },
   points: {
     marginTop: 5,
@@ -177,6 +202,33 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center'
+  },
+  messageText: {
+    fontSize: Fonts.medium,
+    marginBottom: 5
+  },
+  timestamp: {
+    fontSize: Fonts.small,
+    fontStyle: 'italic',
+    alignSelf: 'flex-end'
+  },
+  userContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5
+  },
+  // avatar: {
+  //   width: 30,
+  //   height: 30,
+  //   borderRadius: 15
+  // },
+  userName: {
+    marginLeft: 5,
+    marginRight: 5,
+    fontWeight: 'bold'
+  },
+  toText: {
+    // Styling for the "to" text
   }
 });
 
