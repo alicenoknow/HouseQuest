@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 import { Spacers, Colors, Style, Fonts } from '../../../constants';
 import { useUserContext } from '../../../contexts';
-import { ReduceMotion, useSharedValue, Easing, withTiming } from 'react-native-reanimated';
+import Animated, { ReduceMotion, useSharedValue, Easing, withTiming, BounceIn, BounceOut } from 'react-native-reanimated';
 import UserAvatar from '../../UserAvatar';
 import PieChart from './PieChart';
 import { User } from '../../../models';
@@ -20,7 +20,6 @@ export default function SpinningWheelModal({ isModalVisible, setModalVisible, se
     const rotation = useSharedValue(0);
 
     const { state: { householdMembers } } = useUserContext();
-
 
     const handleSpinButton = () => {
         const randomRotation = 10 * Math.random() * 360;
@@ -54,15 +53,23 @@ export default function SpinningWheelModal({ isModalVisible, setModalVisible, se
 
     const renderSelected = () => {
         if (!selectedMember) return null;
-        return <View style={styles.selectedContainer}>
+        return <Animated.View
+            entering={BounceIn}
+            exiting={BounceOut}
+            style={styles.selectedContainer}>
             {selectedMember.photoURL && <UserAvatar avatarUri={selectedMember.photoURL} />}
-            <Text style={[styles.mediumText, { textAlign: "center" }]}>✨ {selectedMember.displayName} was selected! ✨</Text>
-        </View>
+            <View style={styles.selectedTextContainer} >
+                <Text style={[styles.mediumText, { flex: 1, textAlign: "center", fontSize: Fonts.xLarge }]}>✨</Text>
+                <Text style={[styles.mediumText, { flex: 2, textAlign: "center" }]}>{selectedMember.displayName} was selected!</Text>
+                <Text style={[styles.mediumText, { flex: 1, textAlign: "center", fontSize: Fonts.xLarge }]}>✨</Text>
+            </View>
+        </Animated.View>
     }
 
     const renderButtons = () => <>
         <TouchableOpacity
-            style={[styles.button, styles.buttonSpin]}
+            style={[styles.button, styles.buttonSpin, { opacity: !!selectedMember ? 0.6 : 1 }]}
+            disabled={!!selectedMember}
             onPress={handleSpinButton}>
             <Text style={[styles.mediumText, {
                 color: Colors.black,
@@ -161,4 +168,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginVertical: Spacers.small,
     },
+    selectedTextContainer: {
+        flex: 1,
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+        alignContent: "center",
+    }
 });
