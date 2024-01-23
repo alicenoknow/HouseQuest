@@ -26,6 +26,7 @@ import ImagePickerView from '../../common/ImagePickerView';
 import { uploadImageToFirebase } from '../../../remote/storage';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
+import { BlurView } from '@react-native-community/blur';
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -279,15 +280,23 @@ const TaskDetailsModal = ({
       transparent={true}
       visible={isModalVisible}
       onRequestClose={() => setModalVisible(!isModalVisible)}>
-      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {renderTopRow()}
-            {renderContent()}
-            {renderButtons()}
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="light"
+        blurAmount={10}
+        reducedTransparencyFallbackColor="white">
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.centeredView}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.modalView}>
+                {renderTopRow()}
+                {renderContent()}
+                {renderButtons()}
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </BlurView>
     </Modal>
   );
 };

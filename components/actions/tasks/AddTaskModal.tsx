@@ -20,6 +20,7 @@ import {
 import { createTask } from '../../../remote/db';
 import { verifyHousehold, verifyUser } from '../../../functions/verify';
 import { router } from 'expo-router';
+import { BlurView } from '@react-native-community/blur';
 
 export default function AddTaskModal({
   isModalVisible,
@@ -86,82 +87,96 @@ export default function AddTaskModal({
       transparent={true}
       visible={isModalVisible}
       onRequestClose={() => setModalVisible(!isModalVisible)}>
-      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.mediumText}>Title:</Text>
-            <TextInput
-              value={title}
-              onChangeText={(text) => setTitle(text)}
-              style={styles.input}
-            />
-
-            <Text style={styles.mediumText}>Description:</Text>
-            <TextInput
-              value={description}
-              onChangeText={(text) => setDescription(text)}
-              style={styles.input}
-              multiline
-              numberOfLines={4}
-            />
-
-            <Text style={styles.mediumText}>Points:</Text>
-            <Picker
-              selectedValue={points}
-              onValueChange={(itemValue) => setPoints(itemValue)}>
-              <Picker.Item label="5" value={5} />
-              <Picker.Item label="10" value={10} />
-              <Picker.Item label="15" value={15} />
-              <Picker.Item label="Custom" value={undefined} />
-            </Picker>
-
-            {points === undefined && (
-              <TextInput
-                placeholder="Enter points"
-                keyboardType="numeric"
-                value={`${customPoints}`}
-                onChangeText={(text) => {
-                  setCustomPoints(Number(text));
-                }}
-                style={styles.input}
-              />
-            )}
-
-            <Text style={styles.mediumText}>Assignee:</Text>
-            <Picker
-              selectedValue={assignee}
-              onValueChange={(itemValue) => setAssignee(itemValue)}>
-              <Picker.Item label="Unassigned" value={undefined} />
-              {householdMembers.map((member) => (
-                <Picker.Item
-                  key={member.displayName}
-                  label={member.displayName}
-                  value={member.id}
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setModalVisible(false);
+        }}>
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType="light"
+          blurAmount={10}
+          reducedTransparencyFallbackColor="white">
+          <View style={styles.centeredView}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.modalView}>
+                <Text style={styles.mediumText}>Title:</Text>
+                <TextInput
+                  value={title}
+                  onChangeText={(text) => setTitle(text)}
+                  style={styles.input}
                 />
-              ))}
-            </Picker>
 
-            <TouchableOpacity
-              style={[styles.button, { opacity: disableAddButton ? 0.5 : 1 }]}
-              disabled={disableAddButton}
-              onPress={handleAddButton}>
-              {!isLoading ? (
-                <Text style={styles.mediumText}>Add Task</Text>
-              ) : (
-                <ActivityIndicator />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonCancel]}
-              onPress={() => setModalVisible(false)}>
-              {!isLoading ? (
-                <Text style={styles.mediumText}>Cancel</Text>
-              ) : (
-                <ActivityIndicator />
-              )}
-            </TouchableOpacity>
+                <Text style={styles.mediumText}>Description:</Text>
+                <TextInput
+                  value={description}
+                  onChangeText={(text) => setDescription(text)}
+                  style={styles.input}
+                  multiline
+                  numberOfLines={4}
+                />
+
+                <Text style={styles.mediumText}>Points:</Text>
+                <Picker
+                  selectedValue={points}
+                  onValueChange={(itemValue) => setPoints(itemValue)}>
+                  <Picker.Item label="5" value={5} />
+                  <Picker.Item label="10" value={10} />
+                  <Picker.Item label="15" value={15} />
+                  <Picker.Item label="Custom" value={undefined} />
+                </Picker>
+
+                {points === undefined && (
+                  <TextInput
+                    placeholder="Enter points"
+                    keyboardType="numeric"
+                    value={`${customPoints}`}
+                    onChangeText={(text) => {
+                      setCustomPoints(Number(text));
+                    }}
+                    style={styles.input}
+                  />
+                )}
+
+                <Text style={styles.mediumText}>Assignee:</Text>
+                <Picker
+                  selectedValue={assignee}
+                  onValueChange={(itemValue) => setAssignee(itemValue)}>
+                  <Picker.Item label="Unassigned" value={undefined} />
+                  {householdMembers.map((member) => (
+                    <Picker.Item
+                      key={member.displayName}
+                      label={member.displayName}
+                      value={member.id}
+                    />
+                  ))}
+                </Picker>
+
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    { opacity: disableAddButton ? 0.5 : 1 }
+                  ]}
+                  disabled={disableAddButton}
+                  onPress={handleAddButton}>
+                  {!isLoading ? (
+                    <Text style={styles.mediumText}>Add Task</Text>
+                  ) : (
+                    <ActivityIndicator />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonCancel]}
+                  onPress={() => setModalVisible(false)}>
+                  {!isLoading ? (
+                    <Text style={styles.mediumText}>Cancel</Text>
+                  ) : (
+                    <ActivityIndicator />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </BlurView>
       </TouchableWithoutFeedback>
     </Modal>
   );
