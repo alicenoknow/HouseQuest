@@ -47,6 +47,8 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
   const clearState = () => {
     setSubmissionPhotoUri('');
     setLoading(false);
+    setLoading(false);
+    setModalVisible(false);
   }
 
   const getDisplayName = (id: string) => {
@@ -58,8 +60,7 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     const updatedTask = { ...task, status: TaskStatus.ASSIGNED, assignee: user.id };
     dispatch({ type: TaskActionType.ASSIGN, id: task.id, user: user.id });
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const onSubmit = async () => {
@@ -70,7 +71,6 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     dispatch({ type: TaskActionType.SUBMIT, id: task.id, submissionPhoto: submissionPhotoRemoteUri, submittedAt: timestamp });
     await updateTask(updatedTask);
     clearState();
-    setModalVisible(false);
   };
 
   const onDecline = async () => {
@@ -78,8 +78,7 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     const updatedTask = { ...task, status: TaskStatus.ASSIGNED };
     dispatch({ type: TaskActionType.DECLINE, id: task.id });
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const onConfirm = async () => {
@@ -107,8 +106,7 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     }
 
     await updateTask(updatedTask);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
 
@@ -116,8 +114,7 @@ const TaskDetailsModal = ({ task, isModalVisible, setModalVisible }: TaskDetails
     setLoading(true);
     dispatch({ type: TaskActionType.REMOVE, id: task.id });
     await removeTask(task.id, householdId);
-    setLoading(false);
-    setModalVisible(false);
+    clearState();
   };
 
   const renderTopRow = () => (

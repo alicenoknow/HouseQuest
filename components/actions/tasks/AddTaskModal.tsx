@@ -41,6 +41,9 @@ export default function AddTaskModal({ isModalVisible, setModalVisible }: { isMo
         setTitle('');
         setDescription('');
         setPoints(5);
+        setCustomPoints(0);
+        setLoading(false);
+        setRandomModalVisible(false);
         setAssignee('');
     }
 
