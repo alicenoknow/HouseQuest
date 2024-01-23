@@ -55,10 +55,14 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.lightGrey,
         flexDirection: "row",
         borderRadius: Style.largeRadius,
+        borderBottomLeftRadius: Style.radius,
+        borderBottomRightRadius: Style.radius,
     },
     bar: {
         backgroundColor: Colors.yellow,
         borderRadius: Style.largeRadius,
+        borderBottomLeftRadius: Style.radius,
+        borderBottomRightRadius: Style.radius,
         alignSelf: "flex-end",
     }
 });
