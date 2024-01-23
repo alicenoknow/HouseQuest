@@ -1,22 +1,17 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider
-} from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { useColorScheme } from 'react-native';
 import {
   UserActionType,
   UserProvider,
   useUserContext
 } from '../contexts/UserContext';
-import { User } from '../models/user';
 import RemoteDataProvider from '../components/data/RemoteDataProvider';
 import { parseGoogleUserData } from '../functions/parseGoogleUserData';
+import { LoadingProvider } from '../contexts/LoadingContext';
+import { fetchHouseholdName } from '../remote/db';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -43,7 +38,7 @@ export default function RootLayout() {
       const user = await AsyncStorage.getItem('@user');
       setUser(user);
       setIsUserLoggedIn(!!user); // Set true if user data exists, false otherwise
-      console.log('user read from async 1', user);
+      console.log('user read from async root layout', user);
     };
 
     checkUserLoggedIn();
@@ -54,7 +49,7 @@ export default function RootLayout() {
       const household = await AsyncStorage.getItem('@household');
       setHouseholdId(household);
       setIsUserInHousehold(!!household);
-      console.log('household from async 1', household);
+      console.log('household from async root layout', household);
     };
 
     checkUserHousehold();
@@ -75,12 +70,14 @@ export default function RootLayout() {
   }
   return (
     <UserProvider>
-      <RootLayoutNav
-        isUserLoggedIn={isUserLoggedIn}
-        isUserInHousehold={isUserInHousehold}
-        user={user}
-        householdId={householdId}
-      />
+      <LoadingProvider>
+        <RootLayoutNav
+          isUserLoggedIn={isUserLoggedIn}
+          isUserInHousehold={isUserInHousehold}
+          user={user}
+          householdId={householdId}
+        />
+      </LoadingProvider>
     </UserProvider>
   );
 }
@@ -104,12 +101,7 @@ function RootLayoutNav({
   user: string | null;
   householdId: string | null;
 }) {
-  const colorScheme = useColorScheme();
-  const { state, dispatch } = useUserContext();
-  const [parsedUser, setParsedUser] = useState<User | undefined>(undefined);
-  const [parsedHouseholdId, setParsedHouseholdId] = useState<
-    string | undefined
-  >(undefined);
+  const { dispatch } = useUserContext();
 
   useEffect(() => {
     console.log('isUserLoggedIn', isUserLoggedIn, user);
@@ -117,10 +109,9 @@ function RootLayoutNav({
 
     if (isUserLoggedIn && !!user) {
       const userJson = JSON.parse(user);
-      console.log('user from async', userJson);
+      console.log('user from async');
 
       const userParsed = parseGoogleUserData(userJson);
-      setParsedUser(userParsed);
       dispatch({
         type: UserActionType.LOGIN_USER,
         user: userParsed
@@ -130,7 +121,8 @@ function RootLayoutNav({
     if (isUserInHousehold && !!householdId) {
       console.log('householdId from async', householdId);
 
-      setParsedHouseholdId(householdId);
+      fetchHouseholdName(householdId, (name: string) =>
+        dispatch({ type: UserActionType.UPDATE_HOUSEHOLD_NAME, name: name }));
       dispatch({
         type: UserActionType.UPDATE_HOUSEHOLD,
         householdId: householdId
@@ -144,13 +136,12 @@ function RootLayoutNav({
       console.log('entering household creation');
       router.replace('/household');
     } else {
-      console.log('entring tabs');
+      console.log('entering tabs');
       router.replace('(tabs)');
     }
   }, [isUserLoggedIn, isUserInHousehold, user, householdId]);
 
   return (
-    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
     <RemoteDataProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -160,6 +151,5 @@ function RootLayoutNav({
         <Stack.Screen name="invite" options={{ headerShown: false }} />
       </Stack>
     </RemoteDataProvider>
-    // </ThemeProvider>
   );
 }

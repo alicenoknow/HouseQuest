@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, TouchableOpacity } from 'react-native';
 import { db } from '../../config';
 import {
   doc,
@@ -8,98 +8,91 @@ import {
   where,
   query,
   getDocs,
-  addDoc,
   updateDoc,
   setDoc
 } from 'firebase/firestore';
 import { firebaseUser } from '../../models/firebaseUser';
-import { User, Role } from '../../models';
+import { Role } from '../../models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HouseholdInvite from './householdInviteCard';
 import { router } from 'expo-router';
 import { UserActionType, useUserContext } from '../../contexts/UserContext';
+import { Colors, Fonts, Spacers, Style } from '../../constants';
 
-type HouseholdSelectionProps = {
-  invites: any[]; // replace any[] with the actual type if known
-  householdUpdate: boolean;
-};
+interface Invite {
+  id: string;
+  role: Role;
+  name: string | undefined;
+}
 
-const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
-  invites,
-  householdUpdate
-}) => {
-  const [user, setUser] = React.useState<firebaseUser | undefined>(undefined);
-  const [household, setHousehold] = React.useState<string | undefined>(
-    undefined
-  );
+const HouseholdSelection: React.FC = () => {
+  const [user, setUser] = React.useState<firebaseUser>();
   const [householdInput, setHouseholdInput] = React.useState<string>('');
-  const [inviteHouseholds, setInviteHouseholds] = React.useState<any[]>([]);
-  const { dispatch } = useUserContext();
+  const [inviteHouseholds, setInviteHouseholds] = React.useState<ReadonlyArray<Invite>>([]);
+  const { state, dispatch } = useUserContext();
 
-  const getUser = async () => {
-    await AsyncStorage.getItem('@user').then((user) => {
-      if (!user) {
-        console.log('user_hselect1', user);
-        router.replace('/auth');
-        return;
-      }
-      const userJson = JSON.parse(user);
-      setUser(userJson);
-    });
-  };
-
-  const getHousehold = async () => {
-    await AsyncStorage.getItem('@household').then((household) => {
-      if (household) {
-        setHousehold(household);
-      }
-    });
-  };
-
-  useEffect(() => {
-    getUser();
-    getHousehold();
-  }, [householdUpdate]);
-
-  useEffect(() => {
-    console.log('Invites updated in HouseholdSelection', invites);
-    setInviteHouseholds(invites);
-  }, [invites]);
-
-  useEffect(() => {
-    console.log('Household updated in HouseholdSelection', household);
+  const updateHouseholdAndLogin = (household: string | null) => {
+    console.warn("update household", household)
     if (household) {
       AsyncStorage.setItem('@household', household);
       dispatch({
         type: UserActionType.UPDATE_HOUSEHOLD,
         householdId: household
       });
-
       router.replace('(tabs)');
     }
-  }, [household]);
+  }
 
-  const getUserData = async () => {
+  const getUser = async () => {
+    await AsyncStorage.getItem('@user').then((user) => {
+      if (user && JSON.parse(user)) {
+        const userJson = JSON.parse(user);
+        setUser(userJson);
+      } else {
+        console.log('empty user in async', user);
+        // router.replace('/auth');
+        return;
+      }
+    });
+  };
+
+  const getHousehold = async () => {
+    await AsyncStorage.getItem('@household')
+      .then(h => updateHouseholdAndLogin(h));
+  }
+
+  useEffect(() => {
+    getUser();
+    getHousehold();
+  }, []);
+
+  const refreshInvites = async () => {
     if (!user) {
-      console.log('user_hselect2', user);
       console.log('No user found!');
-      router.replace('/auth');
       return;
     }
     const userRef = doc(db, 'users', user?.uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
-      console.log('userSnap', userSnap.data());
       const userData = userSnap.data();
       if (userData?.household) {
-        setHousehold(userData.household);
+        updateHouseholdAndLogin(userData.household);
       } else {
         const inviteQuery = query(
           collection(db, 'invites'),
-          where('email', '==', user?.email)
+          where('receiver_email', '==', user?.email)
         );
         const inviteSnapshot = await getDocs(inviteQuery);
-        const invites = inviteSnapshot.docs.map((doc) => doc.data().household);
+        const invites = await Promise.all(inviteSnapshot.docs.map(async (invite) => {
+          const householdRef = doc(db, 'households', invite.data().household);
+          const household = await getDoc(householdRef);
+
+          return {
+            id: invite.data().household,
+            role: invite.data().role,
+            name: household?.data()?.name,
+          }
+        }));
         setInviteHouseholds(invites);
       }
     } else {
@@ -112,7 +105,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
     householdValue: string | undefined
   ) => {
     if (!userValue) {
-      console.log('No user found!');
+      console.log('No user found! 2');
       return;
     }
     if (!householdValue) {
@@ -140,17 +133,16 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
       role: Role.PARENT
     });
     console.log('User updated with household ID', householdRef.id);
-    await AsyncStorage.setItem('@household', householdRef.id);
     dispatch({
-      type: UserActionType.UPDATE_HOUSEHOLD,
-      householdId: householdRef.id
+      type: UserActionType.UPDATE_HOUSEHOLD_NAME,
+      name: householdValue,
     });
-    router.replace('(tabs)');
+    updateHouseholdAndLogin(householdRef.id);
   };
 
   const joinHousehold = async (householdJoinId: string, inviteRole: string) => {
     if (!user) {
-      console.log('No user found!');
+      console.log('No user found! 3');
       return;
     }
     if (!householdJoinId) {
@@ -182,51 +174,67 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
       await updateDoc(householdRef, {
         members: [...members, user.uid]
       });
+      updateHouseholdAndLogin(householdJoinId);
+      dispatch({
+        type: UserActionType.UPDATE_HOUSEHOLD_NAME,
+        name: householdDoc.data().name,
+      });
     }
-
     console.log('User updated with household ID', householdJoinId);
-    await AsyncStorage.setItem('@household', householdJoinId);
-    dispatch({
-      type: UserActionType.UPDATE_HOUSEHOLD,
-      householdId: householdJoinId
-    });
-    router.replace('(tabs)');
   };
+
+  const renderSpacer = () => <View style={{ width: "100%", height: 10 }} />
+
 
   return (
     <View style={styles.container}>
-      {household ? (
-        <Text>Household: {household}</Text>
+      {state?.householdName ? (
+        <Text style={styles.infoText}>Household: {state.householdName ?? state.householdId}</Text>
       ) : (
         <>
-          <Text>No household associated with the user.</Text>
-          <Text>Invites:</Text>
+          <Text style={styles.infoText}>No households available 😥</Text>
+          {renderSpacer()}
+          <Text style={styles.infoText}>Invites:</Text>
+          {renderSpacer()}
           {inviteHouseholds.length > 0 ? (
             inviteHouseholds.map((invite, index) => (
               <HouseholdInvite
                 key={index}
                 householdName={invite}
-                onPress={() => {
-                  joinHousehold(invite.household, invite.role);
-                }}
+                onPress={() => joinHousehold(invite.id, invite.role)}
               />
             ))
           ) : (
-            <Text>No invites available.</Text>
+            <Text style={styles.infoText}>No invites available.</Text>
           )}
+
+          {renderSpacer()}
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: Colors.darkGreen }]}
+            onPress={refreshInvites}
+          >
+            <Text style={styles.buttonText}>Refresh invites</Text>
+          </TouchableOpacity>
+
+          {renderSpacer()}
+          {renderSpacer()}
+
           <TextInput
             style={styles.input}
             placeholder="Enter household name"
             onChangeText={(text) => setHouseholdInput(text)}
             defaultValue={householdInput}
           />
-          <Button
-            title="Create Household"
+          <TouchableOpacity
+            disabled={!householdInput}
+            style={[styles.button, { opacity: !householdInput ? 0.5 : 1 }]}
             onPress={() => createHousehold(user, householdInput)}
-          />
+          >
+            <Text style={styles.buttonText}>🏠 Create household</Text>
+          </TouchableOpacity>
         </>
       )}
-      <Button title="Get User Data" onPress={getUserData} />
     </View>
   );
 };
@@ -238,12 +246,31 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '80%',
-    height: 40,
-    borderColor: 'gray',
+    borderColor: Colors.darkGrey,
     borderWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
-    padding: 10
+    marginVertical: Spacers.medium,
+    padding: Spacers.medium,
+    borderRadius: Style.radius,
+    fontSize: Fonts.medium,
+  },
+  button: {
+    width: "60%",
+    alignItems: 'center',
+    backgroundColor: Colors.blue,
+    padding: Spacers.medium,
+    borderRadius: Style.radius,
+    marginVertical: Spacers.medium,
+  },
+  buttonText: {
+    fontSize: Fonts.medium,
+    fontWeight: "bold",
+    color: Colors.white,
+    textAlign: "center"
+  },
+  infoText: {
+    fontSize: Fonts.medium,
+    color: Colors.black,
+    textAlign: "center"
   }
 });
 

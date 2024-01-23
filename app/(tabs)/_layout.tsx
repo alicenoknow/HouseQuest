@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Tabs, router, useRootNavigation } from 'expo-router';
 import Colors from '../../constants/Colors';
 import Icon from '../../components/common/Icon';
@@ -6,6 +6,9 @@ import { TodoActionType, useTodoContext, AnnouncementActionType, useAnnouncement
 import { LocationShareProvider } from '../../contexts/LocationShareContext';
 import { fetchAnnouncements, fetchKudosSlobs, fetchMembers, fetchRewards, fetchTasks, fetchTodos } from '../../remote/db';
 import { Announcement, KudosOrSlobs, Reward, Task, Todo, User } from '../../models';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { LoadingActionType, useLoadingContext } from '../../contexts/LoadingContext';
+import { Fonts, Spacers } from '../../constants';
 
 export const unstable_settings = {
   initialRouteName: 'index'
@@ -18,11 +21,21 @@ export default function TabLayout() {
   const { dispatch: taskDispatch } = useTaskContext();
   const { dispatch: rewardsDispatch } = useRewardsContext();
   const { dispatch: kudosSlobsDispatch } = useKudosOrSlobsContext();
+  const { state: { isLoading }, dispatch: dispatchLoading } = useLoadingContext();
   const { user, householdId } = state;
 
   const rootNavigation = useRootNavigation();
 
-  if (!rootNavigation?.isReady()) return null;
+
+  const renderLoading = () =>
+    <View style={styles.loadingView} >
+      <ActivityIndicator size={40} />
+      <Text style={styles.loadingText}>⏳ Updating your data, give us a second</Text>
+    </View>
+
+  if (!rootNavigation?.isReady()) {
+    return renderLoading();
+  }
 
   if (user == undefined) {
     console.log("user undefined")
@@ -35,8 +48,11 @@ export default function TabLayout() {
     return;
   }
 
+
   useEffect(() => {
     const fetchDataOnInit = async () => {
+      dispatchLoading({ type: LoadingActionType.CHANGE_STATE, isLoading: true })
+
       await fetchMembers(householdId,
         (member: User) => {
           if (member.id == user.id) {
@@ -80,10 +96,14 @@ export default function TabLayout() {
           type: AnnouncementActionType.ADD,
           announcement,
         }));
+      dispatchLoading({ type: LoadingActionType.CHANGE_STATE, isLoading: false })
     };
-
     fetchDataOnInit();
-  }, [householdId]);
+  }, []);
+
+  if (isLoading) {
+    return renderLoading();
+  }
 
   return (
     <LocationShareProvider>
@@ -142,3 +162,16 @@ export default function TabLayout() {
     </LocationShareProvider >
   );
 }
+
+const styles = StyleSheet.create({
+  loadingView: {
+    flex: 1,
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center"
+  },
+  loadingText: {
+    marginTop: Spacers.large,
+    fontSize: Fonts.medium,
+  }
+});

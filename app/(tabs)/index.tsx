@@ -57,17 +57,6 @@ async function addAnnouncement(
   await createAnnouncement(announcement, householdId);
 }
 
-const mockUsersList: User[] = [
-  {
-    id: '1',
-    displayName: 'User 1',
-    role: Role.PARENT,
-    totalPoints: 0,
-    currentPoints: 0,
-    photoURL: ''
-  }
-];
-
 const Dashboard: React.FC = () => {
   const [announcement, setAnnouncement] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -81,7 +70,7 @@ const Dashboard: React.FC = () => {
     useAnnouncementContext();
   const isButtonDisabled = !announcement.trim() || isSending;
   const usersList =
-    householdMembers.length > 0 ? householdMembers : mockUsersList;
+    householdMembers.length > 0 ? householdMembers : [];
   const flatListRef = React.useRef<FlatList<Announcement>>(null);
 
   const handleSendAnnouncement = async () => {
@@ -221,14 +210,6 @@ const Dashboard: React.FC = () => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }
   }, [announcementState.announcements]);
-
-  useEffect(() => {
-    console.log('Current UserContext State:', state);
-  }, [state]); // Log the state when it changes
-
-  useEffect(() => {
-    console.log('Current AnnouncementContext State:', announcementState);
-  }, [announcementState]); // Log the state when it changes
 
   return (
     <SafeAreaView style={styles.container}>

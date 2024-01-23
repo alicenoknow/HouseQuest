@@ -39,7 +39,7 @@ export default function AddFeedbackModal({
     state: { user, householdId, householdMembers },
     dispatch: dispatchUser
   } = useUserContext();
-  const { state, dispatch } = useKudosOrSlobsContext();
+  const { dispatch } = useKudosOrSlobsContext();
 
   if (!verifyUser(user)) {
     console.log('user undefined');
@@ -139,7 +139,7 @@ export default function AddFeedbackModal({
           blurAmount={10}
           reducedTransparencyFallbackColor="white">
           <View style={styles.centeredView}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={() => { }}>
               <View
                 style={{
                   ...styles.modalView,

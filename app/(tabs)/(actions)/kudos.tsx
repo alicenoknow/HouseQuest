@@ -25,10 +25,6 @@ const Kudos: React.FC = () => {
     setKudosOrSlobs([...stateKudosOrSlobs.kudosOrSlobs]);
   }, [stateKudosOrSlobs]);
 
-  useEffect(() => {
-    console.log('Kudos.tsx: Current state of kudosOrSlobs: \n', kudosOrSlobs);
-  }, [kudosOrSlobs]);
-
   const renderAvatar = (userId: string) => {
     const user = stateUser.householdMembers.find(
       (member) => member.id === userId
@@ -82,17 +78,6 @@ const Kudos: React.FC = () => {
       </View>
     );
   };
-
-  useEffect(() => {
-    console.log('Kudos.tsx: Current state of userContext: \n', stateUser);
-  }, [stateUser]);
-
-  useEffect(() => {
-    console.log(
-      'Kudos.tsx: Current state of kudosOrSlobsContext: \n',
-      stateKudosOrSlobs
-    );
-  }, [stateKudosOrSlobs]);
 
   return (
     <View style={styles.container}>

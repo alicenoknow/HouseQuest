@@ -1,5 +1,5 @@
 import React, { Reducer, createContext, useContext, useReducer } from 'react';
-import { Role, User } from '../models';
+import { User } from '../models';
 import { LatLng } from 'react-native-maps';
 
 export enum UserActionType {
@@ -10,6 +10,7 @@ export enum UserActionType {
   LOGOUT_USER = 'LOGOUT_USER',
   UPDATE_HOUSEHOLD = 'UPDATE_HOUSEHOLD',
   REMOVE_HOUSEHOLD = 'REMOVE_HOUSEHOLD',
+  UPDATE_HOUSEHOLD_NAME = 'UPDATE_HOUSEHOLD_NAME',
   ADD_BIRTHDAY = 'ADD_BIRTHDAY'
 }
 
@@ -20,11 +21,13 @@ type UserAction =
   | { type: UserActionType.LOGIN_USER; user: User }
   | { type: UserActionType.LOGOUT_USER; user: null }
   | { type: UserActionType.UPDATE_HOUSEHOLD; householdId: string }
-  | { type: UserActionType.REMOVE_HOUSEHOLD; householdId: undefined }
+  | { type: UserActionType.REMOVE_HOUSEHOLD; }
+  | { type: UserActionType.UPDATE_HOUSEHOLD_NAME; name: string }
   | { type: UserActionType.ADD_BIRTHDAY; user: User };
 
 interface UserState {
   householdId: string | undefined;
+  householdName: string | undefined;
   user: User | undefined;
   householdMembers: ReadonlyArray<User>;
 }
@@ -36,13 +39,14 @@ interface UserContextProps {
 
 const initialState: UserState = {
   householdId: undefined,
+  householdName: undefined,
   user: undefined,
   householdMembers: []
 };
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => {}
+  dispatch: () => { }
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -65,9 +69,9 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-              ...user,
-              location: action.location
-            }
+            ...user,
+            location: action.location
+          }
           : undefined
       };
     }
@@ -94,7 +98,14 @@ const reducer: Reducer<UserState, UserAction> = (
     case UserActionType.REMOVE_HOUSEHOLD: {
       return {
         ...state,
-        householdId: undefined
+        householdId: undefined,
+        householdName: undefined
+      };
+    }
+    case UserActionType.UPDATE_HOUSEHOLD_NAME: {
+      return {
+        ...state,
+        householdName: action.name
       };
     }
     case UserActionType.ADD_BIRTHDAY: {
@@ -102,9 +113,9 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-              ...user,
-              birthday: action.user?.birthday
-            }
+            ...user,
+            birthday: action.user?.birthday
+          }
           : undefined
       };
     }
@@ -117,7 +128,6 @@ const reducer: Reducer<UserState, UserAction> = (
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  console.log(' UserProvider ', state);
   return (
     <UserContext.Provider value={{ state, dispatch }}>
       {children}
