@@ -54,6 +54,7 @@ const Map: React.FC = () => {
 
   useEffect(() => {
     setMembers([...householdMembers]);
+    console.log('householdMembers', householdMembers);
   }, [userState]);
 
   useEffect(() => {
@@ -133,6 +134,7 @@ const Map: React.FC = () => {
     // Set interval to update member locations every 3 minutes
     const memberUpdateInterval = setInterval(() => {
       updateMembers();
+      console.log('Updated members:', members);
     }, 180000); // 3 minutes
 
     return () => {
