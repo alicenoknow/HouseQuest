@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { useLocation } from './useLocation';
+import { useUserContext } from '../../../contexts';
+import { updateUserLocation } from '../../../remote/db';
 import ShareLocationOverlay from './ShareLocationOverlay';
 import blueMarker from './blueMarker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -23,6 +24,9 @@ async function requestPermissions() {
 }
 
 const Map: React.FC = () => {
+  const { state: userState } = useUserContext();
+  const { user } = userState;
+  const userId = user?.id;
   const [currentLocation, setCurrentLocation] =
     useState<Location.LocationObject | null>(null);
   const mapRef = useRef<MapView>(null);
@@ -40,6 +44,12 @@ const Map: React.FC = () => {
         (newLocation) => {
           console.log('New Location:', newLocation);
           setCurrentLocation(newLocation);
+          if (userId) {
+            updateUserLocation(userId, {
+              latitude: newLocation.coords.latitude,
+              longitude: newLocation.coords.longitude
+            });
+          }
         }
       );
     };
