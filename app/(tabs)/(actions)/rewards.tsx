@@ -8,7 +8,8 @@ import {
   Modal,
   TextInput,
   Button,
-  GestureResponderEvent
+  GestureResponderEvent,
+  TouchableWithoutFeedback
 } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { Reward, RewardStatus } from '../../../models';
@@ -23,6 +24,9 @@ import { User } from '../../../models';
 import { Alert } from 'react-native';
 import Fonts from '../../../constants/Fonts';
 import Spacers from '../../../constants/Spacers';
+import { BlurView } from '@react-native-community/blur';
+import { Ionicons } from '@expo/vector-icons';
+import Icon from '../../../components/common/Icon';
 
 // Componente do Modal de Detalhes da Reward
 const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
@@ -106,64 +110,85 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
 
   return (
     <Modal visible={reward !== null} transparent animationType="slide">
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={{ color: 'black' }}>X</Text>
-          </TouchableOpacity>
-          {!!reward && (
-            <View>
-              <Text style={styles.detail}>Title: {reward.title}</Text>
-              <Text style={styles.detail}>
-                Description: {reward.description}
-              </Text>
-              {reward.points && (
-                <Text style={styles.detail}>Points: {reward.points}</Text>
-              )}
-              <Text style={styles.detail}>Creator: {reward.creator}</Text>
-              <Text style={styles.detail}>
-                Status: {RewardStatus[reward.status]}
-              </Text>
-
-              {reward.creator === userState.user?.displayName &&
-                reward.status !== RewardStatus.GRANTED && (
-                  <TouchableOpacity
-                    style={styles.removeButton}
-                    onPress={handleRemoveReward}>
-                    <Text style={{ color: 'black' }}>Remove Reward</Text>
-                  </TouchableOpacity>
-                  // <Button title="Remove Reward" onPress={handleRemoveReward}  />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          onClose();
+        }}>
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType="light"
+          blurAmount={10}
+          reducedTransparencyFallbackColor="white">
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.modalContent}>
+                {!!reward && (
+                  <View>
+                    <Text style={styles.detail}>Title: {reward.title}</Text>
+                    <Text style={styles.detail}>
+                      Description: {reward.description}
+                    </Text>
+                    {reward.points && (
+                      <Text style={styles.detail}>Points: {reward.points}</Text>
+                    )}
+                    <Text style={styles.detail}>Creator: {reward.creator}</Text>
+                    <Text style={styles.detail}>
+                      Status: {RewardStatus[reward.status]}
+                    </Text>
+                    {reward.creator === userState.user?.displayName &&
+                      reward.status !== RewardStatus.GRANTED && (
+                        <TouchableOpacity
+                          style={styles.removeButton}
+                          onPress={handleRemoveReward}>
+                          <Text style={{ color: 'black' }}>Remove Reward</Text>
+                        </TouchableOpacity>
+                        // <Button title="Remove Reward" onPress={handleRemoveReward}  />
+                      )}
+                    {/* Ações com base no status da recompensa */}
+                    {reward.status === RewardStatus.AVAILABLE && (
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.greenButton]}
+                          onPress={handleRequestReward}>
+                          <Text style={{ color: 'black' }}>Request Reward</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    {reward.status === RewardStatus.REQUESTED && (
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.greenButton]}
+                          onPress={handleGrantReward}>
+                          <Text style={{ color: 'black' }}>Grant Reward</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.redButton]}
+                          onPress={handleDeclineReward}>
+                          <Text style={{ color: 'black' }}>
+                            Decline Request
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.redButton]}
+                        onPress={() => {
+                          onClose();
+                        }}>
+                        <Text
+                          style={{ color: 'black', fontSize: Fonts.medium }}>
+                          Cancel
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 )}
-
-              {/* Ações com base no status da recompensa */}
-              {reward.status === RewardStatus.AVAILABLE && (
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.greenButton]}
-                    onPress={handleRequestReward}>
-                    <Text style={{ color: 'black' }}>Request Reward</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {reward.status === RewardStatus.REQUESTED && (
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.greenButton]}
-                    onPress={handleGrantReward}>
-                    <Text style={{ color: 'black' }}>Grant Reward</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.redButton]}
-                    onPress={handleDeclineReward}>
-                    <Text style={{ color: 'black' }}>Decline Request</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </BlurView>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -173,7 +198,7 @@ const RewardItem: React.FC<{ item: Reward; onPress: () => void }> = ({
   item,
   onPress
 }) => {
-  let backgroundColor = Colors.defaultColor;
+  let backgroundColor = Colors.lightGrey;
 
   switch (item.status) {
     case RewardStatus.AVAILABLE:
@@ -214,16 +239,17 @@ const Rewards: React.FC = () => {
   const [data, setData] = useState<Reward[]>([]);
 
   useEffect(() => {
-    const sortedData = state.rewards.sort((a, b) => {
-      const statusOrder = {
+    const sortedData = [...state.rewards].sort((a: Reward, b: Reward) => {
+      const statusOrder: { [key in RewardStatus]: number } = {
         [RewardStatus.GRANTED]: 3,
         [RewardStatus.AVAILABLE]: 1,
         [RewardStatus.REQUESTED]: 2
       };
+
       return statusOrder[a.status] - statusOrder[b.status];
     });
 
-    setData([...sortedData]);
+    setData(sortedData);
   }, [state]);
 
   // State para a nova Reward sendo criada
@@ -296,52 +322,79 @@ const Rewards: React.FC = () => {
       />
 
       {/* Modal para Detalhes da Reward */}
-      <RewardDetailsModal
-        reward={selectedReward}
-        onClose={() => setSelectedReward(null)}
-      />
+      {!!selectedReward && (
+        <RewardDetailsModal
+          reward={selectedReward}
+          onClose={() => setSelectedReward(null)}
+        />
+      )}
 
       {/* Modal para Criar Rewards */}
       <Modal visible={isCreateModalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TextInput
-              style={styles.inputField}
-              placeholder="Reward Title"
-              onChangeText={(text) =>
-                setNewReward({ ...newReward, title: text })
-              }
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Reward Description"
-              onChangeText={(text) =>
-                setNewReward({ ...newReward, description: text })
-              }
-            />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Points"
-              keyboardType="numeric"
-              onChangeText={(text) =>
-                setNewReward({ ...newReward, points: parseInt(text, 10) || 0 })
-              }
-            />
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setCreateModalVisible(false);
+          }}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={10}
+            reducedTransparencyFallbackColor="white">
+            <View style={styles.modalContainer}>
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <View style={styles.modalContent}>
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="Reward Title"
+                    onChangeText={(text) =>
+                      setNewReward({ ...newReward, title: text })
+                    }
+                  />
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="Reward Description"
+                    onChangeText={(text) =>
+                      setNewReward({ ...newReward, description: text })
+                    }
+                  />
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="Points"
+                    keyboardType="numeric"
+                    onChangeText={(text) =>
+                      setNewReward({
+                        ...newReward,
+                        points: Math.abs(parseInt(text, 10) || 0)
+                      })
+                    }
+                  />
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.greenButton]}
-                onPress={handleAddReward}>
-                <Text style={{ color: 'black' }}>Add</Text>
-              </TouchableOpacity>
-              {/* <TouchableOpacity
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.greenButton]}
+                      onPress={handleAddReward}>
+                      <Text style={{ color: 'black', fontSize: Fonts.medium }}>
+                        Add
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.redButton]}
+                      onPress={handleCreateModalClose}>
+                      <Text style={{ color: 'black', fontSize: Fonts.medium }}>
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                    {/* <TouchableOpacity
                 style={[styles.actionButton, styles.redButton]}
                 onPress={handleCreateModalClose}>
                 <Text style={{ color: 'black' }}>Cancel</Text>
               </TouchableOpacity> */}
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
             </View>
-          </View>
-        </View>
+          </BlurView>
+        </TouchableWithoutFeedback>
       </Modal>
 
       {/* Botão para abrir o Modal de Criação de Reward */}
