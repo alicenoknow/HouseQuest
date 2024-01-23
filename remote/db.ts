@@ -18,6 +18,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { db } from '../config';
+import { LatLng } from 'react-native-maps';
 
 export async function fetchMembers(
   householdId: string,
@@ -43,7 +44,8 @@ export async function fetchMembers(
           currentPoints: data.currentPoints ?? 0,
           birthday: data.birthday,
           photoURL: data.photoURL,
-          location: data.location
+          location: data.location, // Add location
+          locationUpdatedAt: data.locationUpdatedAt // Add locationUpdatedAt
         };
         onMemberCallback(member);
       }
@@ -333,5 +335,13 @@ export async function removeTodo(todoId: string, householdId: string) {
   const householdRef = doc(db, 'households', householdId);
   await updateDoc(householdRef, {
     todos: arrayRemove(todoId)
+  });
+}
+
+export async function updateUserLocation(userId: string, location: LatLng) {
+  const usersRef = doc(db, 'users', userId);
+  await updateDoc(usersRef, {
+    location: location,
+    locationUpdatedAt: new Date( Date.now() )
   });
 }
