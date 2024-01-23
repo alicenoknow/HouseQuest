@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import MapView, { LatLng, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { UserActionType, useUserContext } from '../../../contexts';
+import {
+  UserActionType,
+  useLocationShare,
+  useUserContext
+} from '../../../contexts';
 import { fetchMembers, updateUserLocation } from '../../../remote/db';
 import ShareLocationOverlay from './ShareLocationOverlay';
 import blueMarker from './blueMarker';
@@ -40,6 +44,7 @@ async function requestPermissions() {
 }
 
 const Map: React.FC = () => {
+  const { state: locationShareState } = useLocationShare();
   const { state: userState, dispatch: dispatchUserState } = useUserContext();
   const { user, householdId, householdMembers } = userState;
   const userId = user?.id;
@@ -64,8 +69,9 @@ const Map: React.FC = () => {
       latitude: currentLocation.coords.latitude,
       longitude: currentLocation.coords.longitude
     };
-
-    updateUserLocation(userId!, currentLocationLatLng);
+    if (locationShareState.isEnabled) {
+      updateUserLocation(userId!, currentLocationLatLng);
+    }
   }, [currentLocation]);
 
   useEffect(() => {
