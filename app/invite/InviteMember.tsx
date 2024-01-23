@@ -12,7 +12,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '../../constants/Colors';
-import { Fonts, Spacers } from '../../constants';
+import { Fonts, Spacers, Style } from '../../constants';
 import Animated, { BounceIn, BounceInUp, BounceOutUp, FadeInUp } from 'react-native-reanimated';
 
 const InviteScreen = () => {
@@ -67,14 +67,18 @@ const InviteScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={{
+        fontSize: 22,
+        marginVertical: Spacers.xLarge
+      }}>Invite your family or friends! 👨‍👨‍👧‍👦</Text>
       {isSent ? <Animated.Text entering={BounceInUp} exiting={FadeInUp} style={[styles.buttonText, { color: Colors.darkGreen, marginBottom: Spacers.medium }]}> Invite sent 👍</Animated.Text> : null}
       <TextInput
         style={styles.input}
-        placeholder="Enter email address of the person you want to invite"
+        placeholder="Enter email address"
         value={email}
         onChangeText={setEmail}
       />
-      <Text>Select Role</Text>
+      <Text style={styles.largerText}>Select Role</Text>
       <Picker
         style={styles.picker}
         selectedValue={role}
@@ -105,28 +109,35 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: '100%'
+    borderColor: Colors.darkGrey,
+    padding: Spacers.medium,
+    marginBottom: Spacers.medium,
+    borderRadius: Style.radius,
+    width: '100%',
+    fontSize: Fonts.medium
+
+  },
+  largerText: {
+    fontSize: Fonts.medium,
+    marginBottom: Spacers.medium,
   },
   picker: {
     width: '100%',
-    marginBottom: 10,
-    borderRadius: 5,
+    marginBottom: Spacers.medium,
+    borderRadius: Style.radius,
     borderWidth: 1,
     borderColor: '#ddd'
   },
   button: {
     backgroundColor: Colors.darkGreen,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: Style.radius,
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
+    marginTop: Spacers.xLarge
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.white,
     fontWeight: 'bold',
     fontSize: Fonts.medium
   }
