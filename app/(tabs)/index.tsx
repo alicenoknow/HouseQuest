@@ -22,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 // TODO refactor, basically rewrite, extract components, fix styling
 import { useUserContext } from '../../contexts/UserContext';
 import ImagePickerButton from '../../components/ImagePickerButton';
-import { createAnnouncement } from '../../remote/db';
+import { createAnnouncement, fetchAnnouncements } from '../../remote/db';
 import { uploadImageToFirebase } from '../../remote/storage';
 import { useAnnouncementContext, AnnouncementActionType } from '../../contexts';
 import Icon from '../../components/common/Icon';
@@ -61,6 +61,7 @@ const Dashboard: React.FC = () => {
   const [announcement, setAnnouncement] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [resetImagePicker, setResetImagePicker] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedImageUri, setSelectedImageUri] = useState<string | undefined>(
     undefined
   );
@@ -69,9 +70,11 @@ const Dashboard: React.FC = () => {
   const { state: announcementState, dispatch: announcementDispatch } =
     useAnnouncementContext();
   const isButtonDisabled = !announcement.trim() || isSending;
-  const usersList =
-    householdMembers.length > 0 ? householdMembers : [];
+  const usersList = householdMembers.length > 0 ? householdMembers : [];
   const flatListRef = React.useRef<FlatList<Announcement>>(null);
+  const [reversedAnnouncements, setReversedAnnouncements] = useState<
+    Announcement[]
+  >([]);
 
   const handleSendAnnouncement = async () => {
     const { user, householdId } = state;
@@ -199,6 +202,43 @@ const Dashboard: React.FC = () => {
     );
   };
 
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Call a function to fetch new announcements
+      // This is a placeholder, replace with your actual function call
+      // await fetchNewAnnouncements();
+      const householdId = state.householdId;
+      if (!householdId) {
+        throw new Error('Household ID is not defined');
+      }
+      const newAnnouncements: Announcement[] = []; // Initialize an empty array
+
+      // Fetch new announcements from Firestore
+      await fetchAnnouncements(householdId, (announcement) => {
+        newAnnouncements.push(announcement);
+        // console.log('newAnnouncements', newAnnouncements);
+      }).then(() => {
+        // Update the context or state with the new announcements
+        newAnnouncements.map((announcement) => {
+          announcementDispatch({
+            type: AnnouncementActionType.ADD,
+            announcement: announcement
+          });
+          console.log('newAnnouncements', announcement);
+        });
+      });
+      // announcementDispatch({
+      //   type: AnnouncementActionType.ADD,
+      //   announcement: newAnnouncements,
+      // });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (resetImagePicker) {
       setResetImagePicker(false);
@@ -207,8 +247,10 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (announcementState.announcements.length > 0) {
-      flatListRef.current?.scrollToEnd({ animated: true });
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
+    const reversedArray = [...announcementState.announcements].reverse();
+    setReversedAnnouncements(reversedArray);
   }, [announcementState.announcements]);
 
   return (
@@ -236,11 +278,14 @@ const Dashboard: React.FC = () => {
       <View style={styles.line} />
       <View style={styles.messagesSection}>
         <FlatList
+          inverted
           ref={flatListRef}
           style={styles.userList}
-          data={announcementState.announcements}
+          data={reversedAnnouncements}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
         />
 
         <View style={styles.inputContainer}>
