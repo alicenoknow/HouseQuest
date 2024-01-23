@@ -265,7 +265,16 @@ export async function createReward(reward: Reward, householdId: string): Promise
   }
 }
 
+export async function removeReward(rewardId: string, householdId: string) {
+  console.log('Removing reward:', rewardId);
+  const rewardRef = doc(db, 'rewards', rewardId);
+  await deleteDoc(rewardRef);
 
+  const householdRef = doc(db, 'households', householdId);
+  await updateDoc(householdRef, {
+    rewards: arrayRemove(rewardId)
+  });
+}
 
 
 
@@ -353,4 +362,3 @@ export async function updateUser(user: User) {
 
   await updateDoc(usersRef, { ...user });
 }
-

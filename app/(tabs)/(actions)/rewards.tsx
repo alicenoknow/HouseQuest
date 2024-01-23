@@ -13,10 +13,16 @@ import {
 import Colors from '../../../constants/Colors';
 import { Reward, RewardStatus } from '../../../models';
 import { useRewardsContext, RewardsActionType } from '../../../contexts';
-import { createReward, updateRewardStatus } from '../../../remote/db';
+import {
+  createReward,
+  removeReward,
+  updateRewardStatus
+} from '../../../remote/db';
 import { useUserContext } from '../../../contexts';
 import { User } from '../../../models';
 import { Alert } from 'react-native';
+import Fonts from '../../../constants/Fonts';
+import Spacers from '../../../constants/Spacers';
 
 // Componente do Modal de Detalhes da Reward
 const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
@@ -27,35 +33,13 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   const { user } = userState;
   const [currentPoints] = useState(5);
   const { state, dispatch } = useRewardsContext();
-
-  const handleUpdateRewardStatus = async (
-    rewardId: string,
-    newStatus: RewardStatus
-  ) => {
-    try {
-      // Update the status in Firebase
-      await updateRewardStatus(rewardId, newStatus);
-
-      // Dispatch the action to update the app state
-      dispatch({ type: RewardsActionType.REQUEST, id: rewardId });
-
-      // Optionally, you can refresh the data from Firebase and update the app state
-      // based on the latest data to ensure consistency.
-      // Example:
-      // const updatedReward = await fetchReward(rewardId);
-      // dispatch({ type: RewardsActionType.REQUEST, reward: updatedReward });
-    } catch (error) {
-      console.error('Error updating reward status:', error);
-    }
-  };
+  const { householdId } = userState;
+  const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
 
   const handleRequestReward = async () => {
     try {
       if (reward.points <= currentPoints) {
-        // Update the status in Firebase
         await updateRewardStatus(reward.id, RewardStatus.REQUESTED);
-
-        // Dispatch the action to update the app state
         dispatch({ type: RewardsActionType.REQUEST, id: reward.id });
         onClose();
       } else {
@@ -69,47 +53,55 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
     }
   };
 
-  // const handleGrantReward = () => {
-  //   dispatch({ type: RewardsActionType.ACCEPT, id: reward.id });
-  //   onClose();
-  // };
-  const handleGrantReward = () => {
-    handleUpdateRewardStatus(reward.id, RewardStatus.GRANTED);
+  const handleGrantReward = async () => {
+    await updateRewardStatus(reward.id, RewardStatus.GRANTED);
     dispatch({ type: RewardsActionType.ACCEPT, id: reward.id });
     onClose();
   };
 
-  // const handleDeclineReward = async () => {
-  //   dispatch({ type: RewardsActionType.DECLINE_REQUEST, id: reward.id });
-
-  //   onClose();
-  // };
   const handleDeclineReward = async () => {
-    handleUpdateRewardStatus(reward.id, RewardStatus.AVAILABLE);
+    await updateRewardStatus(reward.id, RewardStatus.AVAILABLE);
     dispatch({ type: RewardsActionType.DECLINE_REQUEST, id: reward.id });
     onClose();
   };
 
-  const handleRemoveReward = () => {
-    // You should add a confirmation prompt before removing the reward
-    Alert.alert(
-      'Remove Reward',
-      'Are you sure you want to remove this reward?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: 'Remove',
-          onPress: () => {
-            dispatch({ type: RewardsActionType.REMOVE, id: reward.id });
-            onClose();
+  const handleRemoveReward = async () => {
+    try {
+      if (!reward || !householdId) {
+        return;
+      }
+
+      // You should add a confirmation prompt before removing the reward
+      Alert.alert(
+        'Remove Reward',
+        'Are you sure you want to remove this reward?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
           },
-          style: 'destructive'
-        }
-      ]
-    );
+          {
+            text: 'Remove',
+            onPress: async () => {
+              // Remove the reward from Firebase
+              await removeReward(reward.id, householdId);
+
+              // Dispatch the action to update the app state
+              dispatch({
+                type: RewardsActionType.REMOVE,
+                id: reward.id
+              });
+
+              // Close the modal
+              onClose();
+            },
+            style: 'destructive'
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error removing reward:', error);
+    }
   };
 
   return (
@@ -126,6 +118,11 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
               {reward.points && <Text>Points: {reward.points}</Text>}
               <Text>Creator: {reward.creator}</Text>
               <Text>Status: {RewardStatus[reward.status]}</Text>
+
+              {reward.creator === userState.user?.displayName &&
+                reward.status !== RewardStatus.GRANTED && (
+                  <Button title="Remove Reward" onPress={handleRemoveReward} />
+                )}
 
               {/* Ações com base no status da recompensa */}
               {reward.status === RewardStatus.AVAILABLE && (
@@ -152,11 +149,6 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                   </TouchableOpacity>
                 </View>
               )}
-
-              {reward.creator === userState.user?.id &&
-                reward.status !== RewardStatus.GRANTED && (
-                  <Button title="Remove Reward" onPress={handleRemoveReward} />
-                )}
             </View>
           )}
         </View>
@@ -185,18 +177,22 @@ const RewardItem: React.FC<{ item: Reward; onPress: () => void }> = ({
   }
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={() => onPress()}>
       <View style={[styles.rewardItem, { backgroundColor }]}>
-        <Text>Title: {item.title}</Text>
-        <Text>Description: {item.description}</Text>
-        {item.points && <Text>Points: {item.points}</Text>}
-        <Text>Creator: {item.creator}</Text>
-        <Text>Status: {RewardStatus[item.status]}</Text>
+        {item.points && (
+          <View style={styles.circleContainer}>
+            <Text style={styles.circleText}>{item.points}</Text>
+          </View>
+        )}
+
+        <View style={styles.rewardContent}>
+          <Text style={styles.rewardTitle}>{item.title}</Text>
+          <Text>{RewardStatus[item.status]}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
 };
-
 // Componente principal de Rewards
 const Rewards: React.FC = () => {
   const { state: userState } = useUserContext();
@@ -207,7 +203,16 @@ const Rewards: React.FC = () => {
   const [data, setData] = useState<Reward[]>([]);
 
   useEffect(() => {
-    setData([...state.rewards]);
+    const sortedData = state.rewards.sort((a, b) => {
+      const statusOrder = {
+        [RewardStatus.GRANTED]: 3,
+        [RewardStatus.AVAILABLE]: 1,
+        [RewardStatus.REQUESTED]: 2
+      };
+      return statusOrder[a.status] - statusOrder[b.status];
+    });
+
+    setData([...sortedData]);
   }, [state]);
 
   // State para a nova Reward sendo criada
@@ -341,7 +346,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20
   },
+
   rewardItem: {
+    flexDirection: 'row', // Para alinhar o círculo e o conteúdo na horizontal
     borderWidth: 1,
     borderColor: Colors.white,
     borderRadius: 5,
@@ -351,6 +358,33 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20
+  },
+  circleContainer: {
+    width: 50, // Ajuste conforme necessário
+    height: 50, // Ajuste conforme necessário
+    borderRadius: 100, // Para torná-lo circular
+    backgroundColor: Colors.white, // Cor do círculo
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10 // Espaçamento entre o círculo e o conteúdo
+  },
+  circleText: {
+    fontWeight: 'bold',
+    color: 'black'
+  },
+  rewardContent: {
+    flex: 1 // Para o conteúdo ocupar o restante do espaço disponível na horizontal
+  },
+  rewardTitle: {
+    fontSize: Fonts.medium,
+    fontWeight: 'bold',
+    marginBottom: Spacers.small
+  },
+  rewardDescription: {
+    fontSize: 14
+  },
+  rewardPoints: {
+    fontSize: 16
   },
   button: {
     backgroundColor: Colors.darkGreen,

@@ -51,7 +51,8 @@ function reducer(state: RewardsState, action: RewardsAction) {
   const { rewards } = state;
   switch (action.type) {
     case RewardsActionType.ADD: {
-      return { ...state, rewards: [...rewards, action.reward] };
+      const filteredRewards = rewards.filter((r) => r.id !== action.reward.id);
+      return { ...state, rewards: [...filteredRewards, action.reward] };
     }
     case RewardsActionType.REMOVE: {
       return {
@@ -62,9 +63,13 @@ function reducer(state: RewardsState, action: RewardsAction) {
     case RewardsActionType.REQUEST: {
       const toChange = rewards.find((t) => t.id === action.id);
       if (toChange) {
+        const filteredRewards = rewards.filter((r) => r.id !== action.id);
         return {
           ...state,
-          rewards: [...rewards, { ...toChange, status: RewardStatus.REQUESTED }]
+          rewards: [
+            ...filteredRewards,
+            { ...toChange, status: RewardStatus.REQUESTED }
+          ]
         };
       }
       return state;
@@ -72,19 +77,28 @@ function reducer(state: RewardsState, action: RewardsAction) {
     case RewardsActionType.ACCEPT: {
       const toChange = rewards.find((t) => t.id === action.id);
       if (toChange) {
+        const filteredRewards = rewards.filter((r) => r.id !== action.id);
         return {
           ...state,
-          rewards: [...rewards, { ...toChange, status: RewardStatus.GRANTED }]
+          rewards: [
+            ...filteredRewards,
+            { ...toChange, status: RewardStatus.GRANTED }
+          ]
         };
       }
       return state;
     }
     case RewardsActionType.DECLINE_REQUEST: {
       const toChange = rewards.find((t) => t.id === action.id);
+
       if (toChange) {
+        const filteredRewards = rewards.filter((r) => r.id !== action.id);
         return {
           ...state,
-          rewards: [...rewards, { ...toChange, status: RewardStatus.AVAILABLE }]
+          rewards: [
+            ...filteredRewards,
+            { ...toChange, status: RewardStatus.AVAILABLE }
+          ]
         };
       }
       return state;
