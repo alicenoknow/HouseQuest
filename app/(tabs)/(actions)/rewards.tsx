@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,9 @@ import {
   StyleSheet,
   Modal,
   TextInput,
-  Button,
-  GestureResponderEvent,
   TouchableWithoutFeedback
 } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import Colors from '../../../constants/Colors';
 import { Reward, RewardStatus } from '../../../models';
 import { useRewardsContext, RewardsActionType } from '../../../contexts';
@@ -20,13 +19,10 @@ import {
   updateRewardStatus
 } from '../../../remote/db';
 import { useUserContext } from '../../../contexts';
-import { User } from '../../../models';
 import { Alert } from 'react-native';
 import Fonts from '../../../constants/Fonts';
 import Spacers from '../../../constants/Spacers';
-import { BlurView } from '@react-native-community/blur';
-import { Ionicons } from '@expo/vector-icons';
-import Icon from '../../../components/common/Icon';
+
 
 // Componente do Modal de Detalhes da Reward
 const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
@@ -34,11 +30,9 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   onClose
 }) => {
   const { state: userState } = useUserContext();
-  const { user } = userState;
   const [currentPoints] = useState(5);
-  const { state, dispatch } = useRewardsContext();
+  const { dispatch } = useRewardsContext();
   const { householdId } = userState;
-  const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
 
   const handleRequestReward = async () => {
     try {
@@ -120,7 +114,7 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
           blurAmount={10}
           reducedTransparencyFallbackColor="white">
           <View style={styles.modalContainer}>
-            <TouchableWithoutFeedback onPress={() => {}}>
+            <TouchableWithoutFeedback onPress={() => { }}>
               <View style={styles.modalContent}>
                 {!!reward && (
                   <View>
@@ -128,7 +122,7 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                     <Text style={styles.detail}>
                       Description: {reward.description}
                     </Text>
-                    {reward.points && (
+                    {!!reward.points && (
                       <Text style={styles.detail}>Points: {reward.points}</Text>
                     )}
                     <Text style={styles.detail}>Creator: {reward.creator}</Text>
@@ -351,7 +345,7 @@ const Rewards: React.FC = () => {
             blurAmount={10}
             reducedTransparencyFallbackColor="white">
             <View style={styles.modalContainer}>
-              <TouchableWithoutFeedback onPress={() => {}}>
+              <TouchableWithoutFeedback onPress={() => { }}>
                 <View style={styles.modalContent}>
                   <TextInput
                     style={styles.inputField}

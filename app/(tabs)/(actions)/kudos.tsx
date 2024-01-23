@@ -71,7 +71,7 @@ const Kudos: React.FC = () => {
         <View style={styles.userContainer}>
           {renderAvatar(item.sender)}
           <Text style={styles.userName}>{senderName}</Text>
-          <Text style={styles.toText}> to </Text>
+          <Text> to </Text>
           {renderAvatar(item.receiver)}
           <Text style={styles.userName}>{receiverName}</Text>
         </View>
@@ -202,18 +202,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 5
   },
-  // avatar: {
-  //   width: 30,
-  //   height: 30,
-  //   borderRadius: 15
-  // },
   userName: {
     marginLeft: 5,
     marginRight: 5,
-    fontWeight: 'bold'
-  },
-  toText: {
-    // Styling for the "to" text
+    fontWeight: 'bold',
+    flexShrink: 1
   }
 });
 

@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Colors from '../../../constants/Colors';
-import SignOutGoogle from '../../../components/SignOutGoogle';
 import { useUserContext } from '../../../contexts/UserContext';
 import { Fonts, Spacers, Style } from '../../../constants';
+import SignOutGoogle from '../../../components/signoutGoogle';
 
 const Profile: React.FC = () => {
   const { state } = useUserContext();
-  const { user, householdId } = state;
+  const { user } = state;
   const { photoURL, displayName, role, totalPoints, currentPoints, birthday } = user || {
     photoURL: 'https://via.placeholder.com/150',
     displayName: 'Name',

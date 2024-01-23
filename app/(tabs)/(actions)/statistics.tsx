@@ -92,7 +92,7 @@ const Statistics: React.FC = () => {
       .map((task) => ({
         value: task.points ?? 0,
         title: task.title,
-        subtitle: 'Task'
+        subtitle: 'Task',
       }));
     const rewardsPoints = rewards
       .filter(
@@ -102,7 +102,7 @@ const Statistics: React.FC = () => {
       .map((reward) => ({
         value: reward.points ?? 0,
         title: reward.title,
-        subtitle: 'Reward'
+        subtitle: 'Reward',
       }));
     const kudosPoints = kudosOrSlobs
       .filter((kudos) => kudos.receiver == id)
