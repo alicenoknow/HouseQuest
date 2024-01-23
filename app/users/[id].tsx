@@ -1,12 +1,9 @@
 import React from 'react';
-import { Stack, useGlobalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useGlobalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import Colors from '../../constants/Colors';
 import { useUserContext } from '../../contexts';
-
-type Props = {
-  id: string;
-};
+import { Fonts, Spacers, Style } from '../../constants';
 
 interface ProfileProps {
   photo: string;
@@ -24,33 +21,25 @@ const UserDetail: React.FC<ProfileProps> = () => {
   const { state } = useUserContext();
   const user = state.householdMembers.find((user) => user.id === id);
   const { householdId } = state;
-  user && console.log(user);
-  return (
-    <View style={styles.container}>
-      <View style={styles.profileHeader}>
-        <View style={styles.blueContainer}>
-          <Image
-            source={{ uri: user?.photoURL ? user.photoURL : imageUrl }}
-            style={styles.profileImage}
-          />
 
-          {/* <Image source={{ uri: photo }} style={styles.profileImage} /> */}
-          <Text style={styles.name}>{user?.displayName}</Text>
-          <Text style={styles.role}>{user?.role}</Text>
-        </View>
-        <View style={styles.scoreContainer}>
-          <Text style={styles.score}>Score: {user?.totalPoints}</Text>
-        </View>
-        <View style={styles.info}>
-          <Text style={styles.birthday}>
-            Birthday: {String(user?.birthday)}
-          </Text>
-          <Text style={styles.householdName}>Household: {householdId}</Text>
-        </View>
-      </View>
+  return <View style={styles.profileHeader}>
+    <View style={styles.profileContent}>
+      <Image source={{ uri: user?.photoURL ? user.photoURL : imageUrl }} style={styles.profileImage} />
+      <Text style={styles.infoText}>{user?.displayName}</Text>
+      <Text style={styles.infoText}>{user?.role}</Text>
+    </View>
+    <View style={styles.scoreContainer}>
+      <Text style={styles.infoText}>🔥 Total score: {user?.totalPoints ?? 0}</Text>
+      <Text style={styles.infoText}>💲 Coins: {user?.currentPoints ?? 0}</Text>
+    </View>
+    <View style={styles.scoreContainer}>
+      {user?.birthday && <Text style={styles.infoText}>
+        Birthday: {user?.birthday?.toLocaleString()}
+      </Text>}
+      <Text style={styles.infoText}>Household: {state.householdName}</Text>
       <Text>User ID: {id}</Text>
     </View>
-  );
+  </View>
 };
 
 const styles = StyleSheet.create({
@@ -58,23 +47,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 20,
     width: '100%'
   },
   profileHeader: {
     alignItems: 'center',
     width: '100%',
-    marginTop: 20
+    marginTop: Spacers.medium
   },
-  blueContainer: {
+  profileContent: {
     backgroundColor: Colors.lightGreen,
     alignItems: 'center',
-    marginTop: -40,
-    paddingTop: 20,
-    paddingBottom: 20,
-    width: 800
+    marginTop: -40, // for status bar
+    paddingVertical: Spacers.medium,
+    paddingTop: Spacers.xLarge,
+    width: "100%"
   },
-
   profileImage: {
     width: 150,
     height: 150,
@@ -82,60 +69,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 50
   },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'black',
-    marginTop: 10
-  },
-  role: {
-    fontSize: 18,
-    color: 'black',
-    marginTop: 10
-  },
   scoreContainer: {
-    marginTop: 50,
-    width: 300,
-    borderRadius: 20,
-    backgroundColor: '#E8E8E8',
-    padding: 20
+    marginTop: Spacers.large,
+    borderRadius: Style.radius,
+    backgroundColor: Colors.lightGrey,
+    padding: Spacers.medium,
+    width: "80%"
   },
-  score: {
-    fontSize: 16,
+  infoText: {
+    fontSize: Fonts.medium,
     fontWeight: 'bold',
-    marginBottom: 10
-  },
-
-  birthday: {
-    fontSize: 16,
-    marginBottom: 5,
-    fontWeight: 'bold',
-    marginLeft: 20,
-    marginTop: 10
-  },
-  householdName: {
-    fontSize: 16,
-    marginBottom: 20,
-    fontWeight: 'bold',
-    marginLeft: 20,
-    marginTop: 10
-  },
-  settingsButton: {
-    backgroundColor: Colors.darkGreen,
-    padding: 10,
-    borderRadius: 16
-  },
-  settingsText: {
-    color: 'white',
-    fontWeight: 'bold'
-  },
-  info: {
-    backgroundColor: '#E8E8E8',
-    padding: 10,
-    borderRadius: 20,
-    marginBottom: 10,
-    marginTop: 30,
-    width: 300
   }
 });
 

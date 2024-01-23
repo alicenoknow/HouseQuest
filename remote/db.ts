@@ -51,6 +51,19 @@ export async function fetchMembers(
   }
 }
 
+export async function fetchHouseholdName(
+  householdId: string,
+  onNameCallback: (name: string) => void
+) {
+  const householdRef = doc(db, 'households', householdId);
+  const householdSnapshot = await getDoc(householdRef);
+
+  if (householdSnapshot.exists()) {
+    const name = householdSnapshot.data().name;
+    onNameCallback(name);
+  }
+}
+
 export async function fetchTasks(
   householdId: string,
   onTaskCallback: (task: Task) => void

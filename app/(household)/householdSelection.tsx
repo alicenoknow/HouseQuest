@@ -39,7 +39,7 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
   const getUser = async () => {
     await AsyncStorage.getItem('@user').then((user) => {
       if (!user) {
-        console.log('user_hselect1', user);
+        console.log('empty user in async', user);
         router.replace('/auth');
         return;
       }
@@ -62,12 +62,12 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
   }, [householdUpdate]);
 
   useEffect(() => {
-    console.log('Invites updated in HouseholdSelection', invites);
+    console.log('Invites updated in HouseholdSelection');
     setInviteHouseholds(invites);
   }, [invites]);
 
   useEffect(() => {
-    console.log('Household updated in HouseholdSelection', household);
+    console.log('Household updated in HouseholdSelection');
     if (household) {
       AsyncStorage.setItem('@household', household);
       dispatch({
@@ -81,7 +81,6 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
 
   const getUserData = async () => {
     if (!user) {
-      console.log('user_hselect2', user);
       console.log('No user found!');
       router.replace('/auth');
       return;
@@ -89,7 +88,6 @@ const HouseholdSelection: React.FC<HouseholdSelectionProps> = ({
     const userRef = doc(db, 'users', user?.uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
-      console.log('userSnap', userSnap.data());
       const userData = userSnap.data();
       if (userData?.household) {
         setHousehold(userData.household);

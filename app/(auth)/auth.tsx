@@ -29,10 +29,7 @@ import { router } from 'expo-router';
 // Local imports
 import SigninWithGoogle from './signinWithGoogle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, Role } from '../../models';
 import { useUserContext, UserActionType } from '../../contexts/UserContext';
-import { firebaseUser } from '../../models/firebaseUser';
-import { FirebaseError } from 'firebase/app';
 import { parseGoogleUserData } from '../../functions/parseGoogleUserData';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -79,7 +76,6 @@ const checkAndCreateUserInFirestore = async (
       id: doc.id,
       ...doc.data()
     }));
-    console.log('invitesData', invitesData);
     setInvites(invitesData); // Update the state with the invites
   }
 };
@@ -98,9 +94,7 @@ const AuthViewComponent = () => {
     try {
       await AsyncStorage.getItem('@user').then((user) => {
         if (user) {
-          console.log('user', user);
           const userJson = JSON.parse(user);
-          console.log('userJson', userJson);
           setUserInfo(userJson);
           const parsedUser = parseGoogleUserData(userJson);
           dispatch({ type: UserActionType.LOGIN_USER, user: parsedUser });
@@ -116,10 +110,7 @@ const AuthViewComponent = () => {
     console.log('response', response);
     if (response?.type === 'success') {
       const { idToken, accessToken } = response.authentication!;
-      console.log('idToken', idToken);
-      console.log('accessToken', accessToken);
       const credential = GoogleAuthProvider.credential(idToken, accessToken);
-      console.log('credential', credential);
       if (credential) {
         signInWithCredential(auth, credential)
           .then((result) => {

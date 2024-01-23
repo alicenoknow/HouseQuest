@@ -46,10 +46,7 @@ export default function SigninWithGoogle({ promptAsync }: SignInScreenProps) {
             marginTop: 20,
             marginBottom: 20
           }}
-          onPress={() => {
-            console.log('clicked');
-            promptAsync();
-          }}>
+          onPress={() => promptAsync()}>
           <AntDesign name="google" size={30} color="white" />
           <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 17 }}>
             Sign In with Google

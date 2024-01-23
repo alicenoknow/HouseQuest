@@ -212,14 +212,6 @@ const Dashboard: React.FC = () => {
     }
   }, [announcementState.announcements]);
 
-  useEffect(() => {
-    console.log('Current UserContext State:', state);
-  }, [state]); // Log the state when it changes
-
-  useEffect(() => {
-    console.log('Current AnnouncementContext State:', announcementState);
-  }, [announcementState]); // Log the state when it changes
-
   return (
     <SafeAreaView style={styles.container}>
       <View>
