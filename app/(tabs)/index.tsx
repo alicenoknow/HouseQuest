@@ -205,39 +205,35 @@ const Dashboard: React.FC = () => {
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
-      // Call a function to fetch new announcements
-      // This is a placeholder, replace with your actual function call
-      // await fetchNewAnnouncements();
       const householdId = state.householdId;
       if (!householdId) {
         throw new Error('Household ID is not defined');
       }
-      const newAnnouncements: Announcement[] = []; // Initialize an empty array
 
-      // Fetch new announcements from Firestore
-      await fetchAnnouncements(householdId, (announcement) => {
-        newAnnouncements.push(announcement);
-        // console.log('newAnnouncements', newAnnouncements);
-      }).then(() => {
-        // Update the context or state with the new announcements
-        newAnnouncements.map((announcement) => {
-          announcementDispatch({
-            type: AnnouncementActionType.ADD,
-            announcement: announcement
-          });
-          console.log('newAnnouncements', announcement);
+      const fetchAllAnnouncements = async () => {
+        const announcementsArray: Announcement[] = [];
+        await fetchAnnouncements(householdId, (announcement) => {
+          announcementsArray.push(announcement);
+        });
+        return announcementsArray;
+      };
+
+      const newAnnouncements = await fetchAllAnnouncements();
+      console.log('newAnnouncements', newAnnouncements);
+
+      newAnnouncements.forEach((announcement) => {
+        console.log('newAnnouncements', announcement);
+        announcementDispatch({
+          type: AnnouncementActionType.ADD,
+          announcement: announcement
         });
       });
-      // announcementDispatch({
-      //   type: AnnouncementActionType.ADD,
-      //   announcement: newAnnouncements,
-      // });
     } catch (error) {
       console.error(error);
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [state.householdId, announcementDispatch]);
 
   useEffect(() => {
     if (resetImagePicker) {

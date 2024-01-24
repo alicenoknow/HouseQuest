@@ -211,7 +211,7 @@ export async function fetchAnnouncements(
   if (announcementsSnapshot.exists()) {
     const announcementsIds = announcementsSnapshot.data().announcements;
 
-    announcementsIds.forEach(async (id: string) => {
+    await Promise.all(announcementsIds.map(async (id: string) => {
       const announcementRef = doc(db, 'announcements', id);
       const announcementDoc = await getDoc(announcementRef);
 
@@ -228,7 +228,7 @@ export async function fetchAnnouncements(
       } else {
         console.log(`Announcement with ID ${id} does not exist.`);
       }
-    });
+    }));
   }
 }
 
