@@ -172,7 +172,7 @@ const RewardsPage = () => {
   };
 
   function openRewardDetails(item: Reward): void {
-    console.log(' tenso...');
+    // console.log(' teste');
     //throw new Error('Function not implemented.');
   }
 
