@@ -66,7 +66,7 @@ const Map: React.FC = () => {
     if (locationShareState.isEnabled) {
       updateUserLocation(userId!, currentLocationLatLng);
     }
-  }, [currentLocation]);
+  }, [currentLocation, locationShareState.isEnabled]);
 
   useEffect(() => {
     requestPermissions();
