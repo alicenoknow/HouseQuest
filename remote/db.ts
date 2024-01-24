@@ -293,8 +293,18 @@ export async function removeReward(rewardId: string, householdId: string) {
 
 
 
-export async function updateRewardStatus(rewardId: string, newStatus: RewardStatus): Promise<void> {
+export async function updateRewardStatus(rewardId: string, newStatus: RewardStatus, recipient?: User): Promise<void> {
   try {
+    if (newStatus === RewardStatus.REQUESTED && recipient) {
+      const rewardRef = doc(db, 'rewards', rewardId);
+      await updateDoc(rewardRef, { recipient: recipient.id, status: newStatus });
+      return;
+    }
+    if (newStatus === RewardStatus.AVAILABLE) {
+      const rewardRef = doc(db, 'rewards', rewardId);
+      await updateDoc(rewardRef, { recipient: null, status: newStatus });
+      return;
+    }
     const rewardRef = doc(db, 'rewards', rewardId);
     await updateDoc(rewardRef, { status: newStatus });
   } catch (error) {
