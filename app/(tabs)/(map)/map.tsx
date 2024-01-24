@@ -58,6 +58,7 @@ const Map: React.FC = () => {
 
   useEffect(() => {
     if (!currentLocation) return;
+    console.log('Updating user location:', currentLocation);
 
     const currentLocationLatLng: LatLng = {
       latitude: currentLocation.coords.latitude,
@@ -73,7 +74,7 @@ const Map: React.FC = () => {
 
     // Update user location every 30 seconds
     const locationUpdateSubscription = Location.watchPositionAsync(
-      { accuracy: Location.Accuracy.High, timeInterval: 30000 },
+      { accuracy: Location.Accuracy.High, timeInterval: 10000 },
       (newLocation) => {
         setCurrentLocation(newLocation);
       }

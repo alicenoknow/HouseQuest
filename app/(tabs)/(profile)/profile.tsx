@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { useUserContext } from '../../../contexts/UserContext';
 import { Fonts, Spacers, Style } from '../../../constants';
@@ -14,16 +8,17 @@ import SignOutGoogle from '../../../components/signoutGoogle';
 const Profile: React.FC = () => {
   const { state } = useUserContext();
   const { user } = state;
-  const { photoURL, displayName, role, totalPoints, currentPoints, birthday } = user || {
-    photoURL: 'https://via.placeholder.com/150',
-    displayName: 'Name',
-    role: 'Role',
-    totalPoints: 0,
-    currentPoints: 0,
-    birthday: new Date()
-  };
+  const { photoURL, displayName, role, totalPoints, currentPoints, birthday } =
+    user || {
+      photoURL: 'https://via.placeholder.com/150',
+      displayName: 'Name',
+      role: 'Role',
+      totalPoints: 0,
+      currentPoints: 0,
+      birthday: new Date()
+    };
 
-  const renderProfileInfo = () =>
+  const renderProfileInfo = () => (
     <View style={styles.profileHeader}>
       <View style={styles.profileContent}>
         <Image source={{ uri: photoURL }} style={styles.profileImage} />
@@ -35,24 +30,27 @@ const Profile: React.FC = () => {
         <Text style={styles.infoText}>💲 Coins: {currentPoints}</Text>
       </View>
       <View style={styles.scoreContainer}>
-        {birthday && <Text style={styles.infoText}>
-          Birthday: {birthday?.toLocaleString()}
-        </Text>}
+        {birthday && (
+          <Text style={styles.infoText}>
+            Birthday: {birthday?.toLocaleString()}
+          </Text>
+        )}
         <Text style={styles.infoText}>Household: {state.householdName}</Text>
       </View>
     </View>
+  );
 
-  const renderSettingsButton = () => <TouchableOpacity
-    style={styles.settingsButton}
-    onPress={() => { }}>
-    <Text style={styles.settingsText}>Settings</Text>
-  </TouchableOpacity>
+  const renderSettingsButton = () => (
+    <TouchableOpacity style={styles.settingsButton} onPress={() => {}}>
+      <Text style={styles.settingsText}>Settings</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
       {renderProfileInfo()}
       <View style={styles.buttons}>
-        {renderSettingsButton()}
+        {/* {renderSettingsButton()} */}
         <SignOutGoogle />
       </View>
     </View>
@@ -77,7 +75,7 @@ const styles = StyleSheet.create({
     marginTop: -40, // for status bar
     paddingVertical: Spacers.medium,
     paddingTop: Spacers.xLarge,
-    width: "100%"
+    width: '100%'
   },
   profileImage: {
     width: 150,
@@ -91,37 +89,36 @@ const styles = StyleSheet.create({
     borderRadius: Style.radius,
     backgroundColor: Colors.lightGrey,
     padding: Spacers.medium,
-    width: "80%"
+    width: '80%'
   },
   infoText: {
     fontSize: Fonts.medium,
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   button: {
     marginTop: Spacers.medium,
     padding: Spacers.medium,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   settingsButton: {
-    width: "40%",
+    width: '40%',
     backgroundColor: Colors.darkGreen,
     borderRadius: Style.radius,
     padding: Spacers.medium,
-    marginVertical: Spacers.medium,
-
+    marginVertical: Spacers.medium
   },
   settingsText: {
     color: Colors.white,
     fontSize: Fonts.medium,
     fontWeight: 'bold',
-    textAlign: "center"
+    textAlign: 'center'
   },
   buttons: {
     flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignContent: "center",
-    alignItems: "center"
+    width: '100%',
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center'
   }
 });
 
