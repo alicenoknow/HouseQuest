@@ -11,25 +11,29 @@ import {
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import Colors from '../../../constants/Colors';
-import { Reward, RewardStatus } from '../../../models';
-import { useRewardsContext, RewardsActionType } from '../../../contexts';
+import { Reward, RewardStatus, Role } from '../../../models';
+import {
+  useRewardsContext,
+  RewardsActionType,
+  UserActionType
+} from '../../../contexts';
 import {
   createReward,
   removeReward,
-  updateRewardStatus
+  updateRewardStatus,
+  updateUser
 } from '../../../remote/db';
 import { useUserContext } from '../../../contexts';
 import { Alert } from 'react-native';
 import Fonts from '../../../constants/Fonts';
 import Spacers from '../../../constants/Spacers';
 
-
 // Componente do Modal de Detalhes da Reward
 const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   reward,
   onClose
 }) => {
-  const { state: userState } = useUserContext();
+  const { state: userState, dispatch: dispatchUser } = useUserContext();
   const [currentPoints] = useState(5);
   const { dispatch } = useRewardsContext();
   const { householdId } = userState;
@@ -37,7 +41,11 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   const handleRequestReward = async () => {
     try {
       if (reward.points <= currentPoints) {
-        await updateRewardStatus(reward.id, RewardStatus.REQUESTED);
+        await updateRewardStatus(
+          reward.id,
+          RewardStatus.REQUESTED,
+          userState.user
+        );
         dispatch({ type: RewardsActionType.REQUEST, id: reward.id });
         onClose();
       } else {
@@ -52,8 +60,44 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   };
 
   const handleGrantReward = async () => {
-    await updateRewardStatus(reward.id, RewardStatus.GRANTED);
-    dispatch({ type: RewardsActionType.ACCEPT, id: reward.id });
+    userState.householdMembers.forEach(async (member) => {
+      if (member.id === reward.recipient) {
+        const resultingPoints = member.currentPoints - reward.points;
+
+        if (resultingPoints < 0) {
+          Alert.alert(
+            'Insufficient Points',
+            'The recipient does not have enough points to accept this reward.'
+          );
+          onClose();
+        }
+
+        const updatedMember = {
+          ...member,
+          currentPoints: resultingPoints
+        };
+
+        dispatchUser({
+          type: UserActionType.UPDATE_MEMBER,
+          member: updatedMember
+        });
+
+        userState.user?.id == updatedMember.id &&
+          dispatchUser({
+            type: UserActionType.UPDATE_USER,
+            user: updatedMember
+          });
+
+        await updateUser(updatedMember);
+
+        await updateRewardStatus(reward.id, RewardStatus.GRANTED, member);
+
+        dispatch({
+          type: RewardsActionType.ACCEPT,
+          id: reward.id
+        });
+      }
+    });
     onClose();
   };
 
@@ -114,7 +158,7 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
           blurAmount={10}
           reducedTransparencyFallbackColor="white">
           <View style={styles.modalContainer}>
-            <TouchableWithoutFeedback onPress={() => { }}>
+            <TouchableWithoutFeedback onPress={() => {}}>
               <View style={styles.modalContent}>
                 {!!reward && (
                   <View>
@@ -154,26 +198,33 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         </TouchableOpacity>
                       </View>
                     )}
-                    {reward.status === RewardStatus.REQUESTED && (
-                      <View style={styles.buttonContainer}>
-                        <TouchableOpacity
-                          style={[styles.actionButton, styles.greenButton]}
-                          onPress={handleGrantReward}>
-                          <Text
-                            style={{ color: 'black', fontSize: Fonts.medium }}>
-                            Grant Reward
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={[styles.actionButton, styles.redButton]}
-                          onPress={handleDeclineReward}>
-                          <Text
-                            style={{ color: 'black', fontSize: Fonts.medium }}>
-                            Decline Request
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
+                    {reward.status === RewardStatus.REQUESTED &&
+                      userState.user?.role === Role.PARENT && (
+                        <View style={styles.buttonContainer}>
+                          <TouchableOpacity
+                            style={[styles.actionButton, styles.greenButton]}
+                            onPress={handleGrantReward}>
+                            <Text
+                              style={{
+                                color: 'black',
+                                fontSize: Fonts.medium
+                              }}>
+                              Grant Reward
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[styles.actionButton, styles.redButton]}
+                            onPress={handleDeclineReward}>
+                            <Text
+                              style={{
+                                color: 'black',
+                                fontSize: Fonts.medium
+                              }}>
+                              Decline Request
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         style={[styles.actionButton, styles.redButton]}
@@ -289,7 +340,7 @@ const Rewards: React.FC = () => {
       // Set the creator field with the user's ID
       const newRewardWithCreator = {
         ...newReward,
-        creator: userState.user.displayName
+        creator: userState.user.id
       };
 
       const newRewardId = await createReward(newRewardWithCreator, householdId);
@@ -345,7 +396,7 @@ const Rewards: React.FC = () => {
             blurAmount={10}
             reducedTransparencyFallbackColor="white">
             <View style={styles.modalContainer}>
-              <TouchableWithoutFeedback onPress={() => { }}>
+              <TouchableWithoutFeedback onPress={() => {}}>
                 <View style={styles.modalContent}>
                   <TextInput
                     style={styles.inputField}
