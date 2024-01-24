@@ -34,19 +34,36 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   onClose
 }) => {
   const { state: userState, dispatch: dispatchUser } = useUserContext();
-  const [currentPoints] = useState(5);
   const { dispatch } = useRewardsContext();
-  const { householdId } = userState;
+  const { householdId, householdMembers } = userState;
 
   const handleRequestReward = async () => {
     try {
+      const currentPoints = userState.user?.currentPoints;
+      if (!currentPoints || !userState.user?.id) {
+        return;
+      }
+      console.log('Requesting reward:', reward);
+      console.log('Current points:', currentPoints);
+      console.log('User:', userState.user);
+      console.log(
+        'Reward:',
+        reward.points,
+        'Current',
+        currentPoints,
+        reward.points <= currentPoints
+      );
       if (reward.points <= currentPoints) {
         await updateRewardStatus(
           reward.id,
           RewardStatus.REQUESTED,
           userState.user
         );
-        dispatch({ type: RewardsActionType.REQUEST, id: reward.id });
+        dispatch({
+          type: RewardsActionType.REQUEST,
+          id: reward.id,
+          userId: userState.user?.id
+        });
         onClose();
       } else {
         Alert.alert(
@@ -60,11 +77,16 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   };
 
   const handleGrantReward = async () => {
+    console.log('Granting reward:', reward);
     userState.householdMembers.forEach(async (member) => {
+      console.log(member.id === reward.recipient);
+      console.log(member.id, reward.recipient);
       if (member.id === reward.recipient) {
+        console.log('Member:', member);
         const resultingPoints = member.currentPoints - reward.points;
 
         if (resultingPoints < 0) {
+          console.log('Insufficient points');
           Alert.alert(
             'Insufficient Points',
             'The recipient does not have enough points to accept this reward.'
@@ -169,7 +191,21 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                     {!!reward.points && (
                       <Text style={styles.detail}>Points: {reward.points}</Text>
                     )}
-                    <Text style={styles.detail}>Creator: {reward.creator}</Text>
+                    <Text style={styles.detail}>
+                      Creator:{' '}
+                      {householdMembers.map((member) =>
+                        member.id === reward.creator ? member.displayName : ''
+                      )}
+                    </Text>
+                    <Text style={styles.detail}>
+                      Recipient:{' '}
+                      {reward.recipient &&
+                        householdMembers.map((member) =>
+                          member.id === reward.recipient
+                            ? member.displayName
+                            : ''
+                        )}
+                    </Text>
                     <Text style={styles.detail}>
                       Status: {RewardStatus[reward.status]}
                     </Text>

@@ -27,7 +27,7 @@ interface RewardModalProps {
 type RewardsAction =
   | { type: RewardsActionType.ADD; reward: Reward }
   | { type: RewardsActionType.REMOVE; id: string }
-  | { type: RewardsActionType.REQUEST; id: string }
+  | { type: RewardsActionType.REQUEST; id: string; userId: string }
   | { type: RewardsActionType.ACCEPT; id: string }
   | { type: RewardsActionType.DECLINE_REQUEST; id: string };
 
@@ -68,7 +68,11 @@ function reducer(state: RewardsState, action: RewardsAction) {
           ...state,
           rewards: [
             ...filteredRewards,
-            { ...toChange, status: RewardStatus.REQUESTED }
+            {
+              ...toChange,
+              status: RewardStatus.REQUESTED,
+              recipient: action.userId
+            }
           ]
         };
       }
@@ -97,7 +101,7 @@ function reducer(state: RewardsState, action: RewardsAction) {
           ...state,
           rewards: [
             ...filteredRewards,
-            { ...toChange, status: RewardStatus.AVAILABLE }
+            { ...toChange, status: RewardStatus.AVAILABLE, recipient: '' }
           ]
         };
       }
