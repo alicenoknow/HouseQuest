@@ -177,9 +177,7 @@ const Map: React.FC = () => {
           coordinate={{
             latitude: currentLocation?.coords.latitude ?? 37.4226711,
             longitude: currentLocation?.coords.longitude ?? -122.0849872
-          }}
-          title="Marker Title"
-          description="Marker Description">
+          }}>
           <View>{blueMarker()}</View>
         </Marker>
         {members
