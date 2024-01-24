@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Modal,
   TextInput,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ActivityIndicator
 } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 import Colors from '../../../constants/Colors';
@@ -36,9 +37,11 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
   const { state: userState, dispatch: dispatchUser } = useUserContext();
   const { dispatch } = useRewardsContext();
   const { householdId, householdMembers } = userState;
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRequestReward = async () => {
     try {
+      setIsLoading(true);
       const currentPoints = userState.user?.currentPoints;
       if (!currentPoints || !userState.user?.id) {
         return;
@@ -73,10 +76,14 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
       }
     } catch (error) {
       console.error('Error requesting reward:', error);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGrantReward = async () => {
+    setIsLoading(true);
     console.log('Granting reward:', reward);
     userState.householdMembers.forEach(async (member) => {
       console.log(member.id === reward.recipient);
@@ -120,17 +127,21 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
         });
       }
     });
+    setIsLoading(false);
     onClose();
   };
 
   const handleDeclineReward = async () => {
+    setIsLoading(true);
     await updateRewardStatus(reward.id, RewardStatus.AVAILABLE);
     dispatch({ type: RewardsActionType.DECLINE_REQUEST, id: reward.id });
+    setIsLoading(false);
     onClose();
   };
 
   const handleRemoveReward = async () => {
     try {
+      setIsLoading(true);
       if (!reward || !householdId) {
         return;
       }
@@ -164,7 +175,10 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
         ]
       );
     } catch (error) {
+      setIsLoading(false);
       console.error('Error removing reward:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -214,10 +228,17 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         <TouchableOpacity
                           style={styles.removeButton}
                           onPress={handleRemoveReward}>
-                          <Text
-                            style={{ color: 'black', fontSize: Fonts.medium }}>
-                            Remove Reward
-                          </Text>
+                          {isLoading ? (
+                            <ActivityIndicator size="small" color="black" />
+                          ) : (
+                            <Text
+                              style={{
+                                color: 'black',
+                                fontSize: Fonts.medium
+                              }}>
+                              Remove Reward
+                            </Text>
+                          )}
                         </TouchableOpacity>
                         // <Button title="Remove Reward" onPress={handleRemoveReward}  />
                       )}
@@ -227,10 +248,17 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                         <TouchableOpacity
                           style={[styles.actionButton, styles.greenButton]}
                           onPress={handleRequestReward}>
-                          <Text
-                            style={{ color: 'black', fontSize: Fonts.medium }}>
-                            Request Reward
-                          </Text>
+                          {isLoading ? (
+                            <ActivityIndicator size="small" color="black" />
+                          ) : (
+                            <Text
+                              style={{
+                                color: 'black',
+                                fontSize: Fonts.medium
+                              }}>
+                              Request Reward
+                            </Text>
+                          )}
                         </TouchableOpacity>
                       </View>
                     )}
@@ -240,24 +268,32 @@ const RewardDetailsModal: React.FC<{ reward: Reward; onClose: () => void }> = ({
                           <TouchableOpacity
                             style={[styles.actionButton, styles.greenButton]}
                             onPress={handleGrantReward}>
-                            <Text
-                              style={{
-                                color: 'black',
-                                fontSize: Fonts.medium
-                              }}>
-                              Grant Reward
-                            </Text>
+                            {isLoading ? (
+                              <ActivityIndicator size="small" color="black" />
+                            ) : (
+                              <Text
+                                style={{
+                                  color: 'black',
+                                  fontSize: Fonts.medium
+                                }}>
+                                Grant Reward
+                              </Text>
+                            )}
                           </TouchableOpacity>
                           <TouchableOpacity
                             style={[styles.actionButton, styles.redButton]}
                             onPress={handleDeclineReward}>
-                            <Text
-                              style={{
-                                color: 'black',
-                                fontSize: Fonts.medium
-                              }}>
-                              Decline Request
-                            </Text>
+                            {isLoading ? (
+                              <ActivityIndicator size="small" color="black" />
+                            ) : (
+                              <Text
+                                style={{
+                                  color: 'black',
+                                  fontSize: Fonts.medium
+                                }}>
+                                Decline Request
+                              </Text>
+                            )}
                           </TouchableOpacity>
                         </View>
                       )}
@@ -328,6 +364,7 @@ const Rewards: React.FC = () => {
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [isCreateModalVisible, setCreateModalVisible] = useState(false);
   const [data, setData] = useState<Reward[]>([]);
+  const [isLoadingComp, setIsLoadingComp] = useState(false);
 
   useEffect(() => {
     const sortedData = [...state.rewards].sort((a: Reward, b: Reward) => {
@@ -369,6 +406,7 @@ const Rewards: React.FC = () => {
 
   const handleAddReward = async () => {
     try {
+      setIsLoadingComp(true);
       if (!householdId || !userState.user?.id) {
         return;
       }
@@ -399,6 +437,9 @@ const Rewards: React.FC = () => {
       });
     } catch (error) {
       console.error('Error adding reward:', error);
+      setIsLoadingComp(false);
+    } finally {
+      setIsLoadingComp(false);
     }
   };
 
@@ -464,9 +505,14 @@ const Rewards: React.FC = () => {
                     <TouchableOpacity
                       style={[styles.actionButton, styles.greenButton]}
                       onPress={handleAddReward}>
-                      <Text style={{ color: 'black', fontSize: Fonts.medium }}>
-                        Add
-                      </Text>
+                      {isLoadingComp ? (
+                        <ActivityIndicator size="small" color="black" />
+                      ) : (
+                        <Text
+                          style={{ color: 'black', fontSize: Fonts.medium }}>
+                          Add
+                        </Text>
+                      )}
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.redButton]}
