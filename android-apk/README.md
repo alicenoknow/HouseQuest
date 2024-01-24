@@ -1,0 +1,1 @@
+The APK for the app will be located in the `android-apk` folder. This folder is relative to the current file and can be found at the following path: `../android-apk/`. It serves as the destination for storing the compiled APK file, which is the installation package for the Android app.

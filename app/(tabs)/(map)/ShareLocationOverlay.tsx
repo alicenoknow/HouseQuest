@@ -30,7 +30,8 @@ const ShareLocationOverlay = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 10,
+    marginTop: 35,
+    top: 20,
     right: 10,
     backgroundColor: 'rgba(0, 122, 255, 0.7)', // Feel free to change the background color
     padding: 5,
