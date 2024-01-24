@@ -1,5 +1,12 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TextInput,
+  TouchableOpacity
+} from 'react-native';
 import { db } from '../../config';
 import {
   doc,
@@ -28,11 +35,13 @@ interface Invite {
 const HouseholdSelection: React.FC = () => {
   const [user, setUser] = React.useState<firebaseUser>();
   const [householdInput, setHouseholdInput] = React.useState<string>('');
-  const [inviteHouseholds, setInviteHouseholds] = React.useState<ReadonlyArray<Invite>>([]);
+  const [inviteHouseholds, setInviteHouseholds] = React.useState<
+    ReadonlyArray<Invite>
+  >([]);
   const { state, dispatch } = useUserContext();
 
   const updateHouseholdAndLogin = (household: string | null) => {
-    console.warn("update household", household)
+    // console.warn("update household", household)
     if (household) {
       AsyncStorage.setItem('@household', household);
       dispatch({
@@ -41,7 +50,7 @@ const HouseholdSelection: React.FC = () => {
       });
       router.replace('(tabs)');
     }
-  }
+  };
 
   const getUser = async () => {
     await AsyncStorage.getItem('@user').then((user) => {
@@ -57,9 +66,10 @@ const HouseholdSelection: React.FC = () => {
   };
 
   const getHousehold = async () => {
-    await AsyncStorage.getItem('@household')
-      .then(h => updateHouseholdAndLogin(h));
-  }
+    await AsyncStorage.getItem('@household').then((h) =>
+      updateHouseholdAndLogin(h)
+    );
+  };
 
   useEffect(() => {
     getUser();
@@ -83,16 +93,18 @@ const HouseholdSelection: React.FC = () => {
           where('receiver_email', '==', user?.email)
         );
         const inviteSnapshot = await getDocs(inviteQuery);
-        const invites = await Promise.all(inviteSnapshot.docs.map(async (invite) => {
-          const householdRef = doc(db, 'households', invite.data().household);
-          const household = await getDoc(householdRef);
+        const invites = await Promise.all(
+          inviteSnapshot.docs.map(async (invite) => {
+            const householdRef = doc(db, 'households', invite.data().household);
+            const household = await getDoc(householdRef);
 
-          return {
-            id: invite.data().household,
-            role: invite.data().role,
-            name: household?.data()?.name,
-          }
-        }));
+            return {
+              id: invite.data().household,
+              role: invite.data().role,
+              name: household?.data()?.name
+            };
+          })
+        );
         setInviteHouseholds(invites);
       }
     } else {
@@ -135,7 +147,7 @@ const HouseholdSelection: React.FC = () => {
     console.log('User updated with household ID', householdRef.id);
     dispatch({
       type: UserActionType.UPDATE_HOUSEHOLD_NAME,
-      name: householdValue,
+      name: householdValue
     });
     updateHouseholdAndLogin(householdRef.id);
   };
@@ -177,19 +189,20 @@ const HouseholdSelection: React.FC = () => {
       updateHouseholdAndLogin(householdJoinId);
       dispatch({
         type: UserActionType.UPDATE_HOUSEHOLD_NAME,
-        name: householdDoc.data().name,
+        name: householdDoc.data().name
       });
     }
     console.log('User updated with household ID', householdJoinId);
   };
 
-  const renderSpacer = () => <View style={{ width: "100%", height: 10 }} />
-
+  const renderSpacer = () => <View style={{ width: '100%', height: 10 }} />;
 
   return (
     <View style={styles.container}>
       {state?.householdName ? (
-        <Text style={styles.infoText}>Household: {state.householdName ?? state.householdId}</Text>
+        <Text style={styles.infoText}>
+          Household: {state.householdName ?? state.householdId}
+        </Text>
       ) : (
         <>
           <Text style={styles.infoText}>No households available 😥</Text>
@@ -212,8 +225,7 @@ const HouseholdSelection: React.FC = () => {
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: Colors.darkGreen }]}
-            onPress={refreshInvites}
-          >
+            onPress={refreshInvites}>
             <Text style={styles.buttonText}>Refresh invites</Text>
           </TouchableOpacity>
 
@@ -229,8 +241,7 @@ const HouseholdSelection: React.FC = () => {
           <TouchableOpacity
             disabled={!householdInput}
             style={[styles.button, { opacity: !householdInput ? 0.5 : 1 }]}
-            onPress={() => createHousehold(user, householdInput)}
-          >
+            onPress={() => createHousehold(user, householdInput)}>
             <Text style={styles.buttonText}>🏠 Create household</Text>
           </TouchableOpacity>
         </>
@@ -251,26 +262,26 @@ const styles = StyleSheet.create({
     marginVertical: Spacers.medium,
     padding: Spacers.medium,
     borderRadius: Style.radius,
-    fontSize: Fonts.medium,
+    fontSize: Fonts.medium
   },
   button: {
-    width: "60%",
+    width: '60%',
     alignItems: 'center',
     backgroundColor: Colors.blue,
     padding: Spacers.medium,
     borderRadius: Style.radius,
-    marginVertical: Spacers.medium,
+    marginVertical: Spacers.medium
   },
   buttonText: {
     fontSize: Fonts.medium,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     color: Colors.white,
-    textAlign: "center"
+    textAlign: 'center'
   },
   infoText: {
     fontSize: Fonts.medium,
     color: Colors.black,
-    textAlign: "center"
+    textAlign: 'center'
   }
 });
 

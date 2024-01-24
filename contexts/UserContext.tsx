@@ -21,7 +21,7 @@ type UserAction =
   | { type: UserActionType.LOGIN_USER; user: User }
   | { type: UserActionType.LOGOUT_USER; user: null }
   | { type: UserActionType.UPDATE_HOUSEHOLD; householdId: string }
-  | { type: UserActionType.REMOVE_HOUSEHOLD; }
+  | { type: UserActionType.REMOVE_HOUSEHOLD }
   | { type: UserActionType.UPDATE_HOUSEHOLD_NAME; name: string }
   | { type: UserActionType.ADD_BIRTHDAY; user: User };
 
@@ -46,7 +46,7 @@ const initialState: UserState = {
 
 const UserContext = createContext<UserContextProps>({
   state: initialState,
-  dispatch: () => { }
+  dispatch: () => {}
 });
 
 const reducer: Reducer<UserState, UserAction> = (
@@ -69,9 +69,9 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-            ...user,
-            location: action.location
-          }
+              ...user,
+              location: action.location
+            }
           : undefined
       };
     }
@@ -113,14 +113,14 @@ const reducer: Reducer<UserState, UserAction> = (
         ...state,
         user: user
           ? {
-            ...user,
-            birthday: action.user?.birthday
-          }
+              ...user,
+              birthday: action.user?.birthday
+            }
           : undefined
       };
     }
     default: {
-      console.warn('Invalid user context action: ', action);
+      // console.warn('Invalid user context action: ', action);
       return state;
     }
   }
